@@ -13,11 +13,13 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { signInSchema } from "@/lib/zod"
 import type { output } from "zod"
+import { useTranslation } from "react-i18next"
 
 type SignInFormValues = output<typeof signInSchema>
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
 
+    const { t } = useTranslation()
     const [loading, setLoading] = useState(false);
     const callbackUrl = "/home";
 
@@ -45,14 +47,14 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
             });
             if (results?.error) {
                 console.error("Login failed:", results.error);
-                toast.error("Wrong Credentials!")
+                toast.error(t("notifications.wrongCredentials"))
             } else {
                 window.location.href = callbackUrl;
-                toast.success("Welcome Back")
+                toast.success(t("notifications.welcomeBack"))
             }
         } catch (error) {
             console.error("Sign-in error:", error);
-            toast.error("Login Failed. Try Again Later")
+            toast.error(t("notifications.loginFailed"))
         } finally {
             setLoading(false);
         }
@@ -62,20 +64,20 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-center">Login to your account</CardTitle>
+                    <CardTitle className="text-center">{t("auth.loginTitle")}</CardTitle>
                     <CardDescription>
-                        Enter your credentials below to continue to your account
+                        {t("auth.loginDescription")}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="flex flex-col gap-6">
                             <div className="grid gap-3">
-                                <Label htmlFor="email">Email</Label>
+                                <Label htmlFor="email">{t("auth.email")}</Label>
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="m@example.com"
+                                    placeholder="johndoe@gmail.com"
                                     disabled={loading}
                                     {...register("email")}
                                     aria-invalid={!!errors.email}
@@ -86,8 +88,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                             </div>
                             <div className="grid gap-3">
                                 <div className="flex items-center">
-                                    <Label htmlFor="password">Password</Label>
-                                    <Link href="/auth/forgot-password" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">Forgot your password?</Link>
+                                    <Label htmlFor="password">{t("auth.password")}</Label>
+                                    <Link href="/auth/forgot-password" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">{t("auth.forgotPassword")}</Link>
                                 </div>
                                 <Input
                                     id="password"
@@ -103,19 +105,19 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                             <div className="flex flex-col gap-3">
                                 {loading ? (
                                     <Button className="w-full cursor-not-allowed" disabled>
-                                        Signing In...
+                                        {t("auth.signingIn")}
                                     </Button>
                                 ) : (
                                     <Button type="submit" className="w-full cursor-pointer">
-                                        Sign In
+                                        {t("auth.signIn")}
                                     </Button>
                                 )}
                             </div>
                         </div>
                         <div className="mt-4 text-center text-sm">
-                            Don&apos;t have an account?{" "}
+                            {t("auth.noAccount")}{" "}
                             <Link href="/auth/register" className="underline underline-offset-4">
-                                Sign up
+                                {t("auth.signUp")}
                             </Link>
                         </div>
                     </form>

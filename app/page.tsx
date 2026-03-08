@@ -17,6 +17,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useTranslation } from "react-i18next"
+import LanguageSwitcher from "@/components/language-switcher"
+
 
 const fadeInUp = {
   initial: { opacity: 0, y: 24 },
@@ -33,6 +36,7 @@ const stagger = {
 }
 
 export default function Home() {
+  const { t } = useTranslation()
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -46,18 +50,21 @@ export default function Home() {
         <div className="container mx-auto flex h-16 max-w-8xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 font-semibold">
             <Shield className="h-6 w-6 text-primary" />
-            <span>SGI Africa</span>
+            <span>{t("header.brand")}</span>
           </Link>
           <nav className="flex items-center gap-4">
-            <Link
-              href="/auth/login"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Sign in
-            </Link>
-            <Button asChild size="sm">
-              <Link href="/auth/register">Get started</Link>
-            </Button>
+            <div className="hidden md:flex md:items-center md:gap-4">
+              <Link
+                href="/auth/login"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t("header.signIn")}
+              </Link>
+              <Button asChild size="sm">
+                <Link href="/auth/register">{t("header.getStarted")}</Link>
+              </Button>
+            </div>
+            <LanguageSwitcher />
           </nav>
         </div>
       </motion.header>
@@ -79,23 +86,22 @@ export default function Home() {
                 viewport={{ once: false }}
                 className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary"
               >
-                Trusted across Africa
+                {t("hero.trusted")}
               </motion.span>
               <motion.h1
                 variants={fadeInUp}
                 viewport={{ once: false }}
                 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
               >
-                Get started.
-                <span className="block text-primary">Stay secure.</span>
+                {t("hero.titleStart")}
+                <span className="block text-primary">{t("hero.titleEnd")}</span>
               </motion.h1>
               <motion.p
                 variants={fadeInUp}
                 viewport={{ once: false }}
                 className="text-lg text-muted-foreground sm:text-xl max-w-2xl mx-auto"
               >
-                SGI Africa helps you manage risk and protect what matters most.
-                Join thousands of professionals who trust us every day.
+                {t("hero.description")}
               </motion.p>
               <motion.div
                 variants={fadeInUp}
@@ -104,12 +110,12 @@ export default function Home() {
               >
                 <Button asChild size="lg" className="text-base h-12 px-8">
                   <Link href="/auth/register" className="inline-flex items-center gap-2">
-                    Create free account
+                    {t("hero.createAccount")}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="text-base h-12 px-8">
-                  <Link href="/auth/login">Sign in</Link>
+                  <Link href="/auth/login">{t("hero.signIn")}</Link>
                 </Button>
               </motion.div>
             </motion.div>
@@ -127,10 +133,10 @@ export default function Home() {
               className="mx-auto max-w-2xl text-center mb-16"
             >
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                Built for security and simplicity
+                {t("features.title")}
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
-                Everything you need to stay protected, without the complexity.
+                {t("features.description")}
               </p>
             </motion.div>
             <motion.div
@@ -143,18 +149,18 @@ export default function Home() {
               {[
                 {
                   icon: Shield,
-                  title: "Enterprise-grade security",
-                  desc: "Bank-level encryption and compliance standards keep your data safe and protected at all times.",
+                  title: t("features.items.security.title"),
+                  desc: t("features.items.security.desc"),
                 },
                 {
                   icon: Lock,
-                  title: "Access control",
-                  desc: "Granular permissions and role-based access ensure the right people see the right information.",
+                  title: t("features.items.access.title"),
+                  desc: t("features.items.access.desc"),
                 },
                 {
                   icon: Zap,
-                  title: "Fast and reliable",
-                  desc: "Built for performance. Access your dashboard and manage operations from anywhere, anytime.",
+                  title: t("features.items.fast.title"),
+                  desc: t("features.items.fast.desc"),
                 },
               ].map(({ icon: Icon, title, desc }) => (
                 <motion.div key={title} variants={fadeInUp} viewport={{ once: false }}>
@@ -185,21 +191,18 @@ export default function Home() {
                 className="max-w-xl"
               >
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                  Why teams choose SGI Africa
+                  {t("benefits.title")}
                 </h2>
                 <p className="mt-4 text-lg text-muted-foreground">
-                  From startups to enterprises, we provide the tools and peace of
-                  mind you need to focus on what matters.
+                  {t("benefits.description")}
                 </p>
                 <ul className="mt-8 space-y-4">
-                  {[
-                    "Secure, compliant infrastructure",
-                    "Real-time monitoring and alerts",
-                    "Dedicated support when you need it",
-                    "Scalable for growing teams",
-                  ].map((item, i) => (
+                  {(Array.isArray(t("benefits.items", { returnObjects: true }))
+                    ? t("benefits.items", { returnObjects: true }) as string[]
+                    : []
+                  ).map((item, i) => (
                     <motion.li
-                      key={item}
+                      key={i}
                       initial={{ opacity: 0, x: -12 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: false }}
@@ -221,18 +224,13 @@ export default function Home() {
               >
                 <Card className="w-full max-w-md border-2 border-primary/10 bg-linear-to-br from-primary/5 to-transparent p-6">
                   <CardHeader className="p-0">
-                    <CardTitle className="text-2xl">
-                      Ready to get started?
-                    </CardTitle>
-                    <CardDescription className="text-base mt-2">
-                      Create your free account in under a minute. No credit card
-                      required.
-                    </CardDescription>
+                    <CardTitle className="text-2xl">{t("benefits.cta.title")}</CardTitle>
+                    <CardDescription className="text-base mt-2">{t("benefits.cta.description")}</CardDescription>
                   </CardHeader>
                   <CardContent className="p-0 pt-5">
                     <Button asChild size="lg" className="w-full sm:w-auto">
                       <Link href="/auth/register" className="inline-flex items-center gap-2">
-                        Create free account
+                        {t("benefits.cta.button")}
                         <ArrowRight className="h-4 w-4" />
                       </Link>
                     </Button>
@@ -255,19 +253,15 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <Link href="/" className="flex items-center gap-2 font-semibold text-muted-foreground hover:text-foreground transition-colors">
               <Shield className="h-5 w-5" />
-              SGI Africa
+              {t("footer.brand")}
             </Link>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <Link href="/auth/login" className="hover:text-foreground transition-colors">
-                Sign in
-              </Link>
-              <Link href="/auth/register" className="hover:text-foreground transition-colors">
-                Get started
-              </Link>
+              <Link href="/auth/login" className="hover:text-foreground transition-colors">{t("header.signIn")}</Link>
+              <Link href="/auth/register" className="hover:text-foreground transition-colors">{t("header.getStarted")}</Link>
             </div>
           </div>
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} SGI Africa. All rights reserved.
+            {t("footer.copyright", { year: new Date().getFullYear() })}
           </p>
         </div>
       </motion.footer>

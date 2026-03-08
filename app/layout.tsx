@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
-import { Toaster } from 'sonner'
+import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
   title: "SGI Africa | Get started, stay secure",
@@ -10,15 +9,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <SessionProvider>
+        <Providers>
           {children}
-          <Toaster
-            position="top-center"
-            richColors
-          />
-        </SessionProvider>
+        </Providers>
       </body>
     </html>
   );

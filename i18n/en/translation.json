@@ -1,0 +1,88 @@
+{
+  "header": {
+    "brand": "SGI Africa",
+    "signIn": "Sign in",
+    "getStarted": "Get started"
+  },
+  "hero": {
+    "trusted": "Trusted across Africa",
+    "titleStart": "Get started.",
+    "titleEnd": "Stay secure.",
+    "description": "SGI Africa helps you manage risk and protect what matters most. Join thousands of professionals who trust us every day.",
+    "createAccount": "Create free account",
+    "signIn": "Sign in"
+  },
+  "features": {
+    "title": "Built for security and simplicity",
+    "description": "Everything you need to stay protected, without the complexity.",
+    "items": {
+      "security": {
+        "title": "Enterprise-grade security",
+        "desc": "Bank-level encryption and compliance standards keep your data safe and protected at all times."
+      },
+      "access": {
+        "title": "Access control",
+        "desc": "Granular permissions and role-based access ensure the right people see the right information."
+      },
+      "fast": {
+        "title": "Fast and reliable",
+        "desc": "Built for performance. Access your dashboard and manage operations from anywhere, anytime."
+      }
+    }
+  },
+  "benefits": {
+    "title": "Why teams choose SGI Africa",
+    "description": "From startups to enterprises, we provide the tools and peace of mind you need to focus on what matters.",
+    "items": [
+      "Secure, compliant infrastructure",
+      "Real-time monitoring and alerts",
+      "Dedicated support when you need it",
+      "Scalable for growing teams"
+    ],
+    "cta": {
+      "title": "Ready to get started?",
+      "description": "Create your free account in under a minute. No credit card required.",
+      "button": "Create free account"
+    }
+  },
+  "footer": {
+    "brand": "SGI Africa",
+    "copyright": "© {{year}} SGI Africa. All rights reserved."
+  },
+  "auth": {
+    "loginTitle": "Login to your account",
+    "loginDescription": "Enter your credentials below to continue to your account",
+    "email": "Email",
+    "emailAddress": "Email address",
+    "password": "Password",
+    "forgotPassword": "Forgot your password?",
+    "signIn": "Sign In",
+    "signingIn": "Signing In...",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "signUpHere": "Sign In Here",
+    "alreadyAccount": "Already have an account?",
+    "registerWelcome": "Welcome",
+    "registerDescription": "Welcome to SGI Africa - Get started, stay secure",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "phoneNumber": "Phone number",
+    "signUpButton": "Sign Up",
+    "signingUp": "Signing Up...",
+    "resetPasswordTitle": "Reset your password",
+    "resetPasswordDescription": "Enter your email and we'll send you a secure link to reset your password",
+    "sendResetLink": "Send reset link",
+    "sendingResetLink": "Sending reset link...",
+    "rememberPassword": "Remember your password?",
+    "backToLogin": "Back to login"
+  },
+  "notifications": {
+    "wrongCredentials": "Wrong Credentials!",
+    "welcomeBack": "Welcome Back",
+    "loginFailed": "Login Failed. Try Again Later",
+    "registeredSuccess": "Registered successfully! Login to continue",
+    "registrationFailed": "Registration failed",
+    "resetLinkSent": "Password reset link sent to your email",
+    "resetLinkFailed": "Failed to send reset link. Try again"
+  }
+}
