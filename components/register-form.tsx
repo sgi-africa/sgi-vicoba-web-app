@@ -17,11 +17,13 @@ import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { registerSchema } from "@/lib/zod"
 import type { output } from "zod"
+import { useTranslation } from "react-i18next"
 
 type RegisterFormValues = output<typeof registerSchema>
 
 export function RegisterForm({ className, ...props }: React.ComponentProps<"div">) {
 
+    const { t } = useTranslation()
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
@@ -53,9 +55,9 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
         try {
             await registerUser(formData);
             router.push("/auth/login");
-            toast.success("Registered successfully! Login to continue");
+            toast.success(t("notifications.registeredSuccess"));
         } catch (error: any) {
-            toast.error(error.message || "Registration failed");
+            toast.error(error.message || t("notifications.registrationFailed"));
         } finally {
             setLoading(false);
         }
@@ -65,9 +67,9 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-center text-2xl">Welcome</CardTitle>
+                    <CardTitle className="text-center text-2xl">{t("auth.registerWelcome")}</CardTitle>
                     <CardDescription>
-                        Welcome to SGI Africa - Get started, stay secure
+                        {t("auth.registerDescription")}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -75,7 +77,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                         <div className="flex flex-col gap-6">
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="grid gap-3">
-                                    <Label htmlFor="firstName">First name</Label>
+                                    <Label htmlFor="firstName">{t("auth.firstName")}</Label>
                                     <Input
                                         id="firstName"
                                         placeholder="John"
@@ -87,7 +89,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                                     )}
                                 </div>
                                 <div className="grid gap-3">
-                                    <Label htmlFor="lastName">Last name</Label>
+                                    <Label htmlFor="lastName">{t("auth.lastName")}</Label>
                                     <Input
                                         id="lastName"
                                         placeholder="Doe"
@@ -100,11 +102,11 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                                 </div>
                             </div>
                             <div className="grid gap-3">
-                                <Label htmlFor="email">Email</Label>
+                                <Label htmlFor="email">{t("auth.email")}</Label>
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="johndoe@example.com"
+                                    placeholder="johndoe@gmail.com"
                                     {...register("email")}
                                     aria-invalid={!!errors.email}
                                 />
@@ -113,7 +115,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                                 )}
                             </div>
                             <div className="grid gap-3">
-                                <Label htmlFor="phone">Phone number</Label>
+                                <Label htmlFor="phone">{t("auth.phoneNumber")}</Label>
                                 <Controller
                                     name="phone"
                                     control={control}
@@ -136,7 +138,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                                 )}
                             </div>
                             <div className="grid gap-3">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password">{t("auth.password")}</Label>
                                 <Input
                                     id="password"
                                     type="password"
@@ -150,19 +152,19 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                             <div className="flex flex-col gap-3">
                                 {loading ? (
                                     <Button type="submit" className="w-full cursor-not-allowed" disabled>
-                                        Signing Up...
+                                        {t("auth.signingUp")}
                                     </Button>
                                 ) : (
                                     <Button type="submit" className="w-full cursor-pointer">
-                                        Sign Up
+                                        {t("auth.signUpButton")}
                                     </Button>
                                 )}
                             </div>
                         </div>
                         <div className="mt-4 text-center text-sm">
-                            Already have an account?{" "}
+                            {t("auth.alreadyAccount")}{" "}
                             <Link href="/auth/login" className="underline underline-offset-4">
-                                Sign In Here.
+                                {t("auth.signUpHere")}
                             </Link>
                         </div>
                     </form>

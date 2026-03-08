@@ -1,0 +1,88 @@
+{
+  "header": {
+    "brand": "SGI Africa",
+    "signIn": "Ingia",
+    "getStarted": "Anza"
+  },
+  "hero": {
+    "trusted": "Inaaminika kote Afrika",
+    "titleStart": "Anza sasa.",
+    "titleEnd": "Kaa salama.",
+    "description": "SGI Africa inakusaidia kudhibiti hatari na kulinda vitu muhimu zaidi. Jiunge na maelfu ya wataalamu wanaotuamini kila siku.",
+    "createAccount": "Tengeneza akaunti bure",
+    "signIn": "Ingia"
+  },
+  "features": {
+    "title": "Imejengwa kwa usalama na urahisi",
+    "description": "Kila kitu unachohitaji ili kubaki salama bila ugumu.",
+    "items": {
+      "security": {
+        "title": "Usalama wa kiwango cha juu",
+        "desc": "Usimbaji fiche wa kiwango cha benki na viwango vya utii hulinda data yako wakati wote."
+      },
+      "access": {
+        "title": "Udhibiti wa ufikiaji",
+        "desc": "Ruhusa za kina na ufikiaji wa majukumu huhakikisha watu sahihi wanaona taarifa sahihi."
+      },
+      "fast": {
+        "title": "Haraka na ya kuaminika",
+        "desc": "Imejengwa kwa utendaji bora. Fikia dashibodi yako na usimamie shughuli kutoka mahali popote wakati wowote."
+      }
+    }
+  },
+  "benefits": {
+    "title": "Kwa nini timu huchagua SGI Africa",
+    "description": "Kuanzia makampuni mapya hadi makampuni makubwa, tunatoa zana na utulivu wa akili unaohitaji kuzingatia mambo muhimu.",
+    "items": [
+      "Miundombinu salama na inayofuata sheria",
+      "Ufuatiliaji na arifa kwa wakati halisi",
+      "Msaada maalum unapouhitaji",
+      "Inapanuka kwa timu zinazokua"
+    ],
+    "cta": {
+      "title": "Uko tayari kuanza?",
+      "description": "Tengeneza akaunti yako bure ndani ya dakika moja. Hakuna kadi ya mkopo inayohitajika.",
+      "button": "Tengeneza akaunti bure"
+    }
+  },
+  "footer": {
+    "brand": "SGI Africa",
+    "copyright": "© {{year}} SGI Africa. Haki zote zimehifadhiwa."
+  },
+  "auth": {
+    "loginTitle": "Ingia kwenye akaunti yako",
+    "loginDescription": "Weka taarifa zako hapa chini kuendelea kwenye akaunti yako",
+    "email": "Barua pepe",
+    "emailAddress": "Anwani ya barua pepe",
+    "password": "Nenosiri",
+    "forgotPassword": "Umesahau nenosiri?",
+    "signIn": "Ingia",
+    "signingIn": "Inaingia...",
+    "noAccount": "Huna akaunti?",
+    "signUp": "Jisajili",
+    "signUpHere": "Ingia hapa",
+    "alreadyAccount": "Tayari una akaunti?",
+    "registerWelcome": "Karibu",
+    "registerDescription": "Karibu SGI Africa - Anza sasa, kaa salama",
+    "firstName": "Jina la kwanza",
+    "lastName": "Jina la mwisho",
+    "phoneNumber": "Namba ya simu",
+    "signUpButton": "Jisajili",
+    "signingUp": "Inajisajili...",
+    "resetPasswordTitle": "Weka upya nenosiri lako",
+    "resetPasswordDescription": "Weka barua pepe yako na tutakutumia kiungo salama cha kuweka upya nenosiri lako",
+    "sendResetLink": "Tuma kiungo cha kuweka upya",
+    "sendingResetLink": "Inatuma kiungo...",
+    "rememberPassword": "Unakumbuka nenosiri lako?",
+    "backToLogin": "Rudi kwenye ukurasa wa kuingia"
+  },
+  "notifications": {
+    "wrongCredentials": "Taarifa za kuingia si sahihi!",
+    "welcomeBack": "Karibu tena",
+    "loginFailed": "Kuingia kumeshindikana. Jaribu tena baadaye",
+    "registeredSuccess": "Umejisajili kwa mafanikio! Ingia kuendelea",
+    "registrationFailed": "Usajili umeshindikana",
+    "resetLinkSent": "Kiungo cha kuweka upya nenosiri kimetumwa kwenye barua pepe yako",
+    "resetLinkFailed": "Imeshindikana kutuma kiungo cha kuweka upya. Jaribu tena"
+  }
+}
