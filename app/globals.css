@@ -124,3 +124,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Phone input - match shadcn Input styling */
+.phone-input-wrapper.PhoneInput {
+  @apply flex h-9 w-full items-center gap-2 rounded-md border border-input bg-transparent px-3 shadow-xs transition-[color,box-shadow] md:text-sm dark:bg-input/30;
+}
+.phone-input-wrapper.PhoneInput:focus-within {
+  @apply border-ring ring-[3px] ring-ring/50 outline-none;
+}
+.phone-input-wrapper .PhoneInputInput {
+  @apply min-w-0 flex-1 border-0 bg-transparent p-0 text-base outline-none placeholder:text-muted-foreground md:text-sm;
+}
