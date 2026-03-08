@@ -6,16 +6,22 @@ import axios from "axios"
 
 export default async function registerUser(formData: FormData): Promise<void> {
 
-    const name = formData.get('fullName') as string
+    const firstName = formData.get('firstName') as string
+    const lastName = formData.get('lastName') as string
+    const name = [firstName, lastName].filter(Boolean).join(' ')
     const email = formData.get('email') as string
     const password = formData.get('password') as string
+    const phone = formData.get('phone') as string | null
 
     try {
-        const response = await axios.post(`${SERVER_URI}/api/v1/auth/register`, {
+        const payload: Record<string, string> = {
             name,
             email,
             password
-        }, {
+        }
+        if (phone) payload.phone = phone
+
+        await axios.post(`${SERVER_URI}/api/v1/auth/register`, payload, {
             headers: {
                 "Content-Type": "application/json",
             },
