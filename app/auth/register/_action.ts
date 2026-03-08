@@ -8,14 +8,14 @@ export default async function registerUser(formData: FormData): Promise<void> {
 
     const firstName = formData.get('firstName') as string
     const lastName = formData.get('lastName') as string
-    const name = [firstName, lastName].filter(Boolean).join(' ')
     const email = formData.get('email') as string
     const password = formData.get('password') as string
     const phone = formData.get('phone') as string | null
 
     try {
         const payload: Record<string, string> = {
-            name,
+            firstName,
+            lastName,
             email,
             password
         }

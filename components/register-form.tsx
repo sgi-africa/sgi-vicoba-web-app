@@ -125,11 +125,8 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                                             onChange={field.onChange}
                                             onBlur={field.onBlur}
                                             placeholder="e.g. 712 345 678"
-                                            numberInputProps={{
-                                                id: "phone",
-                                                className: "PhoneInputInput",
-                                                ref: field.ref,
-                                            }}
+                                            id="phone"
+                                            ref={field.ref}
                                             className="phone-input-wrapper"
                                         />
                                     )}
