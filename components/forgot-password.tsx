@@ -20,16 +20,16 @@ import { forgotPasswordSchema } from "@/lib/zod"
 import type { output } from "zod"
 import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import forgotPassword from "@/app/auth/forgot-password/_action"
 
 type ForgotPasswordFormValues = output<typeof forgotPasswordSchema>
 
-export function ForgotPassword({
-    className,
-    ...props
-}: React.ComponentProps<"div">) {
+export function ForgotPassword({ className, ...props }: React.ComponentProps<"div">) {
 
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
+    const [emailSent, setEmailSent] = useState(false)
+    const [submittedEmail, setSubmittedEmail] = useState("")
 
     const {
         register,
@@ -46,8 +46,10 @@ export function ForgotPassword({
         setLoading(true)
 
         try {
-            // Replace with your real forgot password endpoint
-            await new Promise((r) => setTimeout(r, 1200))
+            await forgotPassword(data.email)
+
+            setSubmittedEmail(data.email)
+            setEmailSent(true)
 
             toast.success(t("notifications.resetLinkSent"))
         } catch (error) {
@@ -56,6 +58,53 @@ export function ForgotPassword({
         } finally {
             setLoading(false)
         }
+    }
+
+    // Card to display when email is sent
+    if (emailSent) {
+        return (
+            <div className="flex w-full max-w-md flex-col gap-6">
+                <Card className="shadow-lg border-muted">
+                    <CardHeader className="text-center space-y-2">
+                        <CardTitle className="text-2xl font-semibold"> 
+                            Check your email
+                        </CardTitle>
+
+                        <CardDescription>
+                            If <strong>{submittedEmail}</strong> matches an account, we&apos;ve sent
+                            a password reset link.
+                        </CardDescription>
+                    </CardHeader>
+
+                    <CardContent className="space-y-4 text-sm text-muted-foreground text-center">
+
+                        <p>
+                            If you haven&apos;t received the email in 5 minutes, check your spam
+                            folder.
+                        </p>
+
+                        <div className="flex flex-col gap-3">
+                            <Button
+                                onClick={() => window.open("https://mail.google.com", "_blank")}
+                            >
+                                Open Gmail
+                            </Button>
+
+                            <div className="flex flex-row gap-1 items-center justify-center">
+                                <h1> Return to</h1>
+                                <Link
+                                    href="/auth/login"
+                                    className="text-sm underline underline-offset-4"
+                                >
+                                    login
+                                </Link>
+                            </div>
+                        </div>
+
+                    </CardContent>
+                </Card>
+            </div>
+        )
     }
 
     return (

@@ -1,9 +1,10 @@
-import { Home, User2, ChevronUp } from "lucide-react"
+import { Home, User2, ChevronUp, UsersRound, Wallet, HandCoins, ClipboardPenLine, BanknoteArrowUp, UserRoundMinus } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { auth } from "@/auth";
 import LogoutButton from "./logout";
 import Link from "next/link";
+import Image from "next/image";
 
 // Menu items.
 const items = [
@@ -11,7 +12,37 @@ const items = [
         title: "Home",
         url: "/home",
         icon: Home,
-    }
+    },
+    {
+        title: "Member Registry",
+        url: "/home/members",
+        icon: UsersRound,
+    },
+    {
+        title: "Contribution Ledger",
+        url: "/home/contributions",
+        icon: Wallet,
+    },
+    {
+        title: "Loans Management",
+        url: "/home/loans",
+        icon: HandCoins,
+    },
+    {
+        title: "Meetings & Minutes",
+        url: "/home/meetings",
+        icon: ClipboardPenLine,
+    },
+    {
+        title: "Shares",
+        url: "/home/shares",
+        icon: BanknoteArrowUp,
+    },
+    {
+        title: "Penalties",
+        url: "/home/penalties",
+        icon: UserRoundMinus,
+    },
 ]
 
 export default async function AppSidebar() {
@@ -22,6 +53,15 @@ export default async function AppSidebar() {
         <Sidebar>
             <SidebarContent>
                 <SidebarGroup>
+                    <div className="w-32 h-32 rounded-full overflow-hidden mx-auto my-4">
+                        <Image
+                            src="/logo.jpg"
+                            width={128}
+                            height={128}
+                            alt="Dashboard Image"
+                            className="object-cover w-full h-full"
+                        />
+                    </div>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {items.map((item) => (
