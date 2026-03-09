@@ -19,22 +19,20 @@ function LanguageSwitcher() {
       <button
         type="button"
         onClick={() => changeLanguage("en")}
-        className={`px-2.5 py-1 rounded text-sm transition-colors ${
-          currentLang === "en"
+        className={`px-2.5 py-1 rounded text-sm transition-colors cursor-pointer ${currentLang === "en"
             ? "font-semibold bg-primary/30 text-primary"
             : "text-muted-foreground hover:text-foreground"
-        }`}
+          }`}
       >
         EN
       </button>
       <button
         type="button"
         onClick={() => changeLanguage("sw")}
-        className={`px-2.5 py-1 rounded text-sm transition-colors ${
-          currentLang === "sw"
+        className={`px-2.5 py-1 rounded text-sm transition-colors cursor-pointer ${currentLang === "sw"
             ? "font-semibold bg-primary/30 text-primary"
             : "text-muted-foreground hover:text-foreground"
-        }`}
+          }`}
       >
         SW
       </button>
