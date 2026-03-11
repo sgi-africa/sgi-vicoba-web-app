@@ -1,26 +1,43 @@
 'use server'
 
 import { api } from "@/lib/api"
+import { Member } from "@/interfaces/interface"
+import { auth } from "@/auth"
 
-export async function addMember(groupId: number, formData: FormData) {
-    const data = {
-        firstName: formData.get("firstName") as string,
-        lastName: formData.get("lastName") as string,
-        phone: formData.get("phone") as string,
-        title: formData.get("title") as "chairperson" | "treasurer" | "secretary" | "member",
-        file: formData.get("file") as File | null,
+
+export async function addMember(groupId: number, data: { firstName: string; lastName: string; phone?: string; title: "CHAIRPERSON" | "TREASURER" | "SECRETARY" | "MEMBER"; }) {
+    const session = await auth();
+
+    if (!session?.user.accessToken) {
+        throw new Error("Not authenticated");
     }
 
-    const payload = new FormData()
-    payload.append("firstName", data.firstName)
-    payload.append("lastName", data.lastName)
-    payload.append("phone", data.phone)
-    payload.append("title", data.title)
-    if (data.file && data.file.size > 0) {
-        payload.append("file", data.file)
-    }
-
-    const response = await api.post(`/groups/add/${groupId}`, payload)
+    const response = await api.post(`/members/add/${groupId}`, data, {
+        headers: {
+            Authorization: `Bearer ${session.user.accessToken}`,
+        },
+    })
 
     return response.data
+}
+
+export async function getMembers(groupId: number): Promise<Member[]> {
+    const session = await auth();
+
+    if (!session?.user.accessToken) {
+        throw new Error("Not authenticated");
+    }
+
+    try {
+        const response = await api.get(`/members/list/${groupId}`, {
+            headers: {
+                Authorization: `Bearer ${session.user.accessToken}`,
+            },
+        });
+
+        return response.data ?? [];
+    } catch (error) {
+        console.error("Members fetch error:", error);
+        return [];
+    }
 }

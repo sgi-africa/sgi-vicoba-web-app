@@ -40,3 +40,9 @@ export interface GroupResponse {
 export interface Props {
     groups: GroupResponse[]
 }
+
+export interface AddMemberFormProps {
+    groupId: number
+    onSuccess?: () => void
+    onClose: () => void
+}

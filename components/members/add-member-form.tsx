@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select"
 import { addMember } from "@/app/home/members/_action"
 import { addMemberSchema, ADD_MEMBER_TITLES } from "@/lib/zod"
+import { AddMemberFormProps } from "@/interfaces/interface"
 
 const MEMBER_ROLES = ADD_MEMBER_TITLES.map((value) => ({
   value,
@@ -24,12 +25,6 @@ const MEMBER_ROLES = ADD_MEMBER_TITLES.map((value) => ({
 }))
 
 type MemberRole = (typeof ADD_MEMBER_TITLES)[number]
-
-interface AddMemberFormProps {
-  groupId: number
-  onSuccess?: () => void
-  onClose: () => void
-}
 
 export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProps) {
   const [error, setError] = useState<string | null>(null)
@@ -44,16 +39,11 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
     setIsPending(true)
 
     const form = e.currentTarget
-    const formData = new FormData(form)
-    formData.set("title", title)
+    const firstName = (form.elements.namedItem("firstName") as HTMLInputElement).value
+    const lastName = (form.elements.namedItem("lastName") as HTMLInputElement).value
+    const phone = (form.elements.namedItem("phone") as HTMLInputElement).value
 
-    const rawFormData = {
-      firstName: (formData.get("firstName") ?? "") as string,
-      lastName: (formData.get("lastName") ?? "") as string,
-      phone: (formData.get("phone") ?? "") as string,
-      title: title || undefined,
-    }
-
+    const rawFormData = { firstName, lastName, phone, title }
     const result = addMemberSchema.safeParse(rawFormData)
 
     if (!result.success) {
@@ -67,8 +57,11 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
       return
     }
 
+    const { title: validatedTitle, ...rest } = result.data
+    const apiData = { ...rest, title: validatedTitle.toUpperCase() as "CHAIRPERSON" | "TREASURER" | "SECRETARY" | "MEMBER" }
+
     try {
-      await addMember(groupId, formData)
+      await addMember(groupId, apiData)
       onSuccess?.()
       onClose()
     } catch (err: unknown) {
