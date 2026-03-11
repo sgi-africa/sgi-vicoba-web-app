@@ -1,9 +1,11 @@
-import React from 'react'
+import GroupDashboard from "@/components/GroupDashboard"
+import homeAction from "./_action"
 
-export default function page() {
-    return (
-        <div>
-            <h1>Home page</h1>
-        </div>
-    )
+export default async function page() {
+  
+  const groups = await homeAction()
+
+  return (
+    <GroupDashboard groups={groups} />
+  )
 }
