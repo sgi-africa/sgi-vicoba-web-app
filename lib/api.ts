@@ -1,6 +1,6 @@
 import axios from "axios";
 import { SERVER_URI } from "@/constants/constant";
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
 
 export const api = axios.create({
     baseURL: `${SERVER_URI}/api/v1`,
@@ -29,5 +29,10 @@ api.interceptors.response.use(
 
         return response;
     },
-    (error) => Promise.reject(error)
+    async (error) => {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+            await signOut({ redirectTo: "/auth/login" });
+        }
+        return Promise.reject(error);
+    }
 );

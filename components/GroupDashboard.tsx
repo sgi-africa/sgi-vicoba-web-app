@@ -1,11 +1,13 @@
 // components/GroupDashboard.tsx
 'use client'
 
-import { useState } from "react"
+import { useEffect } from "react"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Wallet, Users, HandCoins, ClipboardList } from "lucide-react"
 import GroupSelector from "./GroupSelector"
 import { GroupResponse } from "@/interfaces/interface"
+import { useAppDispatch, useAppSelector } from "@/hooks/redux"
+import { setActiveGroup } from "@/store/groupSlice"
 
 const QUICK_ACTIONS = [
     { title: "Contributions", href: "/home/contributions", icon: Wallet },
@@ -15,7 +17,18 @@ const QUICK_ACTIONS = [
 ]
 
 export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) {
-    const [selectedGroup, setSelectedGroup] = useState(groups[0] ?? null)
+    const dispatch = useAppDispatch()
+
+    const selectedGroup = useAppSelector(
+        (state) => state.group.activeGroup
+    )
+
+    // Set default active group if none exists
+    useEffect(() => {
+        if (!selectedGroup && groups.length > 0) {
+            dispatch(setActiveGroup(groups[0]))
+        }
+    }, [groups, selectedGroup, dispatch])
 
     if (!selectedGroup) return <div>No groups found</div>
 
@@ -24,7 +37,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
             {/* Dashboard header */}
             <div className="flex items-center justify-between px-4 py-4 md:px-6">
                 <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
-                <GroupSelector groups={groups} onSelect={setSelectedGroup} />
+                <GroupSelector groups={groups} />
             </div>
 
             {/* Summary Cards */}

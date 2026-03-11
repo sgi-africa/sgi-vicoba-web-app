@@ -35,5 +35,4 @@ export interface GroupResponse {
 
 export interface Props {
     groups: GroupResponse[]
-    onSelect: (group: GroupResponse) => void
 }
