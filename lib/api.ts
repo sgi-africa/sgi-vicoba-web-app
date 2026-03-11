@@ -30,9 +30,9 @@ api.interceptors.response.use(
         return response;
     },
     async (error) => {
-        if (axios.isAxiosError(error) && error.response?.status === 401) {
-            await signOut({ redirectTo: "/auth/login" });
-        }
+        // if (axios.isAxiosError(error) && error.response?.status === 401) {
+        //     await signOut({ redirectTo: "/auth/login" });
+        // }
         return Promise.reject(error);
     }
 );
