@@ -1,10 +1,9 @@
-// components/GroupDashboard.tsx
 'use client'
 
 import { useEffect } from "react"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Wallet, Users, HandCoins, ClipboardList } from "lucide-react"
-import GroupSelector from "./GroupSelector"
+import GroupSelector from "./group-selector"
 import { GroupResponse } from "@/interfaces/interface"
 import { useAppDispatch, useAppSelector } from "@/hooks/redux"
 import { setActiveGroup } from "@/store/groupSlice"
