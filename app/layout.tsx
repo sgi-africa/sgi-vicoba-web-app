@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Providers } from "@/components/providers";
+import { Providers } from "@/providers/providers";
 
 export const metadata: Metadata = {
   title: "SGI Africa | Get started, stay secure",

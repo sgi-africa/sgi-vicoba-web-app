@@ -1,4 +1,4 @@
-import { object, string } from "zod"
+import z, { object, string } from "zod"
 
 export const signInSchema = object({
   email: string({ error: "Email is required" })
@@ -33,3 +33,21 @@ export const forgotPasswordSchema = object({
     .min(1, "Email is required")
     .email("Invalid email"),
 })
+
+export const ADD_MEMBER_TITLES = [
+  "chairperson",
+  "treasurer",
+  "secretary",
+  "member",
+] as const
+
+export const addMemberSchema = object({
+  firstName: string().min(1, "First name is required").max(50),
+  lastName: string().min(1, "Last name is required").max(50),
+  phone: string().min(1, "Phone is required"),
+  title: z.enum(ADD_MEMBER_TITLES, {
+    message: "Title is required",
+  }),
+})
+
+export type AddMemberFormValues = z.infer<typeof addMemberSchema>

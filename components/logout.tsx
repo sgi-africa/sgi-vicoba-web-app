@@ -11,6 +11,7 @@ export default function LogoutButton() {
 
     const handleSignOut = async () => {
         try {
+            localStorage.clear();
             await signOut({ callbackUrl: "/auth/login" });
             toast.success("Logged Out Successfully")
         } catch (error) {

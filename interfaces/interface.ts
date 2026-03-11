@@ -1,3 +1,21 @@
+export interface MemberUser {
+    id: number;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    email: string;
+}
+
+export interface Member {
+    id: number;
+    userId: number;
+    groupId: number;
+    title: string;
+    isActive: boolean;
+    joinedAt: string;
+    user: MemberUser;
+}
+
 export interface GroupResponse {
     id: number;
     name: string;
@@ -16,24 +34,15 @@ export interface GroupResponse {
     deletedAt: string | null;
     createdAt: string;
     updatedAt: string;
-    members: {
-        id: number;
-        userId: number;
-        groupId: number;
-        title: string;
-        isActive: boolean;
-        joinedAt: string;
-        user: {
-            id: number;
-            firstName: string;
-            lastName: string;
-            phone: string;
-            email: string;
-        };
-    }[];
+    members: Member[];
 }
 
 export interface Props {
     groups: GroupResponse[]
-    onSelect: (group: GroupResponse) => void
+}
+
+export interface AddMemberFormProps {
+    groupId: number
+    onSuccess?: () => void
+    onClose: () => void
 }
