@@ -1,6 +1,6 @@
 import axios from "axios";
 import { SERVER_URI } from "@/constants/constant";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 
 export const api = axios.create({
     baseURL: `${SERVER_URI}/api/v1`,

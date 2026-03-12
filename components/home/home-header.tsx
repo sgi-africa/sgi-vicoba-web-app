@@ -1,10 +1,10 @@
 "use client"
 
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import LanguageSwitcher from "@/components/language-switcher"
+import LanguageSwitcher from "@/components/global/language-switcher"
 
-// Dummy - replace with backend fetch later
-const GROUP_NAME = "Saccos Group"
+
+const GROUP_NAME = "SGI Africa"
 
 export function HomeHeader() {
   return (

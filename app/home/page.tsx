@@ -1,4 +1,4 @@
-import GroupDashboard from "@/components/GroupDashboard"
+import GroupDashboard from "@/components/home/group-dashboard"
 import homeAction from "./_action"
 import { auth } from "@/auth"
 import { GroupResponse } from "@/interfaces/interface"

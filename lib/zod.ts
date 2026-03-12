@@ -51,3 +51,53 @@ export const addMemberSchema = object({
 })
 
 export type AddMemberFormValues = z.infer<typeof addMemberSchema>
+
+export const GROUP_TYPES = ["EQUALANNUAL", "ROTATIONAL"] as const
+
+export const createGroupSchema = object({
+  name: string().min(1, "Group name is required").max(100),
+  country: string().min(1, "Country is required").max(100),
+  city: string().min(1, "City is required").max(100),
+  region: string().min(1, "Region is required").max(100),
+  street: string().min(1, "Street address is required").max(255),
+  description: string().optional(),
+  type: z.enum(GROUP_TYPES, {
+    message: "Type is required",
+  }),
+})
+
+export type CreateGroupFormValues = z.infer<typeof createGroupSchema>
+
+export const CONTRIBUTION_TYPES = ["SAVINGS", "JAMII", "PENALTY"] as const
+
+export const addContributionSchema = object({
+  userId: z.coerce.number().min(1, "Please select a member"),
+  amount: z.coerce.number()
+    .min(1, "Amount must be at least 1")
+    .positive("Amount must be a positive number"),
+  type: z.enum(CONTRIBUTION_TYPES, {
+    message: "Type is required",
+  }),
+})
+
+export type AddContributionFormValues = z.infer<typeof addContributionSchema>
+
+export const addSharesSchema = object({
+  totalShares: z.coerce.number()
+    .min(1, "Total shares must be at least 1")
+    .int("Total shares must be a whole number"),
+  sharePrice: z.coerce.number()
+    .min(0.01, "Share price must be greater than 0")
+    .positive("Share price must be a positive number"),
+})
+
+export type AddSharesFormValues = z.infer<typeof addSharesSchema>
+
+export const sellSharesSchema = object({
+  userId: z.coerce.number().min(1, "Please select a member"),
+  quantity: z.coerce.number()
+    .min(1, "Quantity must be at least 1")
+    .int("Quantity must be a whole number"),
+})
+
+export type SellSharesFormValues = z.infer<typeof sellSharesSchema>

@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { useTranslation } from "react-i18next"
-import LanguageSwitcher from "@/components/language-switcher"
+import LanguageSwitcher from "@/components/global/language-switcher"
 
 
 const fadeInUp = {
