@@ -81,3 +81,14 @@ export const addContributionSchema = object({
 })
 
 export type AddContributionFormValues = z.infer<typeof addContributionSchema>
+
+export const addSharesSchema = object({
+  totalShares: z.coerce.number()
+    .min(1, "Total shares must be at least 1")
+    .int("Total shares must be a whole number"),
+  sharePrice: z.coerce.number()
+    .min(0.01, "Share price must be greater than 0")
+    .positive("Share price must be a positive number"),
+})
+
+export type AddSharesFormValues = z.infer<typeof addSharesSchema>
