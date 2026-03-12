@@ -92,3 +92,12 @@ export const addSharesSchema = object({
 })
 
 export type AddSharesFormValues = z.infer<typeof addSharesSchema>
+
+export const sellSharesSchema = object({
+  userId: z.coerce.number().min(1, "Please select a member"),
+  quantity: z.coerce.number()
+    .min(1, "Quantity must be at least 1")
+    .int("Quantity must be a whole number"),
+})
+
+export type SellSharesFormValues = z.infer<typeof sellSharesSchema>

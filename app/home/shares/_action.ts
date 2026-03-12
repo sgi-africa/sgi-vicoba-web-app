@@ -66,3 +66,24 @@ export async function addShares(
 
     return response.data
 }
+
+export async function sellShares(
+    groupId: number,
+    data: { userId: number; quantity: number }
+) {
+    const session = await auth()
+
+    if (!session?.user.accessToken) {
+        throw new Error("Not authenticated")
+    }
+
+    const response = await api.post(`/shares/purchase/${groupId}`, data, {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.user.accessToken}`,
+        },
+    }
+    )
+
+    return response.data
+}
