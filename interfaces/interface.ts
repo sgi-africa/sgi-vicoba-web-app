@@ -51,3 +51,15 @@ export interface GroupState {
     groups: GroupResponse[]
     activeGroup: GroupResponse | null
 }
+
+export interface Contribution {
+    id: number
+    groupId: number
+    userId: number
+    amount: string
+    type: "SAVINGS" | "JAMII" | "PENALTY"
+    recordedBy: number
+    createdAt: string
+    user?: MemberUser
+    recorder?: MemberUser
+}
