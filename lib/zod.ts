@@ -67,3 +67,17 @@ export const createGroupSchema = object({
 })
 
 export type CreateGroupFormValues = z.infer<typeof createGroupSchema>
+
+export const CONTRIBUTION_TYPES = ["SAVINGS", "JAMII", "PENALTY"] as const
+
+export const addContributionSchema = object({
+  userId: z.coerce.number().min(1, "Please select a member"),
+  amount: z.coerce.number()
+    .min(1, "Amount must be at least 1")
+    .positive("Amount must be a positive number"),
+  type: z.enum(CONTRIBUTION_TYPES, {
+    message: "Type is required",
+  }),
+})
+
+export type AddContributionFormValues = z.infer<typeof addContributionSchema>
