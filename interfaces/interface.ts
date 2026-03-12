@@ -46,3 +46,8 @@ export interface AddMemberFormProps {
     onSuccess?: () => void
     onClose: () => void
 }
+
+export interface GroupState {
+    groups: GroupResponse[]
+    activeGroup: GroupResponse | null
+}
