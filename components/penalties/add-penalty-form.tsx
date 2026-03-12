@@ -16,7 +16,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { addPenalty } from "@/app/home/penalties/_action"
-import { addPenaltySchema } from "@/lib/zod"
+import { addPenaltySchema, PENALTY_TYPES } from "@/lib/zod"
 import { AddPenaltyFormProps } from "@/interfaces/interface"
 
 
@@ -30,6 +30,7 @@ export function AddPenaltyForm({
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
     const [isPending, setIsPending] = useState(false)
     const [userId, setUserId] = useState<string>("")
+    const [type, setType] = useState<string>("")
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -43,6 +44,7 @@ export function AddPenaltyForm({
         const rawFormData = {
             userId,
             amount: amountInput,
+            type,
         }
 
         const result = addPenaltySchema.safeParse(rawFormData)
@@ -60,11 +62,12 @@ export function AddPenaltyForm({
 
         try {
             await addPenalty(groupId, {
-                userId: result.data.userId,
+                memberId: result.data.userId,
                 amount: result.data.amount,
-                type: "PENALTY",
+                type: result.data.type,
             })
             setUserId("")
+            setType("")
             onSuccess?.()
             onClose()
         } catch (err: unknown) {
@@ -122,6 +125,24 @@ export function AddPenaltyForm({
                 />
                 {fieldErrors.amount && (
                     <p className="text-sm text-destructive">{fieldErrors.amount}</p>
+                )}
+            </div>
+            <div className="grid gap-2">
+                <Label htmlFor="type">Type</Label>
+                <Select value={type} onValueChange={setType}>
+                    <SelectTrigger id="type" aria-invalid={!!fieldErrors.type}>
+                        <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {PENALTY_TYPES.map((value) => (
+                            <SelectItem key={value} value={value}>
+                                {value.charAt(0) + value.slice(1).toLowerCase()}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                {fieldErrors.type && (
+                    <p className="text-sm text-destructive">{fieldErrors.type}</p>
                 )}
             </div>
             <DialogFooter className="gap-4 sm:gap-4 pt-2">

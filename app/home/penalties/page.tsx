@@ -15,7 +15,7 @@ import { useAppSelector } from "@/hooks/redux"
 import { getPenalties } from "./_action"
 import { getMembers } from "@/app/home/members/_action"
 import { AddPenaltyForm } from "@/components/penalties/add-penalty-form"
-import { Contribution, Member } from "@/interfaces/interface"
+import { Penalty, Member } from "@/interfaces/interface"
 import { toast } from "sonner"
 
 function formatAmount(amount: number | string) {
@@ -34,7 +34,7 @@ function formatDate(dateStr: string) {
   }
 }
 
-function getMemberName(penalty: Contribution): string {
+function getMemberName(penalty: Penalty): string {
   if (penalty.user) {
     return `${penalty.user.firstName} ${penalty.user.lastName}`
   }
@@ -43,7 +43,7 @@ function getMemberName(penalty: Contribution): string {
 
 export default function PenaltiesPage() {
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
-  const [penalties, setPenalties] = useState<Contribution[]>([])
+  const [penalties, setPenalties] = useState<Penalty[]>([])
   const [members, setMembers] = useState<Member[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [open, setOpen] = useState(false)
@@ -160,9 +160,20 @@ export default function PenaltiesPage() {
                       {formatDate(penalty.createdAt)}
                     </p>
                   </div>
-                  <span className="font-semibold text-primary">
-                    {formatAmount(penalty.amount)}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="font-semibold text-primary">
+                      {formatAmount(penalty.amount)}
+                    </span>
+                    <span
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                        penalty.status?.toUpperCase() === "PAID"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                          : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                      }`}
+                    >
+                      {penalty.status?.toUpperCase() === "PAID" ? "Paid" : "Unpaid"}
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
             ))}
