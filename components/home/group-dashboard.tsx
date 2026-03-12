@@ -52,7 +52,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                 <div className="flex items-center gap-2">
                     {hasGroups && <GroupSelector groups={effectiveGroups} />}
                     <CreateGroupDialog
-                        variant={hasGroups ? "outline" : "default"}
+                        variant="default"
                         onSuccess={handleGroupCreated}
                     />
                 </div>

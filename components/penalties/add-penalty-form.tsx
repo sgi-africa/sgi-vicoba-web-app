@@ -147,11 +147,11 @@ export function AddPenaltyForm({
             </div>
             <DialogFooter className="gap-4 sm:gap-4 pt-2">
                 <DialogClose asChild>
-                    <Button type="button" variant="outline" disabled={isPending}>
+                    <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
                         Cancel
                     </Button>
                 </DialogClose>
-                <Button type="submit" disabled={isPending}>
+                <Button type="submit" disabled={isPending} className="cursor-pointer">
                     {isPending ? "Adding…" : "Add penalty"}
                 </Button>
             </DialogFooter>

@@ -117,7 +117,7 @@ export default function ContributionsPage() {
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="gap-2 sm:ml-auto">
+            <Button size="sm" className="gap-2 cursor-pointer sm:ml-auto">
               <Plus className="size-4" />
               Add contribution
             </Button>

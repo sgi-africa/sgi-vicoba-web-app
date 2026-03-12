@@ -83,7 +83,7 @@ export default function MembersPageClient() {
 
       < Dialog open={open} onOpenChange={setOpen} >
         <DialogTrigger asChild>
-          <Button size="sm" className="gap-2">
+          <Button size="sm" className="gap-2 cursor-pointer">
             <Plus className="size-4" />
             Add member
           </Button>

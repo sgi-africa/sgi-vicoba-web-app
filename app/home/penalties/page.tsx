@@ -117,7 +117,7 @@ export default function PenaltiesPage() {
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="gap-2 sm:ml-auto">
+            <Button size="sm" className="gap-2 cursor-pointer sm:ml-auto">
               <Plus className="size-4" />
               Add penalty
             </Button>
@@ -176,8 +176,8 @@ export default function PenaltiesPage() {
                     </span>
                     <span
                       className={`text-xs font-medium px-2 py-0.5 rounded-full ${penalty.status?.toUpperCase() === "PAID"
-                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-                          : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                        ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                        : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
                         }`}
                     >
                       {penalty.status?.toUpperCase() === "PAID" ? "Paid" : "Unpaid"}

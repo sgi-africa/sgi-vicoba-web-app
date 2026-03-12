@@ -26,6 +26,7 @@ import createGroup from "@/app/home/groups/_action"
 import { createGroupSchema, GROUP_TYPES } from "@/lib/zod"
 import { toast } from "sonner"
 import { GroupResponse } from "@/interfaces/interface"
+import { cn } from "@/lib/utils"
 
 const GROUP_TYPE_OPTIONS = GROUP_TYPES.map((value) => ({
   value,
@@ -115,7 +116,7 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant={variant ?? "default"} size="sm" className={className}>
+        <Button variant={variant ?? "default"} size="sm" className={cn("cursor-pointer", className)}>
           <Plus className="size-4" />
           Create group
         </Button>
@@ -222,11 +223,11 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
           </div>
           <DialogFooter className="gap-4 sm:gap-4 pt-2">
             <DialogClose asChild>
-              <Button type="button" variant="outline" disabled={isPending}>
+              <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending} className="cursor-pointer">
               {isPending ? "Creating…" : "Create group"}
             </Button>
           </DialogFooter>
