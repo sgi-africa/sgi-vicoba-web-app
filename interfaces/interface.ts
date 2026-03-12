@@ -121,3 +121,10 @@ export interface MemberSharesRow {
     name: string
     totalShares: number
 }
+
+export interface AddPenaltyFormProps {
+    groupId: number
+    members: Member[]
+    onSuccess?: () => void
+    onClose: () => void
+}

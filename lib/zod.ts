@@ -82,6 +82,15 @@ export const addContributionSchema = object({
 
 export type AddContributionFormValues = z.infer<typeof addContributionSchema>
 
+export const addPenaltySchema = object({
+  userId: z.coerce.number().min(1, "Please select a member"),
+  amount: z.coerce.number()
+    .min(1, "Amount must be at least 1")
+    .positive("Amount must be a positive number"),
+})
+
+export type AddPenaltyFormValues = z.infer<typeof addPenaltySchema>
+
 export const addSharesSchema = object({
   totalShares: z.coerce.number()
     .min(1, "Total shares must be at least 1")
