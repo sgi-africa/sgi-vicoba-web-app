@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Banknote, Coins, ShoppingCart, Info } from "lucide-react"
+import { Banknote, Coins, ShoppingCart, Info, BanknoteArrowUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { useAppSelector, useAppDispatch } from "@/hooks/redux"
@@ -146,7 +146,17 @@ export default function SharesPage() {
     if (!activeGroup || !groupId) {
         return (
             <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
-                <p className="text-muted-foreground">Select a group to view shares.</p>
+                <Card className="border-dashed">
+                    <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+                        <div className="rounded-full bg-muted p-4 mb-4">
+                            <BanknoteArrowUp className="size-10 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-lg font-semibold mb-1">No group selected</h3>
+                        <p className="text-sm text-muted-foreground text-center max-w-sm">
+                            Select a group from the dashboard to view shares.
+                        </p>
+                    </CardContent>
+                </Card>
             </div>
         )
     }

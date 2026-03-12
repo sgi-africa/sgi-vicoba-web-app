@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, AlertCircle } from "lucide-react"
+import { Plus, AlertCircle, UserRoundMinus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -88,7 +88,17 @@ export default function PenaltiesPage() {
   if (!activeGroup || !groupId) {
     return (
       <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
-        <p className="text-muted-foreground">Select a group to view penalties.</p>
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+            <div className="rounded-full bg-muted p-4 mb-4">
+              <UserRoundMinus className="size-10 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-1">No group selected</h3>
+            <p className="text-sm text-muted-foreground text-center max-w-sm">
+              Select a group from the dashboard to view penalties.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -165,11 +175,10 @@ export default function PenaltiesPage() {
                       {formatAmount(penalty.amount)}
                     </span>
                     <span
-                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                        penalty.status?.toUpperCase() === "PAID"
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${penalty.status?.toUpperCase() === "PAID"
                           ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
                           : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
-                      }`}
+                        }`}
                     >
                       {penalty.status?.toUpperCase() === "PAID" ? "Paid" : "Unpaid"}
                     </span>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from "react"
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Wallet, Users, HandCoins, ClipboardList } from "lucide-react"
 import GroupSelector from "./group-selector"
 import { CreateGroupDialog } from "./create-group-dialog"
@@ -131,9 +131,17 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     })}
                 </div>
                 {!hasGroups && (
-                    <p className="text-sm text-muted-foreground mt-4">
-                        Create your first group to access contributions, loans, meetings, and members.
-                    </p>
+                    <Card className="border-dashed mt-4">
+                        <CardContent className="flex flex-col items-center justify-center py-10 px-6">
+                            <div className="rounded-full bg-muted p-3 mb-3">
+                                <Users className="size-8 text-muted-foreground" />
+                            </div>
+                            <h3 className="text-base font-semibold mb-1">No groups yet</h3>
+                            <p className="text-sm text-muted-foreground text-center max-w-sm">
+                                Create your first group to access contributions, loans, meetings, and members.
+                            </p>
+                        </CardContent>
+                    </Card>
                 )}
             </div>
         </div>

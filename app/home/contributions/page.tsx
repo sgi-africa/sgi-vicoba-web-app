@@ -88,7 +88,17 @@ export default function ContributionsPage() {
   if (!activeGroup || !groupId) {
     return (
       <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
-        <p className="text-muted-foreground">Select a group to view contributions.</p>
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+            <div className="rounded-full bg-muted p-4 mb-4">
+              <Wallet className="size-10 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-1">No group selected</h3>
+            <p className="text-sm text-muted-foreground text-center max-w-sm">
+              Select a group from the dashboard to view contributions.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -165,11 +175,10 @@ export default function ContributionsPage() {
                       {formatAmount(contribution.amount)}
                     </span>
                     <span
-                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                        contribution.type === "SAVINGS"
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${contribution.type === "SAVINGS"
                           ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
                           : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
-                      }`}
+                        }`}
                     >
                       {contribution.type === "SAVINGS" ? "Savings" : "Jamii"}
                     </span>
