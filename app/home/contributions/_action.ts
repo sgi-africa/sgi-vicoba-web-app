@@ -17,7 +17,8 @@ export async function getContributions(groupId: number): Promise<Contribution[]>
                 Authorization: `Bearer ${session.user.accessToken}`,
             },
         })
-        return response.data ?? []
+        const all = response.data ?? []
+        return all.filter((c: Contribution) => c.type !== "PENALTY")
     } catch (error) {
         console.error("Contributions fetch error:", error)
         return []

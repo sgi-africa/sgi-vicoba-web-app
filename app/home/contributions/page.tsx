@@ -160,9 +160,20 @@ export default function ContributionsPage() {
                       {formatDate(contribution.createdAt)}
                     </p>
                   </div>
-                  <span className="font-semibold text-primary">
-                    {formatAmount(contribution.amount)}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="font-semibold text-primary">
+                      {formatAmount(contribution.amount)}
+                    </span>
+                    <span
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                        contribution.type === "SAVINGS"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                          : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                      }`}
+                    >
+                      {contribution.type === "SAVINGS" ? "Savings" : "Jamii"}
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
             ))}
