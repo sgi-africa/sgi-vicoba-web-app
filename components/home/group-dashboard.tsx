@@ -9,6 +9,7 @@ import { GroupResponse } from "@/interfaces/interface"
 import { useAppDispatch, useAppSelector } from "@/hooks/redux"
 import { setGroups, addGroup, setActiveGroup } from "@/store/groupSlice"
 import { cn } from "@/lib/utils"
+import Link from "next/link"
 
 const QUICK_ACTIONS = [
     { title: "Contributions", href: "/home/contributions", icon: Wallet },
@@ -100,33 +101,39 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
                     {QUICK_ACTIONS.map(({ title, href, icon: Icon }) => {
                         const canNavigate = hasGroups && selectedGroup
-                        const Wrapper = canNavigate ? "a" : "div"
-                        const wrapperProps = canNavigate
-                            ? { href }
-                            : { className: "pointer-events-none" }
-
-                        return (
-                            <Wrapper
-                                key={href}
-                                {...wrapperProps}
-                                className={cn("min-w-0", !canNavigate && "opacity-60")}
+                        const card = (
+                            <Card
+                                className={cn(
+                                    "w-full h-full transition-colors cursor-not-allowed",
+                                    canNavigate && "hover:bg-accent/50 cursor-pointer"
+                                )}
                             >
-                                <Card
-                                    className={cn(
-                                        "w-full h-full transition-colors cursor-not-allowed",
-                                        canNavigate && "hover:bg-accent/50 cursor-pointer"
-                                    )}
-                                >
-                                    <CardHeader className="py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                                <Icon className="h-5 w-5" />
-                                            </div>
-                                            <CardTitle className="text-base font-medium truncate">{title}</CardTitle>
+                                <CardHeader className="py-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                            <Icon className="h-5 w-5" />
                                         </div>
-                                    </CardHeader>
-                                </Card>
-                            </Wrapper>
+                                        <CardTitle className="text-base font-medium truncate">{title}</CardTitle>
+                                    </div>
+                                </CardHeader>
+                            </Card>
+                        )
+
+                        return canNavigate ? (
+                            <Link
+                                key={href}
+                                href={href}
+                                className={cn("min-w-0")}
+                            >
+                                {card}
+                            </Link>
+                        ) : (
+                            <div
+                                key={href}
+                                className={cn("min-w-0 opacity-60 pointer-events-none")}
+                            >
+                                {card}
+                            </div>
                         )
                     })}
                 </div>
