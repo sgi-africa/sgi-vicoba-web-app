@@ -4,6 +4,7 @@ import { GroupResponse, GroupState } from "@/interfaces/interface"
 const initialState: GroupState = {
     groups: [],
     activeGroup: null,
+    sharesConfiguredGroupIds: [],
 }
 
 const groupSlice = createSlice({
@@ -21,8 +22,15 @@ const groupSlice = createSlice({
         setActiveGroup: (state, action: PayloadAction<GroupResponse>) => {
             state.activeGroup = action.payload
         },
+        markSharesConfigured: (state, action: PayloadAction<number>) => {
+            const groupId = action.payload
+            const ids = state.sharesConfiguredGroupIds ?? []
+            if (!ids.includes(groupId)) {
+                state.sharesConfiguredGroupIds = [...ids, groupId]
+            }
+        },
     },
 })
 
-export const { setGroups, addGroup, setActiveGroup } = groupSlice.actions
+export const { setGroups, addGroup, setActiveGroup, markSharesConfigured } = groupSlice.actions
 export default groupSlice.reducer
