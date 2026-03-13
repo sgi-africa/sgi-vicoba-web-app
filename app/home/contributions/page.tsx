@@ -14,8 +14,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useAppSelector } from "@/hooks/redux"
 import { getContributions } from "./_action"
 import { getMembers } from "@/app/home/members/_action"
+import { getPenalties } from "@/app/home/penalties/_action"
 import { AddContributionForm } from "@/components/contributions/add-contribution-form"
-import { Contribution, Member } from "@/interfaces/interface"
+import { Contribution, Member, Penalty } from "@/interfaces/interface"
 import { toast } from "sonner"
 
 function formatAmount(amount: number | string) {
@@ -45,6 +46,7 @@ export default function ContributionsPage() {
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
   const [contributions, setContributions] = useState<Contribution[]>([])
   const [members, setMembers] = useState<Member[]>([])
+  const [penalties, setPenalties] = useState<Penalty[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [open, setOpen] = useState(false)
 
@@ -56,13 +58,15 @@ export default function ContributionsPage() {
     void (async () => {
       setIsLoading(true)
       try {
-        const [contribs, mems] = await Promise.all([
+        const [contribs, mems, pens] = await Promise.all([
           getContributions(groupId),
           getMembers(groupId),
+          getPenalties(groupId),
         ])
         if (!cancelled) {
           setContributions(contribs)
           setMembers(mems)
+          setPenalties(pens)
         }
       } finally {
         if (!cancelled) setIsLoading(false)
@@ -75,12 +79,14 @@ export default function ContributionsPage() {
 
   const handleAddSuccess = async () => {
     if (!groupId) return
-    const [contribs, mems] = await Promise.all([
+    const [contribs, mems, pens] = await Promise.all([
       getContributions(groupId),
       getMembers(groupId),
+      getPenalties(groupId),
     ])
     setContributions(contribs)
     setMembers(mems)
+    setPenalties(pens)
     setOpen(false)
     toast.success("Contribution added successfully")
   }
@@ -88,7 +94,17 @@ export default function ContributionsPage() {
   if (!activeGroup || !groupId) {
     return (
       <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
-        <p className="text-muted-foreground">Select a group to view contributions.</p>
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+            <div className="rounded-full bg-muted p-4 mb-4">
+              <Wallet className="size-10 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-1">No group selected</h3>
+            <p className="text-sm text-muted-foreground text-center max-w-sm">
+              Select a group from the dashboard to view contributions.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -107,7 +123,7 @@ export default function ContributionsPage() {
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="gap-2 sm:ml-auto">
+            <Button size="sm" className="gap-2 cursor-pointer sm:ml-auto">
               <Plus className="size-4" />
               Add contribution
             </Button>
@@ -119,6 +135,7 @@ export default function ContributionsPage() {
             <AddContributionForm
               groupId={groupId}
               members={members}
+              penalties={penalties}
               onSuccess={handleAddSuccess}
               onClose={() => setOpen(false)}
             />
@@ -160,9 +177,19 @@ export default function ContributionsPage() {
                       {formatDate(contribution.createdAt)}
                     </p>
                   </div>
-                  <span className="font-semibold text-primary">
-                    {formatAmount(contribution.amount)}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="font-semibold text-primary">
+                      {formatAmount(contribution.amount)}
+                    </span>
+                    <span
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${contribution.type === "SAVINGS"
+                        ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                        : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                        }`}
+                    >
+                      {contribution.type === "SAVINGS" ? "Savings" : "Jamii"}
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
             ))}

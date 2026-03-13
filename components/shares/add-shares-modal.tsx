@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { addShares } from "@/app/home/shares/_action"
 import { addSharesSchema } from "@/lib/zod"
+import { cn } from "@/lib/utils"
 
 interface AddSharesModalProps {
   groupId: number
@@ -96,7 +97,7 @@ export function AddSharesModal({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant={variant} size="sm" className={className}>
+        <Button variant={variant} size="sm" className={cn(className, "cursor-pointer")}>
           <Plus className="size-4" />
           Add shares
         </Button>
@@ -143,11 +144,11 @@ export function AddSharesModal({
           </div>
           <DialogFooter className="gap-4 sm:gap-4 pt-2">
             <DialogClose asChild>
-              <Button type="button" variant="outline" disabled={isPending}>
+              <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending} className="cursor-pointer">
               {isPending ? "Adding…" : "Add shares"}
             </Button>
           </DialogFooter>

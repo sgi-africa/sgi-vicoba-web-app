@@ -62,7 +62,17 @@ export default function MembersPageClient() {
   if (!activeGroup) {
     return (
       <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
-        <p className="text-muted-foreground">Select a group to view members.</p>
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+            <div className="rounded-full bg-muted p-4 mb-4">
+              <Users className="size-10 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-1">No group selected</h3>
+            <p className="text-sm text-muted-foreground text-center max-w-sm">
+              Select a group from the dashboard to view and manage its members.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -73,7 +83,7 @@ export default function MembersPageClient() {
 
       < Dialog open={open} onOpenChange={setOpen} >
         <DialogTrigger asChild>
-          <Button size="sm" className="gap-2">
+          <Button size="sm" className="gap-2 cursor-pointer">
             <Plus className="size-4" />
             Add member
           </Button>

@@ -78,9 +78,24 @@ export const addContributionSchema = object({
   type: z.enum(CONTRIBUTION_TYPES, {
     message: "Type is required",
   }),
+  penaltyId: z.optional(z.coerce.number()),
 })
 
 export type AddContributionFormValues = z.infer<typeof addContributionSchema>
+
+export const PENALTY_TYPES = ["ABSENT", "LATE", "MISCONDUCT", "OTHER"] as const
+
+export const addPenaltySchema = object({
+  userId: z.coerce.number().min(1, "Please select a member"),
+  amount: z.coerce.number()
+    .min(1, "Amount must be at least 1")
+    .positive("Amount must be a positive number"),
+  type: z.enum(PENALTY_TYPES, {
+    message: "Please select a penalty type",
+  }),
+})
+
+export type AddPenaltyFormValues = z.infer<typeof addPenaltySchema>
 
 export const addSharesSchema = object({
   totalShares: z.coerce.number()

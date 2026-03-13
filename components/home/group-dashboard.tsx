@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from "react"
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Wallet, Users, HandCoins, ClipboardList } from "lucide-react"
 import GroupSelector from "./group-selector"
 import { CreateGroupDialog } from "./create-group-dialog"
@@ -9,6 +9,7 @@ import { GroupResponse } from "@/interfaces/interface"
 import { useAppDispatch, useAppSelector } from "@/hooks/redux"
 import { setGroups, addGroup, setActiveGroup } from "@/store/groupSlice"
 import { cn } from "@/lib/utils"
+import Link from "next/link"
 
 const QUICK_ACTIONS = [
     { title: "Contributions", href: "/home/contributions", icon: Wallet },
@@ -52,7 +53,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                 <div className="flex items-center gap-2">
                     {hasGroups && <GroupSelector groups={effectiveGroups} />}
                     <CreateGroupDialog
-                        variant={hasGroups ? "outline" : "default"}
+                        variant="default"
                         onSuccess={handleGroupCreated}
                     />
                 </div>
@@ -100,40 +101,54 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
                     {QUICK_ACTIONS.map(({ title, href, icon: Icon }) => {
                         const canNavigate = hasGroups && selectedGroup
-                        const Wrapper = canNavigate ? "a" : "div"
-                        const wrapperProps = canNavigate
-                            ? { href }
-                            : { className: "pointer-events-none" }
-
-                        return (
-                            <Wrapper
-                                key={href}
-                                {...wrapperProps}
-                                className={cn("min-w-0", !canNavigate && "opacity-60")}
+                        const card = (
+                            <Card
+                                className={cn(
+                                    "w-full h-full transition-colors cursor-not-allowed",
+                                    canNavigate && "hover:bg-accent/50 cursor-pointer"
+                                )}
                             >
-                                <Card
-                                    className={cn(
-                                        "w-full h-full transition-colors cursor-not-allowed",
-                                        canNavigate && "hover:bg-accent/50 cursor-pointer"
-                                    )}
-                                >
-                                    <CardHeader className="py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                                <Icon className="h-5 w-5" />
-                                            </div>
-                                            <CardTitle className="text-base font-medium truncate">{title}</CardTitle>
+                                <CardHeader className="py-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                            <Icon className="h-5 w-5" />
                                         </div>
-                                    </CardHeader>
-                                </Card>
-                            </Wrapper>
+                                        <CardTitle className="text-base font-medium truncate">{title}</CardTitle>
+                                    </div>
+                                </CardHeader>
+                            </Card>
+                        )
+
+                        return canNavigate ? (
+                            <Link
+                                key={href}
+                                href={href}
+                                className={cn("min-w-0")}
+                            >
+                                {card}
+                            </Link>
+                        ) : (
+                            <div
+                                key={href}
+                                className={cn("min-w-0 opacity-60 pointer-events-none")}
+                            >
+                                {card}
+                            </div>
                         )
                     })}
                 </div>
                 {!hasGroups && (
-                    <p className="text-sm text-muted-foreground mt-4">
-                        Create your first group to access contributions, loans, meetings, and members.
-                    </p>
+                    <Card className="border-dashed mt-4">
+                        <CardContent className="flex flex-col items-center justify-center py-10 px-6">
+                            <div className="rounded-full bg-muted p-3 mb-3">
+                                <Users className="size-8 text-muted-foreground" />
+                            </div>
+                            <h3 className="text-base font-semibold mb-1">No groups yet</h3>
+                            <p className="text-sm text-muted-foreground text-center max-w-sm">
+                                Create your first group to access contributions, loans, meetings, and members.
+                            </p>
+                        </CardContent>
+                    </Card>
                 )}
             </div>
         </div>
