@@ -33,6 +33,7 @@ const QUICK_ACTIONS = [
 export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) {
     const dispatch = useAppDispatch()
     const selectedGroup = useAppSelector((state) => state.group.activeGroup)
+    const reduxGroups = useAppSelector((state) => state.group.groups)
     const [totalMemberSavings, setTotalMemberSavings] = useState<number>(0)
     const [outstandingLoansTotal, setOutstandingLoansTotal] = useState<number>(0)
 
@@ -53,19 +54,23 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
         }
     }, [groups, dispatch])
 
-    const hasGroups = groups.length > 0
-    // Card figures from API only: resolve selected group from current server data (groups prop), not from Redux
+    // After creating a group, props may still be [] until server refetches; use Redux as fallback so the new group shows immediately
+    const effectiveGroups = groups.length > 0 ? groups : reduxGroups
+    const hasGroups = effectiveGroups.length > 0
+    // Resolve selected group from effective list (API first, then Redux fallback)
     const selectedGroupFromApi =
-        selectedGroup && groups.length > 0
-            ? groups.find((g) => g.id === selectedGroup.id) ?? groups[0]
-            : groups[0] ?? null
+        selectedGroup && effectiveGroups.length > 0
+            ? effectiveGroups.find((g) => g.id === selectedGroup.id) ?? effectiveGroups[0]
+            : effectiveGroups[0] ?? null
 
-    // Set default active group if none exists (selection only; data comes from props/API)
+
+    // Set default active group if none exists (use effective list so Redux fallback works after create)
     useEffect(() => {
-        if (!selectedGroup && groups.length > 0) {
-            dispatch(setActiveGroup(groups[0]))
+        const list = groups.length > 0 ? groups : reduxGroups
+        if (!selectedGroup && list.length > 0) {
+            dispatch(setActiveGroup(list[0]))
         }
-    }, [groups, selectedGroup, dispatch])
+    }, [groups, reduxGroups, selectedGroup, dispatch])
 
     // Get total member savings
     useEffect(() => {
@@ -133,7 +138,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
             <div className="flex items-center justify-between px-4 py-4 md:px-6">
                 <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
                 <div className="flex items-center gap-2">
-                    {hasGroups && <GroupSelector groups={groups} />}
+                    {hasGroups && <GroupSelector groups={effectiveGroups} />}
                     <CreateGroupDialog
                         variant="default"
                         onSuccess={handleGroupCreated}
