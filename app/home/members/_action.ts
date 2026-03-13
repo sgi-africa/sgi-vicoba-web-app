@@ -5,14 +5,14 @@ import { Member } from "@/interfaces/interface"
 import { auth } from "@/auth"
 
 
-export async function addMember(groupId: number, data: { firstName: string; lastName: string; phone?: string; title: "CHAIRPERSON" | "TREASURER" | "SECRETARY" | "MEMBER"; }) {
+export async function addMember(groupId: number, formData: FormData) {
     const session = await auth();
 
     if (!session?.user.accessToken) {
         throw new Error("Not authenticated");
     }
 
-    const response = await api.post(`/members/add/${groupId}`, data, {
+    const response = await api.post(`/members/add/${groupId}`, formData, {
         headers: {
             Authorization: `Bearer ${session.user.accessToken}`,
         },

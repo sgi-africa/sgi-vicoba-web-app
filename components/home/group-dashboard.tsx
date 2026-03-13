@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Wallet, Users, HandCoins, ClipboardList } from "lucide-react"
 import GroupSelector from "./group-selector"
@@ -10,6 +10,15 @@ import { useAppDispatch, useAppSelector } from "@/hooks/redux"
 import { setGroups, addGroup, setActiveGroup } from "@/store/groupSlice"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { getContributions } from "@/app/home/contributions/_action"
+
+function formatAmount(amount: number | string) {
+    return new Intl.NumberFormat("en-TZ", {
+        style: "currency",
+        currency: "TZS",
+        minimumFractionDigits: 0,
+    }).format(Number(amount))
+}
 
 const QUICK_ACTIONS = [
     { title: "Contributions", href: "/home/contributions", icon: Wallet },
@@ -20,25 +29,66 @@ const QUICK_ACTIONS = [
 
 export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) {
     const dispatch = useAppDispatch()
-    const reduxGroups = useAppSelector((state) => state.group.groups)
     const selectedGroup = useAppSelector((state) => state.group.activeGroup)
+    const [totalMemberSavings, setTotalMemberSavings] = useState<number>(0)
 
-    // Sync server groups to Redux on mount / when groups prop changes
+    // All summary data from API: groups from server (page), totals from groups prop, savings from getContributions
+    const totalGroupAssets = useMemo(
+        () =>
+            groups.reduce(
+                (sum, g) => sum + Number(g.totalBalance ?? 0),
+                0
+            ),
+        [groups]
+    )
+
+    // Keep Redux in sync with server for context (which group we're on); card figures still come from API only
     useEffect(() => {
         if (groups.length > 0) {
             dispatch(setGroups(groups))
         }
     }, [groups, dispatch])
 
-    const effectiveGroups = reduxGroups.length > 0 ? reduxGroups : groups
-    const hasGroups = effectiveGroups.length > 0
+    const hasGroups = groups.length > 0
+    // Card figures from API only: resolve selected group from current server data (groups prop), not from Redux
+    const selectedGroupFromApi =
+        selectedGroup && groups.length > 0
+            ? groups.find((g) => g.id === selectedGroup.id) ?? groups[0]
+            : groups[0] ?? null
 
-    // Set default active group if none exists
+    // Set default active group if none exists (selection only; data comes from props/API)
     useEffect(() => {
-        if (!selectedGroup && effectiveGroups.length > 0) {
-            dispatch(setActiveGroup(effectiveGroups[0]))
+        if (!selectedGroup && groups.length > 0) {
+            dispatch(setActiveGroup(groups[0]))
         }
-    }, [effectiveGroups, selectedGroup, dispatch])
+    }, [groups, selectedGroup, dispatch])
+
+    useEffect(() => {
+        const groupId = selectedGroupFromApi?.id
+        let cancelled = false
+
+        void (async () => {
+            if (!groupId) {
+                if (!cancelled) setTotalMemberSavings(0)
+                return
+            }
+            try {
+                const contributions = await getContributions(groupId)
+                if (cancelled) return
+                const sum = contributions.reduce(
+                    (acc, c) => acc + Number(c.amount ?? 0),
+                    0
+                )
+                setTotalMemberSavings(sum)
+            } catch {
+                if (!cancelled) setTotalMemberSavings(0)
+            }
+        })()
+
+        return () => {
+            cancelled = true
+        }
+    }, [selectedGroupFromApi?.id])
 
     function handleGroupCreated(createdGroup: GroupResponse) {
         dispatch(addGroup(createdGroup))
@@ -51,7 +101,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
             <div className="flex items-center justify-between px-4 py-4 md:px-6">
                 <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
                 <div className="flex items-center gap-2">
-                    {hasGroups && <GroupSelector groups={effectiveGroups} />}
+                    {hasGroups && <GroupSelector groups={groups} />}
                     <CreateGroupDialog
                         variant="default"
                         onSuccess={handleGroupCreated}
@@ -65,7 +115,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     <CardHeader className="pb-2">
                         <CardDescription>Total group assets</CardDescription>
                         <CardTitle className="text-2xl font-bold">
-                            TZS {selectedGroup?.totalBalance ?? 0}
+                            {formatAmount(totalGroupAssets)}
                         </CardTitle>
                     </CardHeader>
                 </Card>
@@ -73,7 +123,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     <CardHeader className="pb-2">
                         <CardDescription>Available cash</CardDescription>
                         <CardTitle className="text-2xl font-bold">
-                            TZS {selectedGroup?.totalBalance ?? 0}
+                            {formatAmount(selectedGroupFromApi?.totalBalance ?? 0)}
                         </CardTitle>
                     </CardHeader>
                 </Card>
@@ -81,7 +131,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     <CardHeader className="pb-2">
                         <CardDescription>Total member savings</CardDescription>
                         <CardTitle className="text-2xl font-bold">
-                            TZS 0
+                            {formatAmount(totalMemberSavings)}
                         </CardTitle>
                     </CardHeader>
                 </Card>
@@ -89,7 +139,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     <CardHeader className="pb-2">
                         <CardDescription>Outstanding loans</CardDescription>
                         <CardTitle className="text-2xl font-bold">
-                            TZS 0
+                            {formatAmount(0)}
                         </CardTitle>
                     </CardHeader>
                 </Card>
@@ -100,7 +150,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                 <h3 className="text-lg font-semibold mb-4">Quick actions</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
                     {QUICK_ACTIONS.map(({ title, href, icon: Icon }) => {
-                        const canNavigate = hasGroups && selectedGroup
+                        const canNavigate = hasGroups && selectedGroupFromApi
                         const card = (
                             <Card
                                 className={cn(

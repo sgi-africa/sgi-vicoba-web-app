@@ -129,6 +129,13 @@ export interface AddPenaltyFormProps {
     onClose: () => void
 }
 
+export interface AddLoanFormProps {
+    groupId: number
+    members: Member[]
+    onSuccess?: () => void
+    onClose: () => void
+}
+
 export interface Penalty {
     id: number
     groupId: number
@@ -144,4 +151,12 @@ export interface Penalty {
     user: MemberUser
     recorder: MemberUser
     meeting: unknown
+}
+
+export interface AddLoanPayload {
+    userId: number
+    principal: number
+    interestRate: number
+    durationMonths: number
+    reason?: string
 }

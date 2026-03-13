@@ -48,6 +48,9 @@ export const addMemberSchema = object({
   title: z.enum(ADD_MEMBER_TITLES, {
     message: "Title is required",
   }),
+  file: z.instanceof(File, { message: "File is required" })
+    .refine((file) => file.type === "application/pdf", "File must be a PDF")
+    .refine((file) => file.size <= 4 * 1024 * 1024, "File must not exceed 4 MB"),
 })
 
 export type AddMemberFormValues = z.infer<typeof addMemberSchema>
@@ -116,3 +119,22 @@ export const sellSharesSchema = object({
 })
 
 export type SellSharesFormValues = z.infer<typeof sellSharesSchema>
+
+export const addLoanSchema = object({
+  userId: z.coerce.number().min(1, "Please select a member"),
+  principal: z.coerce
+    .number()
+    .min(1, "Principal must be at least 1")
+    .positive("Principal must be a positive number"),
+  interestRate: z.coerce
+    .number()
+    .min(0.01, "Interest rate must be greater than 0")
+    .max(100, "Interest rate must be at most 100"),
+  durationMonths: z.coerce
+    .number()
+    .int("Duration must be a whole number of months")
+    .min(1, "Duration must be at least 1 month"),
+  reason: string().max(500, "Reason must be at most 500 characters").optional(),
+})
+
+export type AddLoanFormValues = z.infer<typeof addLoanSchema>
