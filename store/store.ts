@@ -1,7 +1,7 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit"
 import groupReducer from "@/store/groupSlice"
 import { persistReducer, persistStore } from "redux-persist"
-import storage from "redux-persist/lib/storage"
+import storage from "@/store/persistStorage"
 
 // combine reducers
 const rootReducer = combineReducers({
