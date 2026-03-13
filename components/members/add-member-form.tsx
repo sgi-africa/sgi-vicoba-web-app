@@ -42,8 +42,10 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
     const firstName = (form.elements.namedItem("firstName") as HTMLInputElement).value
     const lastName = (form.elements.namedItem("lastName") as HTMLInputElement).value
     const phone = (form.elements.namedItem("phone") as HTMLInputElement).value
+    const fileInput = form.elements.namedItem("file") as HTMLInputElement | null
+    const file = fileInput?.files?.[0]
 
-    const rawFormData = { firstName, lastName, phone, title }
+    const rawFormData = { firstName, lastName, phone, title, file }
     const result = addMemberSchema.safeParse(rawFormData)
 
     if (!result.success) {
@@ -57,11 +59,18 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
       return
     }
 
-    const { title: validatedTitle, ...rest } = result.data
-    const apiData = { ...rest, title: validatedTitle.toUpperCase() as "CHAIRPERSON" | "TREASURER" | "SECRETARY" | "MEMBER" }
+    const { title: validatedTitle, file: fileObj, ...rest } = result.data
+    const apiTitle = validatedTitle.toUpperCase() as "CHAIRPERSON" | "TREASURER" | "SECRETARY" | "MEMBER"
+
+    const formData = new FormData()
+    formData.append("firstName", rest.firstName)
+    formData.append("lastName", rest.lastName)
+    formData.append("phone", rest.phone)
+    formData.append("title", apiTitle)
+    formData.append("file", fileObj)
 
     try {
-      await addMember(groupId, apiData)
+      await addMember(groupId, formData)
       onSuccess?.()
       onClose()
     } catch (err: unknown) {
@@ -141,14 +150,17 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
         )}
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="file">Profile photo (optional)</Label>
+        <Label htmlFor="file">Member document (PDF, max 4 MB)</Label>
         <Input
           id="file"
           name="file"
           type="file"
-          accept="image/*,.pdf"
+          accept="application/pdf,.pdf"
           className="cursor-pointer"
         />
+        {fieldErrors.file && (
+          <p className="text-sm text-destructive">{fieldErrors.file}</p>
+        )}
       </div>
       <DialogFooter className="gap-4 sm:gap-4 pt-2">
         <DialogClose asChild>

@@ -48,6 +48,9 @@ export const addMemberSchema = object({
   title: z.enum(ADD_MEMBER_TITLES, {
     message: "Title is required",
   }),
+  file: z.instanceof(File, { message: "File is required" })
+    .refine((file) => file.type === "application/pdf", "File must be a PDF")
+    .refine((file) => file.size <= 4 * 1024 * 1024, "File must not exceed 4 MB"),
 })
 
 export type AddMemberFormValues = z.infer<typeof addMemberSchema>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Wallet, Users, HandCoins, ClipboardList } from "lucide-react"
 import GroupSelector from "./group-selector"
@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/redux"
 import { setGroups, addGroup, setActiveGroup } from "@/store/groupSlice"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { getContributions } from "@/app/home/contributions/_action"
 
 const QUICK_ACTIONS = [
     { title: "Contributions", href: "/home/contributions", icon: Wallet },
@@ -22,6 +23,16 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
     const dispatch = useAppDispatch()
     const reduxGroups = useAppSelector((state) => state.group.groups)
     const selectedGroup = useAppSelector((state) => state.group.activeGroup)
+    const [totalMemberSavings, setTotalMemberSavings] = useState<number>(0)
+
+    const totalGroupAssets = useMemo(
+        () =>
+            groups.reduce(
+                (sum, g) => sum + Number(g.totalBalance ?? 0),
+                0
+            ),
+        [groups]
+    )
 
     // Sync server groups to Redux on mount / when groups prop changes
     useEffect(() => {
@@ -39,6 +50,33 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
             dispatch(setActiveGroup(effectiveGroups[0]))
         }
     }, [effectiveGroups, selectedGroup, dispatch])
+
+    useEffect(() => {
+        const groupId = selectedGroup?.id
+        let cancelled = false
+
+        void (async () => {
+            if (!groupId) {
+                if (!cancelled) setTotalMemberSavings(0)
+                return
+            }
+            try {
+                const contributions = await getContributions(groupId)
+                if (cancelled) return
+                const sum = contributions.reduce(
+                    (acc, c) => acc + Number(c.amount ?? 0),
+                    0
+                )
+                setTotalMemberSavings(sum)
+            } catch {
+                if (!cancelled) setTotalMemberSavings(0)
+            }
+        })()
+
+        return () => {
+            cancelled = true
+        }
+    }, [selectedGroup?.id])
 
     function handleGroupCreated(createdGroup: GroupResponse) {
         dispatch(addGroup(createdGroup))
@@ -65,7 +103,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     <CardHeader className="pb-2">
                         <CardDescription>Total group assets</CardDescription>
                         <CardTitle className="text-2xl font-bold">
-                            TZS {selectedGroup?.totalBalance ?? 0}
+                            TZS {totalGroupAssets}
                         </CardTitle>
                     </CardHeader>
                 </Card>
@@ -81,7 +119,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     <CardHeader className="pb-2">
                         <CardDescription>Total member savings</CardDescription>
                         <CardTitle className="text-2xl font-bold">
-                            TZS 0
+                            TZS {totalMemberSavings}
                         </CardTitle>
                     </CardHeader>
                 </Card>
