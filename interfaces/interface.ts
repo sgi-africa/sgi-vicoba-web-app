@@ -128,3 +128,20 @@ export interface AddPenaltyFormProps {
     onSuccess?: () => void
     onClose: () => void
 }
+
+export interface Penalty {
+    id: number
+    groupId: number
+    userId: number
+    meetingId: number | null
+    type: string
+    reason: string | null
+    amount: string
+    status: string
+    recordedBy: number
+    paidAt: string | null
+    createdAt: string
+    user: MemberUser
+    recorder: MemberUser
+    meeting: unknown
+}
