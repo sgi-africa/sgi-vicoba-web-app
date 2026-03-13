@@ -27,7 +27,7 @@ export async function getContributions(groupId: number): Promise<Contribution[]>
 
 export async function addContribution(
     groupId: number,
-    data: { userId: number; amount: number; type: "SAVINGS" | "JAMII" | "PENALTY" }
+    data: { userId: number; amount: number; type: "SAVINGS" | "JAMII" | "PENALTY"; penaltyId?: number }
 ) {
     const session = await auth()
 

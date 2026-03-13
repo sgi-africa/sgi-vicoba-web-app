@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import {
   DialogClose,
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select"
 import { addContribution } from "@/app/home/contributions/_action"
 import { addContributionSchema, CONTRIBUTION_TYPES } from "@/lib/zod"
-import { Member } from "@/interfaces/interface"
+import { Member, Penalty } from "@/interfaces/interface"
 
 const CONTRIBUTION_TYPE_OPTIONS = [
   { value: "SAVINGS" as const, label: "Savings" },
@@ -27,16 +27,20 @@ const CONTRIBUTION_TYPE_OPTIONS = [
 
 type ContributionType = (typeof CONTRIBUTION_TYPES)[number]
 
-interface AddContributionFormProps {
+export interface AddContributionFormProps {
   groupId: number
   members: Member[]
+  penalties?: Penalty[]
   onSuccess?: () => void
   onClose: () => void
 }
 
+const PENDING_STATUSES = ["PENDING", "UNPAID"]
+
 export function AddContributionForm({
   groupId,
   members,
+  penalties = [],
   onSuccess,
   onClose,
 }: AddContributionFormProps) {
@@ -45,6 +49,25 @@ export function AddContributionForm({
   const [isPending, setIsPending] = useState(false)
   const [userId, setUserId] = useState<string>("")
   const [type, setType] = useState<ContributionType | "">("")
+  const [penaltyId, setPenaltyId] = useState<string>("")
+  const [amount, setAmount] = useState<string>("")
+
+  const pendingPenalties = useMemo(
+    () =>
+      type === "PENALTY" && userId
+        ? penalties.filter(
+            (p) => p.userId === Number(userId) && PENDING_STATUSES.includes(p.status?.toUpperCase?.() ?? "")
+          )
+        : [],
+    [type, userId, penalties]
+  )
+
+  useEffect(() => {
+    if (penaltyId && !pendingPenalties.some((p) => p.id === Number(penaltyId))) {
+      setPenaltyId("")
+      setAmount("")
+    }
+  }, [userId, type, pendingPenalties, penaltyId])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -53,12 +76,19 @@ export function AddContributionForm({
     setIsPending(true)
 
     const form = e.currentTarget
-    const amountInput = (form.elements.namedItem("amount") as HTMLInputElement).value.trim()
+    const amountInput = amount || (form.elements.namedItem("amount") as HTMLInputElement)?.value?.trim() || ""
+
+    if (type === "PENALTY" && pendingPenalties.length > 0 && !penaltyId) {
+      setFieldErrors({ penaltyId: "Please select a penalty to pay" })
+      setIsPending(false)
+      return
+    }
 
     const rawFormData = {
       userId,
       amount: amountInput,
       type,
+      penaltyId: type === "PENALTY" && penaltyId ? penaltyId : undefined,
     }
 
     const result = addContributionSchema.safeParse(rawFormData)
@@ -79,9 +109,12 @@ export function AddContributionForm({
         userId: result.data.userId,
         amount: result.data.amount,
         type: result.data.type,
+        penaltyId: result.data.penaltyId,
       })
       setUserId("")
       setType("")
+      setPenaltyId("")
+      setAmount("")
       onSuccess?.()
       onClose()
     } catch (err: unknown) {
@@ -127,23 +160,17 @@ export function AddContributionForm({
         )}
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="amount">Amount (TZS)</Label>
-        <Input
-          id="amount"
-          name="amount"
-          type="number"
-          min="1"
-          step="1"
-          placeholder="e.g. 50000"
-          aria-invalid={!!fieldErrors.amount}
-        />
-        {fieldErrors.amount && (
-          <p className="text-sm text-destructive">{fieldErrors.amount}</p>
-        )}
-      </div>
-      <div className="grid gap-2">
         <Label htmlFor="type">Type</Label>
-        <Select value={type} onValueChange={(v) => setType(v as ContributionType)}>
+        <Select
+          value={type}
+          onValueChange={(v) => {
+            setType(v as ContributionType)
+            if (v !== "PENALTY") {
+              setPenaltyId("")
+              setAmount("")
+            }
+          }}
+        >
           <SelectTrigger id="type" aria-invalid={!!fieldErrors.type}>
             <SelectValue placeholder="Select type" />
           </SelectTrigger>
@@ -157,6 +184,50 @@ export function AddContributionForm({
         </Select>
         {fieldErrors.type && (
           <p className="text-sm text-destructive">{fieldErrors.type}</p>
+        )}
+      </div>
+      {type === "PENALTY" && pendingPenalties.length > 0 && (
+        <div className="grid gap-2">
+          <Label htmlFor="penaltyId">Penalty to pay</Label>
+          <Select
+            value={penaltyId}
+            onValueChange={(id) => {
+              setPenaltyId(id)
+              const penalty = pendingPenalties.find((p) => p.id === Number(id))
+              if (penalty) setAmount(String(penalty.amount))
+            }}
+          >
+            <SelectTrigger id="penaltyId" aria-invalid={!!fieldErrors.penaltyId}>
+              <SelectValue placeholder="Select penalty to pay" />
+            </SelectTrigger>
+            <SelectContent>
+              {pendingPenalties.map((p) => (
+                <SelectItem key={p.id} value={String(p.id)}>
+                  {p.type} – {p.amount} {p.reason ? `(${p.reason})` : ""}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {fieldErrors.penaltyId && (
+            <p className="text-sm text-destructive">{fieldErrors.penaltyId}</p>
+          )}
+        </div>
+      )}
+      <div className="grid gap-2">
+        <Label htmlFor="amount">Amount (TZS)</Label>
+        <Input
+          id="amount"
+          name="amount"
+          type="number"
+          min="1"
+          step="1"
+          placeholder="e.g. 50000"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          aria-invalid={!!fieldErrors.amount}
+        />
+        {fieldErrors.amount && (
+          <p className="text-sm text-destructive">{fieldErrors.amount}</p>
         )}
       </div>
       <DialogFooter className="gap-4 sm:gap-4 pt-2">

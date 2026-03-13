@@ -14,8 +14,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useAppSelector } from "@/hooks/redux"
 import { getContributions } from "./_action"
 import { getMembers } from "@/app/home/members/_action"
+import { getPenalties } from "@/app/home/penalties/_action"
 import { AddContributionForm } from "@/components/contributions/add-contribution-form"
-import { Contribution, Member } from "@/interfaces/interface"
+import { Contribution, Member, Penalty } from "@/interfaces/interface"
 import { toast } from "sonner"
 
 function formatAmount(amount: number | string) {
@@ -45,6 +46,7 @@ export default function ContributionsPage() {
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
   const [contributions, setContributions] = useState<Contribution[]>([])
   const [members, setMembers] = useState<Member[]>([])
+  const [penalties, setPenalties] = useState<Penalty[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [open, setOpen] = useState(false)
 
@@ -56,13 +58,15 @@ export default function ContributionsPage() {
     void (async () => {
       setIsLoading(true)
       try {
-        const [contribs, mems] = await Promise.all([
+        const [contribs, mems, pens] = await Promise.all([
           getContributions(groupId),
           getMembers(groupId),
+          getPenalties(groupId),
         ])
         if (!cancelled) {
           setContributions(contribs)
           setMembers(mems)
+          setPenalties(pens)
         }
       } finally {
         if (!cancelled) setIsLoading(false)
@@ -75,12 +79,14 @@ export default function ContributionsPage() {
 
   const handleAddSuccess = async () => {
     if (!groupId) return
-    const [contribs, mems] = await Promise.all([
+    const [contribs, mems, pens] = await Promise.all([
       getContributions(groupId),
       getMembers(groupId),
+      getPenalties(groupId),
     ])
     setContributions(contribs)
     setMembers(mems)
+    setPenalties(pens)
     setOpen(false)
     toast.success("Contribution added successfully")
   }
@@ -129,6 +135,7 @@ export default function ContributionsPage() {
             <AddContributionForm
               groupId={groupId}
               members={members}
+              penalties={penalties}
               onSuccess={handleAddSuccess}
               onClose={() => setOpen(false)}
             />
@@ -176,8 +183,8 @@ export default function ContributionsPage() {
                     </span>
                     <span
                       className={`text-xs font-medium px-2 py-0.5 rounded-full ${contribution.type === "SAVINGS"
-                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-                          : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                        ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                        : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
                         }`}
                     >
                       {contribution.type === "SAVINGS" ? "Savings" : "Jamii"}

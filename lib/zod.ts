@@ -78,6 +78,7 @@ export const addContributionSchema = object({
   type: z.enum(CONTRIBUTION_TYPES, {
     message: "Type is required",
   }),
+  penaltyId: z.optional(z.coerce.number()),
 })
 
 export type AddContributionFormValues = z.infer<typeof addContributionSchema>
