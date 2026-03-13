@@ -160,3 +160,28 @@ export interface AddLoanPayload {
     durationMonths: number
     reason?: string
 }
+
+export interface LoanRequest {
+    id: number;
+    groupId: number;
+    requestedBy: number;
+    principal: string;
+    interestRate: string;
+    durationMonths: number;
+    interestAmount: string;
+    totalRepayment: string;
+    monthlyInstallment: string;
+    reason: string | null;
+    rejectionReason: string | null;
+    status: "PENDING" | "PAID" | "OVERDUE";
+    approvedBy: number | null;
+    approvedAt: string | null;
+    createdAt: string;
+    dueDate: string;
+    group: {
+        id: number;
+        name: string;
+    };
+    requester: MemberUser
+    approver: MemberUser
+}
