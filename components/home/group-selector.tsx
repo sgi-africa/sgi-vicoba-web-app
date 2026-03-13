@@ -1,22 +1,22 @@
 'use client'
 
-import { useState } from "react"
 import { useDispatch } from "react-redux"
+import { useAppSelector } from "@/hooks/redux"
 import { setActiveGroup } from "@/store/groupSlice"
 import { Props } from "@/interfaces/interface"
 
 export default function GroupSelector({ groups }: Props) {
   const dispatch = useDispatch()
+  const activeGroup = useAppSelector((state) => state.group.activeGroup)
 
-  const [selectedId, setSelectedId] = useState<number>(groups[0]?.id ?? 0)
+  // Drive value from Redux so it updates immediately when a new group is set active (e.g. after create)
+  const selectedId = activeGroup && groups.some((g) => g.id === activeGroup.id)
+    ? activeGroup.id
+    : groups[0]?.id ?? ""
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const id = Number(e.target.value)
-
-    setSelectedId(id)
-
     const group = groups.find((g) => g.id === id)
-
     if (group) {
       dispatch(setActiveGroup(group))
     }

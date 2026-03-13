@@ -87,9 +87,8 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
       form.reset()
       if (onSuccess) {
         onSuccess(createdGroup)
-      } else {
-        router.refresh()
       }
+      router.refresh()
     } catch (err: unknown) {
       let message = "Failed to create group"
       if (err && typeof err === "object" && "response" in err) {
