@@ -119,3 +119,22 @@ export const sellSharesSchema = object({
 })
 
 export type SellSharesFormValues = z.infer<typeof sellSharesSchema>
+
+export const addLoanSchema = object({
+  userId: z.coerce.number().min(1, "Please select a member"),
+  principal: z.coerce
+    .number()
+    .min(1, "Principal must be at least 1")
+    .positive("Principal must be a positive number"),
+  interestRate: z.coerce
+    .number()
+    .min(0.01, "Interest rate must be greater than 0")
+    .max(100, "Interest rate must be at most 100"),
+  durationMonths: z.coerce
+    .number()
+    .int("Duration must be a whole number of months")
+    .min(1, "Duration must be at least 1 month"),
+  reason: string().max(500, "Reason must be at most 500 characters").optional(),
+})
+
+export type AddLoanFormValues = z.infer<typeof addLoanSchema>
