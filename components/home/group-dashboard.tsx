@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, 
+    // useMemo, 
+    useState } from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Wallet, Users, HandCoins, ClipboardList } from "lucide-react"
 import GroupSelector from "./group-selector"
@@ -11,6 +13,7 @@ import { setGroups, addGroup, setActiveGroup } from "@/store/groupSlice"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { getContributions } from "@/app/home/contributions/_action"
+import { getLoans } from "@/app/home/loans/_action"
 
 function formatAmount(amount: number | string) {
     return new Intl.NumberFormat("en-TZ", {
@@ -31,16 +34,17 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
     const dispatch = useAppDispatch()
     const selectedGroup = useAppSelector((state) => state.group.activeGroup)
     const [totalMemberSavings, setTotalMemberSavings] = useState<number>(0)
+    const [outstandingLoansTotal, setOutstandingLoansTotal] = useState<number>(0)
 
     // All summary data from API: groups from server (page), totals from groups prop, savings from getContributions
-    const totalGroupAssets = useMemo(
-        () =>
-            groups.reduce(
-                (sum, g) => sum + Number(g.totalBalance ?? 0),
-                0
-            ),
-        [groups]
-    )
+    // const totalGroupAssets = useMemo(
+    //     () =>
+    //         groups.reduce(
+    //             (sum, g) => sum + Number(g.totalBalance ?? 0),
+    //             0
+    //         ),
+    //     [groups]
+    // )
 
     // Keep Redux in sync with server for context (which group we're on); card figures still come from API only
     useEffect(() => {
@@ -63,6 +67,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
         }
     }, [groups, selectedGroup, dispatch])
 
+    // Get total member savings
     useEffect(() => {
         const groupId = selectedGroupFromApi?.id
         let cancelled = false
@@ -82,6 +87,33 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                 setTotalMemberSavings(sum)
             } catch {
                 if (!cancelled) setTotalMemberSavings(0)
+            }
+        })()
+
+        return () => {
+            cancelled = true
+        }
+    }, [selectedGroupFromApi?.id])
+
+    // Get outstanding loans total
+    useEffect(() => {
+        const groupId = selectedGroupFromApi?.id
+        let cancelled = false
+
+        void (async () => {
+            if (!groupId) {
+                if (!cancelled) setOutstandingLoansTotal(0)
+                return
+            }
+            try {
+                const loans = await getLoans(groupId)
+                if (cancelled) return
+                const total = loans
+                    .filter((loan) => loan.status === "PENDING" || loan.status === "OVERDUE")
+                    .reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
+                setOutstandingLoansTotal(total)
+            } catch {
+                if (!cancelled) setOutstandingLoansTotal(0)
             }
         })()
 
@@ -115,7 +147,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     <CardHeader className="pb-2">
                         <CardDescription>Total group assets</CardDescription>
                         <CardTitle className="text-2xl font-bold">
-                            {formatAmount(totalGroupAssets)}
+                            {/* {formatAmount(totalGroupAssets)} */}
                         </CardTitle>
                     </CardHeader>
                 </Card>
@@ -139,7 +171,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     <CardHeader className="pb-2">
                         <CardDescription>Outstanding loans</CardDescription>
                         <CardTitle className="text-2xl font-bold">
-                            {formatAmount(0)}
+                            {formatAmount(outstandingLoansTotal)}
                         </CardTitle>
                     </CardHeader>
                 </Card>
