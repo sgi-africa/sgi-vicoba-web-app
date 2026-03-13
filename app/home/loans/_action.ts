@@ -2,7 +2,7 @@
 
 import { api } from "@/lib/api"
 import { auth } from "@/auth"
-import { AddLoanPayload } from "@/interfaces/interface"
+import { AddLoanPayload, LoanRequest } from "@/interfaces/interface"
 
 export async function addLoan(groupId: number, data: AddLoanPayload) {
   const session = await auth()
@@ -19,4 +19,22 @@ export async function addLoan(groupId: number, data: AddLoanPayload) {
   })
 
   return response.data
+}
+
+export async function getLoans(groupId: number): Promise<LoanRequest[]> {
+  const session = await auth()
+
+  if (!session?.user.accessToken) {
+    throw new Error("Not authenticated")
+  }
+
+  const userId = session.user.id
+
+  const response = await api.get(`/loans/group/${groupId}/user/${userId}/`, {
+    headers: {
+      Authorization: `Bearer ${session.user.accessToken}`,
+    },
+  })
+
+  return response.data ?? []
 }

@@ -12,6 +12,14 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { getContributions } from "@/app/home/contributions/_action"
 
+function formatAmount(amount: number | string) {
+    return new Intl.NumberFormat("en-TZ", {
+        style: "currency",
+        currency: "TZS",
+        minimumFractionDigits: 0,
+    }).format(Number(amount))
+}
+
 const QUICK_ACTIONS = [
     { title: "Contributions", href: "/home/contributions", icon: Wallet },
     { title: "Loans", href: "/home/loans", icon: HandCoins },
@@ -85,7 +93,6 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
     function handleGroupCreated(createdGroup: GroupResponse) {
         dispatch(addGroup(createdGroup))
         dispatch(setActiveGroup(createdGroup))
-        // CreateGroupDialog already calls router.refresh() so page refetches groups from API
     }
 
     return (
@@ -108,7 +115,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     <CardHeader className="pb-2">
                         <CardDescription>Total group assets</CardDescription>
                         <CardTitle className="text-2xl font-bold">
-                            TZS {totalGroupAssets}
+                            {formatAmount(totalGroupAssets)}
                         </CardTitle>
                     </CardHeader>
                 </Card>
@@ -116,7 +123,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     <CardHeader className="pb-2">
                         <CardDescription>Available cash</CardDescription>
                         <CardTitle className="text-2xl font-bold">
-                            TZS {selectedGroupFromApi?.totalBalance ?? 0}
+                            {formatAmount(selectedGroupFromApi?.totalBalance ?? 0)}
                         </CardTitle>
                     </CardHeader>
                 </Card>
@@ -124,7 +131,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     <CardHeader className="pb-2">
                         <CardDescription>Total member savings</CardDescription>
                         <CardTitle className="text-2xl font-bold">
-                            TZS {totalMemberSavings}
+                            {formatAmount(totalMemberSavings)}
                         </CardTitle>
                     </CardHeader>
                 </Card>
@@ -132,7 +139,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                     <CardHeader className="pb-2">
                         <CardDescription>Outstanding loans</CardDescription>
                         <CardTitle className="text-2xl font-bold">
-                            TZS 0
+                            {formatAmount(0)}
                         </CardTitle>
                     </CardHeader>
                 </Card>

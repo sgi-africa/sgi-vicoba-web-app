@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card"
 import { useAppSelector } from "@/hooks/redux"
 import { getContributions } from "./_action"
 import { getMembers } from "@/app/home/members/_action"
@@ -109,6 +109,14 @@ export default function ContributionsPage() {
     )
   }
 
+  const totalSavings = contributions
+    .filter((c) => c.type === "SAVINGS")
+    .reduce((sum, c) => sum + Number(c.amount ?? 0), 0)
+
+  const totalJamii = contributions
+    .filter((c) => c.type === "JAMII")
+    .reduce((sum, c) => sum + Number(c.amount ?? 0), 0)
+
   return (
     <div className="flex flex-col flex-1 overflow-auto w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 md:px-6">
@@ -141,6 +149,26 @@ export default function ContributionsPage() {
             />
           </DialogContent>
         </Dialog>
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-4 md:px-6 pb-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Total Savings</CardDescription>
+            <CardTitle className="text-xl font-bold">
+              {formatAmount(totalSavings)}
+            </CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Total Jamii</CardDescription>
+            <CardTitle className="text-xl font-bold">
+              {formatAmount(totalJamii)}
+            </CardTitle>
+          </CardHeader>
+        </Card>
       </div>
 
       <div className="flex-1 px-4 md:px-6 pb-6">
