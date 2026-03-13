@@ -152,3 +152,11 @@ export interface Penalty {
     recorder: MemberUser
     meeting: unknown
 }
+
+export interface AddLoanPayload {
+    userId: number
+    principal: number
+    interestRate: number
+    durationMonths: number
+    reason?: string
+}
