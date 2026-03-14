@@ -12,10 +12,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { AddMeetingFormProps } from "@/interfaces/interface"
 import { cn } from "@/lib/utils"
 import { addMeeting } from "@/app/home/meetings/_action"
+import { addMeetingSchema } from "@/lib/zod"
 
 
 export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeetingFormProps) {
     const [error, setError] = useState<string | null>(null)
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
     const [isPending, setIsPending] = useState(false)
     const [selectedAttendees, setSelectedAttendees] = useState<string[]>([])
 
@@ -24,30 +26,43 @@ export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeet
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
         setError(null)
+        setFieldErrors({})
         setIsPending(true)
 
         const form = e.currentTarget
         const formData = new FormData(form)
-        const meetingDate = formData.get("meetingDate") as string
-        const nextMeetingDate = formData.get("nextMeetingDate") as string
-        const topic = formData.get("topic") as string
+        const meetingDate = (formData.get("meetingDate") as string) ?? ""
+        const nextMeetingDate = (formData.get("nextMeetingDate") as string) ?? ""
+        const topic = (formData.get("topic") as string) ?? ""
         const resolutions = (formData.get("resolutions") as string)?.trim() || undefined
+        const attendeeIds = selectedAttendees.map(Number)
 
-        if (!meetingDate || !nextMeetingDate || !topic?.trim()) {
-            setError("Meeting date, next meeting date, and topic are required")
+        const result = addMeetingSchema.safeParse({
+            meetingDate,
+            nextMeetingDate,
+            topic,
+            attendeeIds,
+            resolutions,
+        })
+
+        if (!result.success) {
+            const errors: Record<string, string> = {}
+            for (const issue of result.error.issues) {
+                const path = issue.path[0]?.toString() ?? "form"
+                if (!errors[path]) errors[path] = issue.message
+            }
+            setFieldErrors(errors)
             setIsPending(false)
             return
         }
 
-        const attendeeIds = selectedAttendees.map(Number)
-
         try {
             await addMeeting(groupId, {
-                topic: topic.trim(),
-                attendeeIds,
-                meetingDate,
-                nextMeetingDate,
-                resolutions,
+                topic: result.data.topic,
+                attendeeIds: result.data.attendeeIds,
+                meetingDate: result.data.meetingDate,
+                nextMeetingDate: result.data.nextMeetingDate,
+                resolutions: result.data.resolutions,
             })
             onSuccess?.()
             onClose()
@@ -74,8 +89,11 @@ export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeet
                     name="meetingDate"
                     type="date"
                     defaultValue={today}
-                    required
+                    aria-invalid={!!fieldErrors.meetingDate}
                 />
+                {fieldErrors.meetingDate && (
+                    <p className="text-sm text-destructive">{fieldErrors.meetingDate}</p>
+                )}
             </div>
 
             <div className="grid gap-2">
@@ -85,8 +103,11 @@ export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeet
                     name="nextMeetingDate"
                     type="date"
                     min={today}
-                    required
+                    aria-invalid={!!fieldErrors.nextMeetingDate}
                 />
+                {fieldErrors.nextMeetingDate && (
+                    <p className="text-sm text-destructive">{fieldErrors.nextMeetingDate}</p>
+                )}
             </div>
 
             <div className="grid gap-2">
@@ -95,12 +116,18 @@ export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeet
                     id="topic"
                     name="topic"
                     placeholder="e.g. Monthly savings review"
-                    required
+                    aria-invalid={!!fieldErrors.topic}
                 />
+                {fieldErrors.topic && (
+                    <p className="text-sm text-destructive">{fieldErrors.topic}</p>
+                )}
             </div>
 
             <div className="grid gap-2">
                 <Label>Attendees</Label>
+                {fieldErrors.attendeeIds && (
+                    <p className="text-sm text-destructive">{fieldErrors.attendeeIds}</p>
+                )}
                 <div
                     className={cn(
                         "max-h-32 overflow-y-auto rounded-md border border-input p-2 space-y-2",
@@ -146,16 +173,20 @@ export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeet
                     name="resolutions"
                     placeholder="Optional meeting resolutions..."
                     rows={3}
+                    aria-invalid={!!fieldErrors.resolutions}
                 />
+                {fieldErrors.resolutions && (
+                    <p className="text-sm text-destructive">{fieldErrors.resolutions}</p>
+                )}
             </div>
 
             <DialogFooter className="gap-4 sm:gap-4 pt-2">
                 <DialogClose asChild>
-                    <Button type="button" variant="outline" disabled={isPending}>
+                    <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
                         Cancel
                     </Button>
                 </DialogClose>
-                <Button type="submit" disabled={isPending}>
+                <Button type="submit" disabled={isPending} className="cursor-pointer">
                     {isPending ? "Adding…" : "Add meeting"}
                 </Button>
             </DialogFooter>

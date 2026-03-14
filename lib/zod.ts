@@ -138,3 +138,13 @@ export const addLoanSchema = object({
 })
 
 export type AddLoanFormValues = z.infer<typeof addLoanSchema>
+
+export const addMeetingSchema = object({
+  meetingDate: string().min(1, "Meeting date is required"),
+  nextMeetingDate: string().min(1, "Next meeting date is required"),
+  topic: string().min(1, "Meeting topic is required").max(200, "Topic must be at most 200 characters"),
+  attendeeIds: z.array(z.number()),
+  resolutions: string().max(1000, "Resolutions must be at most 1000 characters").optional(),
+})
+
+export type AddMeetingFormValues = z.infer<typeof addMeetingSchema>
