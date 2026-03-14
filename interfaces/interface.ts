@@ -185,3 +185,18 @@ export interface LoanRequest {
     requester: MemberUser
     approver: MemberUser
 }
+
+export interface AddMeetingFormProps {
+    groupId: number
+    members: Member[]
+    onSuccess?: () => void
+    onClose: () => void
+}
+
+export interface AddMeetingPayload {
+    topic: string
+    attendeeIds: number[]
+    meetingDate: string
+    nextMeetingDate: string
+    resolutions?: string
+}

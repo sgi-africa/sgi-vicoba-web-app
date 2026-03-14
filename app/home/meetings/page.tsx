@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Plus, ClipboardList, MapPin, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,6 +12,10 @@ import {
 } from "@/components/ui/dialog"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAppSelector } from "@/hooks/redux"
+import { getMembers } from "@/app/home/members/_action"
+import { AddMeetingForm } from "@/components/meetings/add-meeting-form"
+import { Member } from "@/interfaces/interface"
+import { toast } from "sonner"
 
 // Dummy type – replace with backend type later
 interface DummyMeeting {
@@ -85,6 +89,14 @@ export default function MeetingsPage() {
   const [meetings] = useState<DummyMeeting[]>(DUMMY_MEETINGS)
   const [isLoading] = useState(false)
   const [open, setOpen] = useState(false)
+  const [members, setMembers] = useState<Member[]>([])
+
+  const groupId = activeGroup?.id
+
+  useEffect(() => {
+    if (!groupId) return
+    getMembers(groupId).then(setMembers)
+  }, [groupId])
 
   if (!activeGroup) {
     return (
@@ -125,9 +137,17 @@ export default function MeetingsPage() {
             <DialogHeader>
               <DialogTitle>Add new meeting</DialogTitle>
             </DialogHeader>
-            <p className="text-sm text-muted-foreground py-4">
-              Meeting form will be wired to the backend later.
-            </p>
+            {groupId && (
+              <AddMeetingForm
+                groupId={groupId}
+                members={members}
+                onSuccess={() => {
+                  setOpen(false)
+                  toast.success("Meeting created successfully")
+                }}
+                onClose={() => setOpen(false)}
+              />
+            )}
           </DialogContent>
         </Dialog>
       </div>
