@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, ClipboardList, MapPin, Calendar } from "lucide-react"
+import { Plus, ClipboardList, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -13,19 +13,10 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { useAppSelector } from "@/hooks/redux"
 import { getMembers } from "@/app/home/members/_action"
+import { getGroupMeetings } from "@/app/home/meetings/_action"
 import { AddMeetingForm } from "@/components/meetings/add-meeting-form"
-import { Member } from "@/interfaces/interface"
+import { Member, GroupMeetingsResponse } from "@/interfaces/interface"
 import { toast } from "sonner"
-
-// Dummy type – replace with backend type later
-interface DummyMeeting {
-  id: number
-  title: string
-  scheduledAt: string
-  location: string
-  attendeeCount: number
-  status: "scheduled" | "completed" | "cancelled"
-}
 
 function formatDateTime(dateStr: string) {
   try {
@@ -35,43 +26,19 @@ function formatDateTime(dateStr: string) {
       month: "short",
       day: "numeric",
       year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     })
   } catch {
     return dateStr
   }
 }
 
-// Dummy data – replace with API call later
-const DUMMY_MEETINGS: DummyMeeting[] = [
-  {
-    id: 1,
-    title: "Monthly savings review",
-    scheduledAt: "2025-03-20T10:00:00",
-    location: "Group office, Dar es Salaam",
-    attendeeCount: 12,
-    status: "scheduled",
-  },
-  {
-    id: 2,
-    title: "Loan committee meeting",
-    scheduledAt: "2025-03-15T14:00:00",
-    location: "Community hall",
-    attendeeCount: 8,
-    status: "completed",
-  },
-  {
-    id: 3,
-    title: "Quarterly general assembly",
-    scheduledAt: "2025-04-01T09:00:00",
-    location: "TBD",
-    attendeeCount: 0,
-    status: "scheduled",
-  },
-]
+function getStatusFromDate(nextMeetingDate: string) {
+  const next = new Date(nextMeetingDate)
+  const now = new Date()
+  return next >= now ? "scheduled" : "completed"
+}
 
-function getStatusStyle(status: DummyMeeting["status"]) {
+function getStatusStyle(status: string) {
   switch (status) {
     case "scheduled":
       return "bg-amber-500/15 text-amber-700 dark:text-amber-400"
@@ -86,8 +53,8 @@ function getStatusStyle(status: DummyMeeting["status"]) {
 
 export default function MeetingsPage() {
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
-  const [meetings] = useState<DummyMeeting[]>(DUMMY_MEETINGS)
-  const [isLoading] = useState(false)
+  const [meetings, setMeetings] = useState<GroupMeetingsResponse[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [open, setOpen] = useState(false)
   const [members, setMembers] = useState<Member[]>([])
 
@@ -96,6 +63,21 @@ export default function MeetingsPage() {
   useEffect(() => {
     if (!groupId) return
     getMembers(groupId).then(setMembers)
+  }, [groupId])
+
+  useEffect(() => {
+    if (!groupId) {
+      queueMicrotask(() => {
+        setMeetings([])
+        setIsLoading(false)
+      })
+      return
+    }
+    queueMicrotask(() => setIsLoading(true))
+    getGroupMeetings(groupId)
+      .then((data) => setMeetings(Array.isArray(data) ? data : []))
+      .catch(() => setMeetings([]))
+      .finally(() => setIsLoading(false))
   }, [groupId])
 
   if (!activeGroup) {
@@ -144,6 +126,11 @@ export default function MeetingsPage() {
                 onSuccess={() => {
                   setOpen(false)
                   toast.success("Meeting created successfully")
+                  if (groupId) {
+                    getGroupMeetings(groupId).then((data) =>
+                      setMeetings(Array.isArray(data) ? data : [])
+                    )
+                  }
                 }}
                 onClose={() => setOpen(false)}
               />
@@ -184,26 +171,29 @@ export default function MeetingsPage() {
                       <Calendar className="size-5" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-medium truncate">{meeting.title}</p>
+                      <p className="font-medium truncate">{meeting.topic}</p>
+
+                      {meeting.resolutions && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
+                          {meeting.resolutions}
+                        </p>
+                      )}
                       <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
                         <Calendar className="size-3.5 shrink-0" />
-                        {formatDateTime(meeting.scheduledAt)}
-                      </p>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                        <MapPin className="size-3.5 shrink-0" />
-                        {meeting.location}
+                        Next meeting: {formatDateTime(meeting.nextMeetingDate)}
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     <span
-                      className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${getStatusStyle(meeting.status)}`}
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${getStatusStyle(getStatusFromDate(meeting.nextMeetingDate))}`}
                     >
-                      {meeting.status}
+                      {getStatusFromDate(meeting.nextMeetingDate)}
                     </span>
+                    {/* meeting.status is derived from nextMeetingDate (future = scheduled, past = completed) */}
                     <span className="text-xs text-muted-foreground">
-                      {meeting.attendeeCount}{" "}
-                      {meeting.attendeeCount === 1 ? "attendee" : "attendees"}
+                      {meeting.attendees?.length ?? 0}{" "}
+                      {(meeting.attendees?.length ?? 0) === 1 ? "attendee" : "attendees"}
                     </span>
                   </div>
                 </CardContent>

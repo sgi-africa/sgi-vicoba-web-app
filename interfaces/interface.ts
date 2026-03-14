@@ -200,3 +200,21 @@ export interface AddMeetingPayload {
     nextMeetingDate: string
     resolutions?: string
 }
+
+export interface GroupMeetingsResponse {
+    id: number;
+    groupId: number;
+    meetingDate: string;
+    nextMeetingDate: string;
+    topic: string;
+    resolutions: string;
+    recordedBy: number;
+    createdAt: string;
+    recorder: MemberUser;
+    attendees: {
+        id: number;
+        meetingId: number;
+        userId: number;
+        user: MemberUser;
+    }[];
+}
