@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Plus, Users, Download } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Plus, Users, Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/hooks/redux";
 import { AddMemberForm } from "@/components/members/add-member-form";
@@ -32,10 +33,19 @@ function getRoleLabel(value: string) {
   return MEMBER_ROLES.find((r) => r.value === v)?.label ?? value;
 }
 
+function matchesSearch(member: Member, query: string): boolean {
+  if (!query.trim()) return true;
+  const q = query.trim().toLowerCase();
+  const fullName = `${member.user.firstName} ${member.user.lastName}`.toLowerCase();
+  const phone = (member.user.phone ?? "").toLowerCase();
+  return fullName.includes(q) || phone.includes(q);
+}
+
 export default function MembersPageClient() {
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const activeGroup = useAppSelector((state) => state.group.activeGroup);
   const groupId = activeGroup?.id;
@@ -91,6 +101,10 @@ export default function MembersPageClient() {
     doc.save(`${groupName.replace(/\s+/g, "-")}-members-${new Date().toISOString().slice(0, 10)}.pdf`);
   }
 
+  const filteredMembers = useMemo(
+    () => members.filter((m) => matchesSearch(m, searchQuery)),
+    [members, searchQuery]
+  );
   const totalMembers = members.length;
 
   if (!activeGroup) {
@@ -159,6 +173,19 @@ export default function MembersPageClient() {
       </div>
 
       <div className="flex-1 px-4 md:px-6 pb-6">
+        {members.length > 0 && !isLoading && (
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <Input
+              type="search"
+              placeholder="Search members by name or phone…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-10 bg-muted/50"
+              aria-label="Search members"
+            />
+          </div>
+        )}
         {isLoading ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 px-6">
@@ -179,35 +206,56 @@ export default function MembersPageClient() {
           </Card>
         ) : (
           <div className="space-y-2">
-            {members.map((member) => (
-              <Card
-                key={member.id}
-                className={cn("transition-colors hover:bg-accent/30", "cursor-default")}
-              >
-                <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
-                      {member.user.firstName[0]}
-                      {member.user.lastName[0]}
-                    </div>
-
-                    <div>
-                      <p className="font-medium">
-                        {member.user.firstName} {member.user.lastName}
-                      </p>
-
-                      <p className="text-sm text-muted-foreground">
-                        {member.user.phone || "No phone"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <span className="text-sm font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-md">
-                    {getRoleLabel(member.title)}
-                  </span>
+            {filteredMembers.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-12 px-6">
+                  <p className="text-sm text-muted-foreground">
+                    {searchQuery.trim()
+                      ? "No members match your search."
+                      : "No members yet."}
+                  </p>
+                  {searchQuery.trim() && (
+                    <Button
+                      variant="link"
+                      className="mt-2 cursor-pointer"
+                      onClick={() => setSearchQuery("")}
+                    >
+                      Clear search
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
-            ))}
+            ) : (
+              filteredMembers.map((member) => (
+                <Card
+                  key={member.id}
+                  className={cn("transition-colors hover:bg-accent/30", "cursor-default")}
+                >
+                  <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
+                        {member.user.firstName[0]}
+                        {member.user.lastName[0]}
+                      </div>
+
+                      <div>
+                        <p className="font-medium">
+                          {member.user.firstName} {member.user.lastName}
+                        </p>
+
+                        <p className="text-sm text-muted-foreground">
+                          {member.user.phone || "No phone"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <span className="text-sm font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-md">
+                      {getRoleLabel(member.title)}
+                    </span>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         )}
       </div>

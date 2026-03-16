@@ -1,4 +1,4 @@
-import { Home, User2, ChevronUp, UsersRound, Wallet, HandCoins, ClipboardPenLine, BanknoteArrowUp, UserRoundMinus } from "lucide-react"
+import { Home, User2, ChevronUp, UsersRound, Wallet, HandCoins, ClipboardPenLine, BanknoteArrowUp, UserRoundMinus, Settings } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { auth } from "@/auth";
@@ -48,6 +48,11 @@ const items = [
         url: "/home/funds",
         icon: BanknoteArrowUp,
     },
+    {
+        title: "Settings",
+        url: "/home/settings",
+        icon: Settings,
+    }
 ]
 
 export default async function AppSidebar() {
