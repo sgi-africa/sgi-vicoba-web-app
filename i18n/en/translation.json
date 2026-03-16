@@ -1,6 +1,6 @@
 {
   "header": {
-    "brand": "SGI Africa",
+    "brand": "SGI VICOBA",
     "signIn": "Sign in",
     "getStarted": "Get started"
   },
@@ -8,7 +8,7 @@
     "trusted": "Trusted across Africa",
     "titleStart": "Get started.",
     "titleEnd": "Stay secure.",
-    "description": "SGI Africa helps you manage risk and protect what matters most. Join thousands of professionals who trust us every day.",
+    "description": "SGI VICOBA helps you manage risk and protect what matters most. Join thousands of professionals who trust us every day.",
     "createAccount": "Create free account",
     "signIn": "Sign in"
   },
@@ -31,7 +31,7 @@
     }
   },
   "benefits": {
-    "title": "Why teams choose SGI Africa",
+    "title": "Why teams choose SGI VICOBA",
     "description": "From startups to enterprises, we provide the tools and peace of mind you need to focus on what matters.",
     "items": [
       "Secure, compliant infrastructure",
@@ -46,8 +46,8 @@
     }
   },
   "footer": {
-    "brand": "SGI Africa",
-    "copyright": "© {{year}} SGI Africa. All rights reserved."
+    "brand": "SGI VICOBA",
+    "copyright": "© {{year}} SGI VICOBA. All rights reserved."
   },
   "auth": {
     "loginTitle": "Login to your account",
@@ -63,7 +63,7 @@
     "signUpHere": "Sign In Here",
     "alreadyAccount": "Already have an account?",
     "registerWelcome": "Welcome",
-    "registerDescription": "Welcome to SGI Africa - Get started, stay secure",
+    "registerDescription": "Welcome to SGI VICOBA - Get started, stay secure",
     "firstName": "First name",
     "lastName": "Last name",
     "phoneNumber": "Phone number",

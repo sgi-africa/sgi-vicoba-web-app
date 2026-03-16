@@ -4,7 +4,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import LanguageSwitcher from "@/components/global/language-switcher"
 
 
-const GROUP_NAME = "SGI Africa"
+const GROUP_NAME = "SGI VICOBA"
 
 export function HomeHeader() {
   return (

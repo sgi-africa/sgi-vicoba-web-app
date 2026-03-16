@@ -94,7 +94,7 @@ export default function SettingsPage() {
           </p>
         </div>
 
-        <div className="space-y-6 max-w-2xl">
+        <div className="space-y-6 w-full">
           {isLoading ? (
             <Card>
               <CardContent className="py-12">
@@ -108,7 +108,55 @@ export default function SettingsPage() {
             </Card>
           ) : group ? (
             <>
-              {/* Group details */}
+              {/* Group info (read-only) - above edit form */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                      <AlertCircle className="size-5" />
+                    </div>
+                    <div>
+                      <CardTitle>Group info</CardTitle>
+                      <CardDescription>
+                        Overview of your group (read-only)
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4 min-w-0">
+                      <Users className="size-5 text-muted-foreground shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium">Members</p>
+                        <p className="text-2xl font-bold">
+                          {group.members?.length ?? 0}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4 min-w-0">
+                      <Wallet className="size-5 text-muted-foreground shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium">Total balance</p>
+                        <p className="text-2xl font-bold">
+                          {formatAmount(group.totalBalance ?? 0)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4 min-w-0 sm:col-span-2 lg:col-span-1">
+                      <Calendar className="size-5 text-muted-foreground shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium">Created</p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatDate(group.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Group details (edit form) */}
               <Card>
                 <CardHeader>
                   <div className="flex items-center gap-3">
@@ -128,54 +176,6 @@ export default function SettingsPage() {
                     group={group}
                     onSuccess={handleUpdateSuccess}
                   />
-                </CardContent>
-              </Card>
-
-              {/* Group info (read-only) */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                      <AlertCircle className="size-5" />
-                    </div>
-                    <div>
-                      <CardTitle>Group info</CardTitle>
-                      <CardDescription>
-                        Overview of your group (read-only)
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4">
-                      <Users className="size-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">Members</p>
-                        <p className="text-2xl font-bold">
-                          {group.members?.length ?? 0}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4">
-                      <Wallet className="size-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">Total balance</p>
-                        <p className="text-2xl font-bold">
-                          {formatAmount(group.totalBalance ?? 0)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4 sm:col-span-2">
-                      <Calendar className="size-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">Created</p>
-                        <p className="text-sm text-muted-foreground">
-                          {formatDate(group.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </>
