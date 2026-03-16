@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { Plus, ClipboardList, Calendar, Download, Search } from "lucide-react"
+import { Plus, ClipboardList, Calendar, Download, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,7 +12,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { useAppSelector } from "@/hooks/redux"
 import { getMembers } from "@/app/home/members/_action"
 import { getGroupMeetings } from "@/app/home/meetings/_action"
@@ -21,6 +20,11 @@ import { Member, GroupMeetingsResponse } from "@/interfaces/interface"
 import { toast } from "sonner"
 import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
+import { PageHeader } from "@/components/shared/page-header"
+import { EmptyState } from "@/components/shared/empty-state"
+import { SearchInput } from "@/components/shared/search-input"
+import { StatusBadge } from "@/components/shared/status-badge"
+import { ContentContainer } from "@/components/shared/content-container"
 
 function formatDateTime(dateStr: string) {
   try {
@@ -42,19 +46,6 @@ function getStatusFromDate(nextMeetingDate: string) {
   return next >= now ? "scheduled" : "completed"
 }
 
-function getStatusStyle(status: string) {
-  switch (status) {
-    case "scheduled":
-      return "bg-amber-500/15 text-amber-700 dark:text-amber-400"
-    case "completed":
-      return "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-    case "cancelled":
-      return "bg-slate-500/15 text-slate-700 dark:text-slate-400"
-    default:
-      return "bg-muted text-muted-foreground"
-  }
-}
-
 function matchesSearch(meeting: GroupMeetingsResponse, query: string): boolean {
   if (!query.trim()) return true
   const q = query.trim().toLowerCase()
@@ -64,12 +55,7 @@ function matchesSearch(meeting: GroupMeetingsResponse, query: string): boolean {
   const attendeeNames = (meeting.attendees ?? [])
     .map((a) => `${a.user?.firstName ?? ""} ${a.user?.lastName ?? ""}`.trim().toLowerCase())
     .join(" ")
-  return (
-    topic.includes(q) ||
-    resolutions.includes(q) ||
-    status.includes(q) ||
-    attendeeNames.includes(q)
-  )
+  return topic.includes(q) || resolutions.includes(q) || status.includes(q) || attendeeNames.includes(q)
 }
 
 export default function MeetingsPage() {
@@ -143,51 +129,43 @@ export default function MeetingsPage() {
 
   if (!activeGroup) {
     return (
-      <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-            <div className="rounded-full bg-muted p-4 mb-4">
-              <ClipboardList className="size-10 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-1">{t("common.noGroupSelected")}</h3>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              {t("common.selectGroupToViewMeetings")}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <ContentContainer className="pt-5">
+        <EmptyState
+          icon={ClipboardList}
+          title={t("common.noGroupSelected")}
+          description={t("common.selectGroupToViewMeetings")}
+        />
+      </ContentContainer>
     )
   }
 
   return (
     <div className="flex flex-col flex-1 overflow-auto w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 md:px-6">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">{t("meetings.title")}</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("members.countInGroup", { count: meetings.length, label: meetings.length === 1 ? t("common.meeting") : t("common.meetings") })}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {meetings.length > 0 && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="cursor-pointer shrink-0"
-              onClick={handleDownloadMeetings}
-              title={t("meetings.downloadMeetings")}
-            >
-              <Download className="size-4" />
+      <PageHeader
+        title={t("meetings.title")}
+        description={t("members.countInGroup", {
+          count: meetings.length,
+          label: meetings.length === 1 ? t("common.meeting") : t("common.meetings"),
+        })}
+      >
+        {meetings.length > 0 && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="shrink-0 border-border/60"
+            onClick={handleDownloadMeetings}
+            title={t("meetings.downloadMeetings")}
+          >
+            <Download className="size-4" />
+          </Button>
+        )}
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="gap-2">
+              <Plus className="size-4" />
+              {t("meetings.addMeeting")}
             </Button>
-          )}
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="gap-2 cursor-pointer">
-                <Plus className="size-4" />
-                {t("meetings.addMeeting")}
-              </Button>
-            </DialogTrigger>
+          </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>{t("meetings.addNewMeeting")}</DialogTitle>
@@ -209,106 +187,88 @@ export default function MeetingsPage() {
               />
             )}
           </DialogContent>
-          </Dialog>
-        </div>
-      </div>
+        </Dialog>
+      </PageHeader>
 
-      <div className="flex-1 px-4 md:px-6 pb-6">
+      <ContentContainer>
         {meetings.length > 0 && !isLoading && (
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-            <Input
-              type="search"
-              placeholder={t("meetings.searchPlaceholder")}
+          <div className="mb-4">
+            <SearchInput
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-10 bg-muted/50"
-              aria-label="Search meetings"
+              onChange={setSearchQuery}
+              placeholder={t("meetings.searchPlaceholder")}
             />
           </div>
         )}
+
         {isLoading ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+          <Card className="border-dashed border-border/60">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <Loader2 className="size-6 text-muted-foreground animate-spin mb-3" />
               <p className="text-sm text-muted-foreground">{t("meetings.loadingMeetings")}</p>
             </CardContent>
           </Card>
         ) : meetings.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-              <div className="rounded-full bg-muted p-4 mb-4">
-                <ClipboardList className="size-10 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-1">{t("meetings.noMeetingsYet")}</h3>
-              <p className="text-sm text-muted-foreground text-center max-w-sm">
-                {t("meetings.scheduleFirstMeeting")}
+          <EmptyState
+            icon={ClipboardList}
+            title={t("meetings.noMeetingsYet")}
+            description={t("meetings.scheduleFirstMeeting")}
+          />
+        ) : filteredMeetings.length === 0 ? (
+          <Card className="border-dashed border-border/60">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <p className="text-sm text-muted-foreground">
+                {searchQuery.trim() ? t("meetings.noMatchSearch") : t("meetings.noMeetingsYet")}
               </p>
+              {searchQuery.trim() && (
+                <Button variant="link" className="mt-2" onClick={() => setSearchQuery("")}>
+                  {t("common.clearSearch")}
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-2">
-            {filteredMeetings.length === 0 ? (
-              <Card className="border-dashed">
-                <CardContent className="flex flex-col items-center justify-center py-12 px-6">
-                  <p className="text-sm text-muted-foreground">
-                    {searchQuery.trim()
-                      ? t("meetings.noMatchSearch")
-                      : t("meetings.noMeetingsYet")}
-                  </p>
-                  {searchQuery.trim() && (
-                    <Button
-                      variant="link"
-                      className="mt-2 cursor-pointer"
-                      onClick={() => setSearchQuery("")}
-                    >
-                      {t("common.clearSearch")}
-                    </Button>
-                  )}
+            {filteredMeetings.map((meeting) => (
+              <Card
+                key={meeting.id}
+                className="shadow-sm border-border/60 transition-all hover:shadow-md hover:border-border"
+              >
+                <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
+                      <Calendar className="size-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-foreground truncate">{meeting.topic}</p>
+                      {meeting.resolutions && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
+                          {meeting.resolutions}
+                        </p>
+                      )}
+                      <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                        <Calendar className="size-3.5 shrink-0" />
+                        {t("common.nextMeeting")}: {formatDateTime(meeting.nextMeetingDate)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    <StatusBadge
+                      label={getStatusFromDate(meeting.nextMeetingDate)}
+                      variant={getStatusFromDate(meeting.nextMeetingDate) === "completed" ? "success" : "warning"}
+                      className="capitalize"
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {meeting.attendees?.length ?? 0}{" "}
+                      {(meeting.attendees?.length ?? 0) === 1 ? t("common.attendee") : t("common.attendees")}
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
-            ) : (
-              filteredMeetings.map((meeting) => (
-                <Card
-                  key={meeting.id}
-                  className="transition-colors hover:bg-accent/30 cursor-default"
-                >
-                  <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-                    <div className="flex items-start gap-3 min-w-0">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <Calendar className="size-5" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-medium truncate">{meeting.topic}</p>
-
-                        {meeting.resolutions && (
-                          <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
-                            {meeting.resolutions}
-                          </p>
-                        )}
-                        <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                          <Calendar className="size-3.5 shrink-0" />
-                          {t("common.nextMeeting")}: {formatDateTime(meeting.nextMeetingDate)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-1 shrink-0">
-                      <span
-                        className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${getStatusStyle(getStatusFromDate(meeting.nextMeetingDate))}`}
-                      >
-                        {getStatusFromDate(meeting.nextMeetingDate)}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {meeting.attendees?.length ?? 0}{" "}
-                        {(meeting.attendees?.length ?? 0) === 1 ? t("common.attendee") : t("common.attendees")}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
+            ))}
           </div>
         )}
-      </div>
+      </ContentContainer>
     </div>
   )
 }

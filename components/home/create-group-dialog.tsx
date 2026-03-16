@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Plus } from "lucide-react"
+import { Plus, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
@@ -117,7 +117,7 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant={variant ?? "default"} size="sm" className={cn("cursor-pointer", className)}>
+        <Button variant={variant ?? "default"} size="sm" className={cn("gap-2", className)}>
           <Plus className="size-4" />
           {t("groups.createGroup")}
         </Button>
@@ -126,88 +126,98 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
         <DialogHeader>
           <DialogTitle>{t("groups.createNewGroup")}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">
+            <div className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-lg" role="alert">
               {error}
-            </p>
+            </div>
           )}
-          <div className="grid gap-2">
+          <div className="space-y-2">
             <Label htmlFor="name">{t("groups.groupName")}</Label>
             <Input
               id="name"
               name="name"
               placeholder={t("groups.groupNamePlaceholder")}
               aria-invalid={!!fieldErrors.name}
+              className="h-10"
             />
             {fieldErrors.name && (
               <p className="text-sm text-destructive">{fieldErrors.name}</p>
             )}
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="country">{t("groups.country")}</Label>
-            <Input
-              id="country"
-              name="country"
-              placeholder={t("groups.countryPlaceholder")}
-              aria-invalid={!!fieldErrors.country}
-            />
-            {fieldErrors.country && (
-              <p className="text-sm text-destructive">{fieldErrors.country}</p>
-            )}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="country">{t("groups.country")}</Label>
+              <Input
+                id="country"
+                name="country"
+                placeholder={t("groups.countryPlaceholder")}
+                aria-invalid={!!fieldErrors.country}
+                className="h-10"
+              />
+              {fieldErrors.country && (
+                <p className="text-sm text-destructive">{fieldErrors.country}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="city">{t("groups.city")}</Label>
+              <Input
+                id="city"
+                name="city"
+                placeholder={t("groups.cityPlaceholder")}
+                aria-invalid={!!fieldErrors.city}
+                className="h-10"
+              />
+              {fieldErrors.city && (
+                <p className="text-sm text-destructive">{fieldErrors.city}</p>
+              )}
+            </div>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="city">{t("groups.city")}</Label>
-            <Input
-              id="city"
-              name="city"
-              placeholder={t("groups.cityPlaceholder")}
-              aria-invalid={!!fieldErrors.city}
-            />
-            {fieldErrors.city && (
-              <p className="text-sm text-destructive">{fieldErrors.city}</p>
-            )}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="region">{t("groups.region")}</Label>
+              <Input
+                id="region"
+                name="region"
+                placeholder={t("groups.regionPlaceholder")}
+                aria-invalid={!!fieldErrors.region}
+                className="h-10"
+              />
+              {fieldErrors.region && (
+                <p className="text-sm text-destructive">{fieldErrors.region}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="street">{t("groups.streetAddress")}</Label>
+              <Input
+                id="street"
+                name="street"
+                placeholder={t("groups.streetPlaceholder")}
+                aria-invalid={!!fieldErrors.street}
+                className="h-10"
+              />
+              {fieldErrors.street && (
+                <p className="text-sm text-destructive">{fieldErrors.street}</p>
+              )}
+            </div>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="region">{t("groups.region")}</Label>
-            <Input
-              id="region"
-              name="region"
-              placeholder={t("groups.regionPlaceholder")}
-              aria-invalid={!!fieldErrors.region}
-            />
-            {fieldErrors.region && (
-              <p className="text-sm text-destructive">{fieldErrors.region}</p>
-            )}
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="street">{t("groups.streetAddress")}</Label>
-            <Input
-              id="street"
-              name="street"
-              placeholder={t("groups.streetPlaceholder")}
-              aria-invalid={!!fieldErrors.street}
-            />
-            {fieldErrors.street && (
-              <p className="text-sm text-destructive">{fieldErrors.street}</p>
-            )}
-          </div>
-          <div className="grid gap-2">
+          <div className="space-y-2">
             <Label htmlFor="description">{t("groups.descriptionOptional")}</Label>
             <Input
               id="description"
               name="description"
               placeholder={t("groups.descriptionPlaceholder")}
               aria-invalid={!!fieldErrors.description}
+              className="h-10"
             />
             {fieldErrors.description && (
               <p className="text-sm text-destructive">{fieldErrors.description}</p>
             )}
           </div>
-          <div className="grid gap-2">
+          <div className="space-y-2">
             <Label htmlFor="type">{t("groups.type")}</Label>
             <Select value={type} onValueChange={(v) => setType(v as GroupType)}>
-              <SelectTrigger id="type" aria-invalid={!!fieldErrors.type}>
+              <SelectTrigger id="type" aria-invalid={!!fieldErrors.type} className="h-10">
                 <SelectValue placeholder={t("groups.selectType")} />
               </SelectTrigger>
               <SelectContent>
@@ -222,14 +232,21 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
               <p className="text-sm text-destructive">{fieldErrors.type}</p>
             )}
           </div>
-          <DialogFooter className="gap-4 sm:gap-4 pt-2">
+          <DialogFooter className="gap-3 sm:gap-3 pt-2">
             <DialogClose asChild>
-              <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
+              <Button type="button" variant="outline" disabled={isPending}>
                 {t("common.cancel")}
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={isPending} className="cursor-pointer">
-              {isPending ? t("groups.creating") : t("groups.createGroupButton")}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t("groups.creating")}
+                </>
+              ) : (
+                t("groups.createGroupButton")
+              )}
             </Button>
           </DialogFooter>
         </form>
