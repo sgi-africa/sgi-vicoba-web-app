@@ -1,12 +1,6 @@
 import { cn } from "@/lib/utils"
-
-type StatusVariant = "success" | "warning" | "error" | "default"
-
-interface StatusBadgeProps {
-  label: string
-  variant?: StatusVariant
-  className?: string
-}
+import type { StatusBadgeProps } from "@/interfaces/interface"
+import type { StatusVariant } from "@/interfaces/interface"
 
 const VARIANT_STYLES: Record<StatusVariant, string> = {
   success: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",

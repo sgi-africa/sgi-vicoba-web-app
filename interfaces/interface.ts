@@ -224,3 +224,30 @@ export interface EditGroupFormProps {
     onSuccess?: (updatedGroup: GroupResponse) => void
     className?: string
 }
+
+export interface ContentContainerProps {
+    children: React.ReactNode
+    className?: string
+}
+
+export interface PageHeaderProps {
+    title: string
+    description?: string
+    children?: React.ReactNode
+    className?: string
+}
+
+export interface SearchInputProps {
+    value: string
+    onChange: (value: string) => void
+    placeholder?: string
+    ariaLabel?: string
+}
+
+export type StatusVariant = "success" | "warning" | "error" | "default"
+
+export interface StatusBadgeProps {
+    label: string
+    variant?: StatusVariant
+    className?: string
+}
