@@ -71,6 +71,20 @@ export const createGroupSchema = object({
 
 export type CreateGroupFormValues = z.infer<typeof createGroupSchema>
 
+export const updateGroupSchema = object({
+  name: string().min(1, "Group name is required").max(100),
+  country: string().min(1, "Country is required").max(100),
+  city: string().min(1, "City is required").max(100),
+  region: string().min(1, "Region is required").max(100),
+  street: string().min(1, "Street address is required").max(255),
+  description: string().optional(),
+  type: z.enum(GROUP_TYPES, {
+    message: "Type is required",
+  }),
+})
+
+export type UpdateGroupFormValues = z.infer<typeof updateGroupSchema>
+
 export const CONTRIBUTION_TYPES = ["SAVINGS", "JAMII", "PENALTY"] as const
 
 export const addContributionSchema = object({
