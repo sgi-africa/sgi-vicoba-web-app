@@ -28,9 +28,7 @@ export async function getLoans(groupId: number): Promise<LoanRequest[]> {
     throw new Error("Not authenticated")
   }
 
-  const userId = session.user.id
-
-  const response = await api.get(`/loans/group/${groupId}/user/${userId}/`, {
+  const response = await api.get(`/loans/group/${groupId}`, {
     headers: {
       Authorization: `Bearer ${session.user.accessToken}`,
     },
