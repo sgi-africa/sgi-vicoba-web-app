@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Plus, AlertCircle, UserRoundMinus, Download } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { Plus, AlertCircle, UserRoundMinus, Download, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { useAppSelector } from "@/hooks/redux"
 import { getPenalties } from "./_action"
 import { getMembers } from "@/app/home/members/_action"
@@ -48,14 +49,29 @@ function formatPenaltyType(type: string): string {
   return type.charAt(0) + type.slice(1).toLowerCase()
 }
 
+function matchesSearch(penalty: Penalty, query: string): boolean {
+  if (!query.trim()) return true
+  const q = query.trim().toLowerCase()
+  const name = getMemberName(penalty).toLowerCase()
+  const type = formatPenaltyType(penalty.type ?? "OTHER").toLowerCase()
+  const status = (penalty.status?.toUpperCase() === "PAID" ? "paid" : "unpaid").toLowerCase()
+  return name.includes(q) || type.includes(q) || status.includes(q)
+}
+
 export default function PenaltiesPage() {
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
   const [penalties, setPenalties] = useState<Penalty[]>([])
   const [members, setMembers] = useState<Member[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [open, setOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
 
   const groupId = activeGroup?.id
+
+  const filteredPenalties = useMemo(
+    () => penalties.filter((p) => matchesSearch(p, searchQuery)),
+    [penalties, searchQuery]
+  )
 
   useEffect(() => {
     if (!groupId) return
@@ -264,6 +280,19 @@ export default function PenaltiesPage() {
       </div>
 
       <div className="flex-1 px-4 md:px-6 pb-6">
+        {penalties.length > 0 && !isLoading && (
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <Input
+              type="search"
+              placeholder="Search by member name, type, or status (paid, unpaid)…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-10 bg-muted/50"
+              aria-label="Search penalties"
+            />
+          </div>
+        )}
         {isLoading ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 px-6">
@@ -285,44 +314,65 @@ export default function PenaltiesPage() {
           </Card>
         ) : (
           <div className="space-y-2">
-            {penalties.map((penalty) => (
-              <Card
-                key={penalty.id}
-                className="transition-colors hover:bg-accent/30 cursor-default"
-              >
-                <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
-                      {getMemberName(penalty)
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .slice(0, 2)
-                        .toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-medium">{getMemberName(penalty)}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatDate(penalty.createdAt)} · {formatPenaltyType(penalty.type ?? "OTHER")}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="font-semibold text-primary">
-                      {formatAmount(penalty.amount)}
-                    </span>
-                    <span
-                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${penalty.status?.toUpperCase() === "PAID"
-                        ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-                        : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
-                        }`}
+            {filteredPenalties.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-12 px-6">
+                  <p className="text-sm text-muted-foreground">
+                    {searchQuery.trim()
+                      ? "No penalties match your search."
+                      : "No penalties yet."}
+                  </p>
+                  {searchQuery.trim() && (
+                    <Button
+                      variant="link"
+                      className="mt-2 cursor-pointer"
+                      onClick={() => setSearchQuery("")}
                     >
-                      {penalty.status?.toUpperCase() === "PAID" ? "Paid" : "Unpaid"}
-                    </span>
-                  </div>
+                      Clear search
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
-            ))}
+            ) : (
+              filteredPenalties.map((penalty) => (
+                <Card
+                  key={penalty.id}
+                  className="transition-colors hover:bg-accent/30 cursor-default"
+                >
+                  <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
+                        {getMemberName(penalty)
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-medium">{getMemberName(penalty)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatDate(penalty.createdAt)} · {formatPenaltyType(penalty.type ?? "OTHER")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="font-semibold text-primary">
+                        {formatAmount(penalty.amount)}
+                      </span>
+                      <span
+                        className={`text-xs font-medium px-2 py-0.5 rounded-full ${penalty.status?.toUpperCase() === "PAID"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                          : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                          }`}
+                      >
+                        {penalty.status?.toUpperCase() === "PAID" ? "Paid" : "Unpaid"}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         )}
       </div>

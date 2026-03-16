@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Plus, HandCoins, Download } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { Plus, HandCoins, Download, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { useAppSelector } from "@/hooks/redux"
 import { getMembers } from "@/app/home/members/_action"
 import { Member, LoanRequest } from "@/interfaces/interface"
@@ -49,13 +50,27 @@ function getStatusStyle(status: LoanRequest["status"]) {
   }
 }
 
+function matchesSearch(loan: LoanRequest, query: string): boolean {
+  if (!query.trim()) return true
+  const q = query.trim().toLowerCase()
+  const name = `${loan.requester.firstName} ${loan.requester.lastName}`.toLowerCase()
+  const status = loan.status.toLowerCase()
+  return name.includes(q) || status.includes(q)
+}
+
 export default function LoansPage() {
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
   const [loans, setLoans] = useState<LoanRequest[]>([])
   const [members, setMembers] = useState<Member[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [open, setOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const groupId = activeGroup?.id
+
+  const filteredLoans = useMemo(
+    () => loans.filter((loan) => matchesSearch(loan, searchQuery)),
+    [loans, searchQuery]
+  )
 
   useEffect(() => {
     if (!groupId) return
@@ -236,6 +251,19 @@ export default function LoansPage() {
       </div>
 
       <div className="flex-1 px-4 md:px-6 pb-6">
+        {loans.length > 0 && !isLoading && (
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <Input
+              type="search"
+              placeholder="Search by borrower name or status (pending, paid, overdue)…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-10 bg-muted/50"
+              aria-label="Search loans"
+            />
+          </div>
+        )}
         {isLoading ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 px-6">
@@ -256,43 +284,64 @@ export default function LoansPage() {
           </Card>
         ) : (
           <div className="space-y-2">
-            {loans.map((loan) => (
-              <Card
-                key={loan.id}
-                className="transition-colors hover:bg-accent/30 cursor-default"
-              >
-                <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
-                      {`${loan.requester.firstName} ${loan.requester.lastName}`
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .slice(0, 2)
-                        .toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-medium">
-                        {loan.requester.firstName} {loan.requester.lastName}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Requested {formatDate(loan.createdAt)} · Due {formatDate(loan.dueDate)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="font-semibold text-primary">
-                      {formatAmount(loan.principal)}
-                    </span>
-                    <span
-                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${getStatusStyle(loan.status)}`}
+            {filteredLoans.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-12 px-6">
+                  <p className="text-sm text-muted-foreground">
+                    {searchQuery.trim()
+                      ? "No loans match your search."
+                      : "No loans yet."}
+                  </p>
+                  {searchQuery.trim() && (
+                    <Button
+                      variant="link"
+                      className="mt-2 cursor-pointer"
+                      onClick={() => setSearchQuery("")}
                     >
-                      {loan.status.toLowerCase()}
-                    </span>
-                  </div>
+                      Clear search
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
-            ))}
+            ) : (
+              filteredLoans.map((loan) => (
+                <Card
+                  key={loan.id}
+                  className="transition-colors hover:bg-accent/30 cursor-default"
+                >
+                  <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
+                        {`${loan.requester.firstName} ${loan.requester.lastName}`
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-medium">
+                          {loan.requester.firstName} {loan.requester.lastName}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Requested {formatDate(loan.createdAt)} · Due {formatDate(loan.dueDate)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="font-semibold text-primary">
+                        {formatAmount(loan.principal)}
+                      </span>
+                      <span
+                        className={`text-xs font-medium px-2 py-0.5 rounded-full ${getStatusStyle(loan.status)}`}
+                      >
+                        {loan.status.toLowerCase()}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         )}
       </div>

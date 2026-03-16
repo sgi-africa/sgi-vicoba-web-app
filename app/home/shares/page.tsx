@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Banknote, Coins, ShoppingCart, Info, BanknoteArrowUp, Download } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { Banknote, Coins, ShoppingCart, Info, BanknoteArrowUp, Download, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { useAppSelector, useAppDispatch } from "@/hooks/redux"
 import { markSharesConfigured } from "@/store/groupSlice"
 import { AddSharesModal } from "@/components/shares/add-shares-modal"
@@ -25,6 +26,12 @@ function formatAmount(amount: number | string) {
     }).format(Number(amount))
 }
 
+function matchesSearch(row: MemberSharesRow, query: string): boolean {
+    if (!query.trim()) return true
+    const q = query.trim().toLowerCase()
+    return row.name.toLowerCase().includes(q)
+}
+
 export default function SharesPage() {
     const dispatch = useAppDispatch()
     const activeGroup = useAppSelector((state) => state.group.activeGroup)
@@ -37,6 +44,12 @@ export default function SharesPage() {
     const [memberShares, setMemberShares] = useState<MemberSharesRow[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [isTableLoading, setIsTableLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState("")
+
+    const filteredMemberShares = useMemo(
+        () => memberShares.filter((row) => matchesSearch(row, searchQuery)),
+        [memberShares, searchQuery]
+    )
 
     useEffect(() => {
         if (!groupId) return
@@ -333,6 +346,19 @@ export default function SharesPage() {
             {/* Member shares table */}
             <div className="px-4 md:px-6 pb-6">
                 <h3 className="text-lg font-semibold mb-4">Shares by member</h3>
+                {memberShares.length > 0 && !isTableLoading && (
+                    <div className="relative mb-4">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                        <Input
+                            type="search"
+                            placeholder="Search by member name…"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9 h-10 bg-muted/50"
+                            aria-label="Search shares by member"
+                        />
+                    </div>
+                )}
                 {isTableLoading ? (
                     <Card>
                         <div className="p-8 space-y-3">
@@ -347,6 +373,19 @@ export default function SharesPage() {
                             No members in this group yet.
                         </div>
                     </Card>
+                ) : filteredMemberShares.length === 0 ? (
+                    <Card>
+                        <div className="p-8 flex flex-col items-center justify-center text-muted-foreground">
+                            <p className="text-sm">No members match your search.</p>
+                            <Button
+                                variant="link"
+                                className="mt-2 cursor-pointer"
+                                onClick={() => setSearchQuery("")}
+                            >
+                                Clear search
+                            </Button>
+                        </div>
+                    </Card>
                 ) : (
                     <Card className="overflow-hidden">
                         <div className="overflow-x-auto">
@@ -358,7 +397,7 @@ export default function SharesPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {memberShares.map((row) => (
+                                    {filteredMemberShares.map((row) => (
                                         <tr key={row.userId} className="border-b last:border-0 hover:bg-muted/30">
                                             <td className="px-6 py-4">{row.name}</td>
                                             <td className="px-6 py-4 text-right font-medium">

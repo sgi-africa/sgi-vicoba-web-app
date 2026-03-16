@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Plus, Wallet, Download } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { Plus, Wallet, Download, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { useAppSelector } from "@/hooks/redux"
 import { getContributions } from "./_action"
 import { getMembers } from "@/app/home/members/_action"
@@ -44,6 +45,14 @@ function getMemberName(contribution: Contribution): string {
   return "Unknown member"
 }
 
+function matchesSearch(contribution: Contribution, query: string): boolean {
+  if (!query.trim()) return true
+  const q = query.trim().toLowerCase()
+  const name = getMemberName(contribution).toLowerCase()
+  const type = (contribution.type === "SAVINGS" ? "savings" : "jamii").toLowerCase()
+  return name.includes(q) || type.includes(q)
+}
+
 export default function ContributionsPage() {
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
   const [contributions, setContributions] = useState<Contribution[]>([])
@@ -51,8 +60,14 @@ export default function ContributionsPage() {
   const [penalties, setPenalties] = useState<Penalty[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [open, setOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
 
   const groupId = activeGroup?.id
+
+  const filteredContributions = useMemo(
+    () => contributions.filter((c) => matchesSearch(c, searchQuery)),
+    [contributions, searchQuery]
+  )
 
   useEffect(() => {
     if (!groupId) return
@@ -232,6 +247,19 @@ export default function ContributionsPage() {
       </div>
 
       <div className="flex-1 px-4 md:px-6 pb-6">
+        {contributions.length > 0 && !isLoading && (
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <Input
+              type="search"
+              placeholder="Search by member name or type (savings, jamii)…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-10 bg-muted/50"
+              aria-label="Search contributions"
+            />
+          </div>
+        )}
         {isLoading ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 px-6">
@@ -253,34 +281,55 @@ export default function ContributionsPage() {
           </Card>
         ) : (
           <div className="space-y-2">
-            {contributions.map((contribution) => (
-              <Card
-                key={contribution.id}
-                className="transition-colors hover:bg-accent/30 cursor-default"
-              >
-                <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-                  <div>
-                    <p className="font-medium">{getMemberName(contribution)}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {formatDate(contribution.createdAt)}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="font-semibold text-primary">
-                      {formatAmount(contribution.amount)}
-                    </span>
-                    <span
-                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${contribution.type === "SAVINGS"
-                        ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-                        : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
-                        }`}
+            {filteredContributions.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-12 px-6">
+                  <p className="text-sm text-muted-foreground">
+                    {searchQuery.trim()
+                      ? "No contributions match your search."
+                      : "No contributions yet."}
+                  </p>
+                  {searchQuery.trim() && (
+                    <Button
+                      variant="link"
+                      className="mt-2 cursor-pointer"
+                      onClick={() => setSearchQuery("")}
                     >
-                      {contribution.type === "SAVINGS" ? "Savings" : "Jamii"}
-                    </span>
-                  </div>
+                      Clear search
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
-            ))}
+            ) : (
+              filteredContributions.map((contribution) => (
+                <Card
+                  key={contribution.id}
+                  className="transition-colors hover:bg-accent/30 cursor-default"
+                >
+                  <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+                    <div>
+                      <p className="font-medium">{getMemberName(contribution)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(contribution.createdAt)}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="font-semibold text-primary">
+                        {formatAmount(contribution.amount)}
+                      </span>
+                      <span
+                        className={`text-xs font-medium px-2 py-0.5 rounded-full ${contribution.type === "SAVINGS"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                          : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                          }`}
+                      >
+                        {contribution.type === "SAVINGS" ? "Savings" : "Jamii"}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         )}
       </div>
