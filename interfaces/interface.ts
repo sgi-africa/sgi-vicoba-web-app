@@ -218,3 +218,9 @@ export interface GroupMeetingsResponse {
         user: MemberUser;
     }[];
 }
+
+export interface EditGroupFormProps {
+    group: GroupResponse
+    onSuccess?: (updatedGroup: GroupResponse) => void
+    className?: string
+}
