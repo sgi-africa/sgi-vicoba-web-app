@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Building2, Users, Calendar, Wallet, AlertCircle } from "lucide-react"
+import { Settings, Building2, Users, Calendar, Wallet, AlertCircle, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useAppSelector, useAppDispatch } from "@/hooks/redux"
@@ -10,6 +10,9 @@ import { getGroup } from "./_action"
 import { EditGroupForm } from "@/components/settings/edit-group-form"
 import { GroupResponse } from "@/interfaces/interface"
 import { toast } from "sonner"
+import { PageHeader } from "@/components/shared/page-header"
+import { EmptyState } from "@/components/shared/empty-state"
+import { ContentContainer } from "@/components/shared/content-container"
 
 function formatDate(dateStr: string) {
   try {
@@ -70,122 +73,97 @@ export default function SettingsPage() {
 
   if (!activeGroup || !groupId) {
     return (
-      <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-            <div className="rounded-full bg-muted p-4 mb-4">
-              <Settings className="size-10 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-1">{t("common.noGroupSelected")}</h3>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              {t("common.selectGroupToViewSettings")}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <ContentContainer className="pt-5">
+        <EmptyState
+          icon={Settings}
+          title={t("common.noGroupSelected")}
+          description={t("common.selectGroupToViewSettings")}
+        />
+      </ContentContainer>
     )
   }
 
   return (
     <div className="flex flex-col flex-1 overflow-auto w-full">
-      <div className="px-4 py-4 md:px-6">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold tracking-tight">{t("settings.title")}</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("settings.manageGroupSettings")}
-          </p>
-        </div>
+      <PageHeader
+        title={t("settings.title")}
+        description={t("settings.manageGroupSettings")}
+      />
 
-        <div className="space-y-6 w-full">
+      <ContentContainer>
+        <div className="space-y-6 max-w-3xl">
           {isLoading ? (
-            <Card>
+            <Card className="shadow-sm border-border/60">
               <CardContent className="py-12">
-                <div className="space-y-4">
-                  <div className="h-10 bg-muted rounded animate-pulse" />
-                  <div className="h-10 bg-muted rounded animate-pulse" />
-                  <div className="h-10 bg-muted rounded animate-pulse" />
-                  <div className="h-10 bg-muted rounded animate-pulse" />
+                <div className="flex flex-col items-center">
+                  <Loader2 className="size-6 text-muted-foreground animate-spin mb-3" />
+                  <p className="text-sm text-muted-foreground">Loading settings...</p>
                 </div>
               </CardContent>
             </Card>
           ) : group ? (
             <>
-              {/* Group info (read-only) - above edit form */}
-              <Card>
+              <Card className="shadow-sm border-border/60">
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                       <AlertCircle className="size-5" />
                     </div>
                     <div>
-                      <CardTitle>{t("settings.groupInfo")}</CardTitle>
-                      <CardDescription>
-                        {t("settings.overviewReadOnly")}
-                      </CardDescription>
+                      <CardTitle className="text-base">{t("settings.groupInfo")}</CardTitle>
+                      <CardDescription>{t("settings.overviewReadOnly")}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                    <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4 min-w-0">
+                    <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-4 min-w-0">
                       <Users className="size-5 text-muted-foreground shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium">{t("settings.members")}</p>
-                        <p className="text-2xl font-bold">
-                          {group.members?.length ?? 0}
-                        </p>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("settings.members")}</p>
+                        <p className="text-xl font-bold text-foreground">{group.members?.length ?? 0}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4 min-w-0">
+                    <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-4 min-w-0">
                       <Wallet className="size-5 text-muted-foreground shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium">{t("settings.totalBalance")}</p>
-                        <p className="text-2xl font-bold">
-                          {formatAmount(group.totalBalance ?? 0)}
-                        </p>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("settings.totalBalance")}</p>
+                        <p className="text-xl font-bold text-foreground">{formatAmount(group.totalBalance ?? 0)}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4 min-w-0 sm:col-span-2 lg:col-span-1">
+                    <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-4 min-w-0 sm:col-span-2 lg:col-span-1">
                       <Calendar className="size-5 text-muted-foreground shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium">{t("settings.created")}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {formatDate(group.createdAt)}
-                        </p>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("settings.created")}</p>
+                        <p className="text-sm text-foreground">{formatDate(group.createdAt)}</p>
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Group details (edit form) */}
-              <Card>
+              <Card className="shadow-sm border-border/60">
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <Building2 className="size-5" />
                     </div>
                     <div>
-                      <CardTitle>{t("settings.groupDetails")}</CardTitle>
-                      <CardDescription>
-                        {t("settings.updateGroupDetails")}
-                      </CardDescription>
+                      <CardTitle className="text-base">{t("settings.groupDetails")}</CardTitle>
+                      <CardDescription>{t("settings.updateGroupDetails")}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <EditGroupForm
-                    group={group}
-                    onSuccess={handleUpdateSuccess}
-                  />
+                  <EditGroupForm group={group} onSuccess={handleUpdateSuccess} />
                 </CardContent>
               </Card>
             </>
           ) : (
-            <Card>
+            <Card className="shadow-sm border-border/60">
               <CardContent className="flex flex-col items-center justify-center py-16 px-6">
                 <AlertCircle className="size-10 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-1">{t("settings.couldNotLoadGroup")}</h3>
+                <h3 className="text-base font-semibold mb-1">{t("settings.couldNotLoadGroup")}</h3>
                 <p className="text-sm text-muted-foreground text-center max-w-sm">
                   {t("settings.fetchError")}
                 </p>
@@ -193,7 +171,7 @@ export default function SettingsPage() {
             </Card>
           )}
         </div>
-      </div>
+      </ContentContainer>
     </div>
   )
 }

@@ -1,14 +1,9 @@
 'use client'
 
-import {
-    useEffect,
-    // useMemo, 
-    useState
-} from "react"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Wallet, Users, HandCoins, ClipboardList, Download } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Wallet, Users, HandCoins, ClipboardList, Download, TrendingUp, Landmark, PiggyBank, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import GroupSelector from "./group-selector"
 import { CreateGroupDialog } from "./create-group-dialog"
 import { GroupResponse } from "@/interfaces/interface"
 import { useAppDispatch, useAppSelector } from "@/hooks/redux"
@@ -20,276 +15,251 @@ import { getLoans } from "@/app/home/loans/_action"
 import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
 import { useTranslation } from "react-i18next"
+import { PageHeader } from "@/components/shared/page-header"
+import { SummaryCard } from "@/components/shared/summary-card"
+import { EmptyState } from "@/components/shared/empty-state"
+import { ContentContainer } from "@/components/shared/content-container"
 
 function formatAmount(amount: number | string) {
-    return new Intl.NumberFormat("en-TZ", {
-        style: "currency",
-        currency: "TZS",
-        minimumFractionDigits: 0,
-    }).format(Number(amount))
+  return new Intl.NumberFormat("en-TZ", {
+    style: "currency",
+    currency: "TZS",
+    minimumFractionDigits: 0,
+  }).format(Number(amount))
 }
 
 const QUICK_ACTION_KEYS = [
-    { key: "contributions", href: "/home/contributions", icon: Wallet },
-    { key: "loans", href: "/home/loans", icon: HandCoins },
-    { key: "meetings", href: "/home/meetings", icon: ClipboardList },
-    { key: "members", href: "/home/members", icon: Users },
+  { key: "contributions", href: "/home/contributions", icon: Wallet, color: "bg-primary/10 text-primary" },
+  { key: "loans", href: "/home/loans", icon: HandCoins, color: "bg-amber-500/10 text-amber-600" },
+  { key: "meetings", href: "/home/meetings", icon: ClipboardList, color: "bg-blue-500/10 text-blue-600" },
+  { key: "members", href: "/home/members", icon: Users, color: "bg-violet-500/10 text-violet-600" },
 ] as const
 
 export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) {
-    const { t } = useTranslation()
-    const dispatch = useAppDispatch()
-    const selectedGroup = useAppSelector((state) => state.group.activeGroup)
-    const reduxGroups = useAppSelector((state) => state.group.groups)
-    const [totalMemberSavings, setTotalMemberSavings] = useState<number>(0)
-    const [outstandingLoansTotal, setOutstandingLoansTotal] = useState<number>(0)
+  const { t } = useTranslation()
+  const dispatch = useAppDispatch()
+  const selectedGroup = useAppSelector((state) => state.group.activeGroup)
+  const reduxGroups = useAppSelector((state) => state.group.groups)
+  const [totalMemberSavings, setTotalMemberSavings] = useState<number>(0)
+  const [outstandingLoansTotal, setOutstandingLoansTotal] = useState<number>(0)
 
-    // All summary data from API: groups from server (page), totals from groups prop, savings from getContributions
-    // const totalGroupAssets = useMemo(
-    //     () =>
-    //         groups.reduce(
-    //             (sum, g) => sum + Number(g.totalBalance ?? 0),
-    //             0
-    //         ),
-    //     [groups]
-    // )
-
-    // Keep Redux in sync with server for context (which group we're on); card figures still come from API only
-    useEffect(() => {
-        if (groups.length > 0) {
-            dispatch(setGroups(groups))
-        }
-    }, [groups, dispatch])
-
-    // After creating a group, props may still be [] until server refetches; use Redux as fallback so the new group shows immediately
-    const effectiveGroups = groups.length > 0 ? groups : reduxGroups
-    const hasGroups = effectiveGroups.length > 0
-    // Resolve selected group from effective list (API first, then Redux fallback)
-    const selectedGroupFromApi =
-        selectedGroup && effectiveGroups.length > 0
-            ? effectiveGroups.find((g) => g.id === selectedGroup.id) ?? effectiveGroups[0]
-            : effectiveGroups[0] ?? null
-
-
-    // Set default active group if none exists (use effective list so Redux fallback works after create)
-    useEffect(() => {
-        const list = groups.length > 0 ? groups : reduxGroups
-        if (!selectedGroup && list.length > 0) {
-            dispatch(setActiveGroup(list[0]))
-        }
-    }, [groups, reduxGroups, selectedGroup, dispatch])
-
-    // Get total member savings
-    useEffect(() => {
-        const groupId = selectedGroupFromApi?.id
-        let cancelled = false
-
-        void (async () => {
-            if (!groupId) {
-                if (!cancelled) setTotalMemberSavings(0)
-                return
-            }
-            try {
-                const contributions = await getContributions(groupId)
-                if (cancelled) return
-                const sum = contributions.reduce(
-                    (acc, c) => acc + Number(c.amount ?? 0),
-                    0
-                )
-                setTotalMemberSavings(sum)
-            } catch {
-                if (!cancelled) setTotalMemberSavings(0)
-            }
-        })()
-
-        return () => {
-            cancelled = true
-        }
-    }, [selectedGroupFromApi?.id])
-
-    // Get outstanding loans total
-    useEffect(() => {
-        const groupId = selectedGroupFromApi?.id
-        let cancelled = false
-
-        void (async () => {
-            if (!groupId) {
-                if (!cancelled) setOutstandingLoansTotal(0)
-                return
-            }
-            try {
-                const loans = await getLoans(groupId)
-                if (cancelled) return
-                const total = loans
-                    .filter((loan) => loan.status === "PENDING" || loan.status === "OVERDUE")
-                    .reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
-                setOutstandingLoansTotal(total)
-            } catch {
-                if (!cancelled) setOutstandingLoansTotal(0)
-            }
-        })()
-
-        return () => {
-            cancelled = true
-        }
-    }, [selectedGroupFromApi?.id])
-
-    function handleGroupCreated(createdGroup: GroupResponse) {
-        dispatch(addGroup(createdGroup))
-        dispatch(setActiveGroup(createdGroup))
+  useEffect(() => {
+    if (groups.length > 0) {
+      dispatch(setGroups(groups))
     }
+  }, [groups, dispatch])
 
-    function handleDownloadSummary() {
-        if (!selectedGroupFromApi) return
+  const effectiveGroups = groups.length > 0 ? groups : reduxGroups
+  const hasGroups = effectiveGroups.length > 0
+  const selectedGroupFromApi =
+    selectedGroup && effectiveGroups.length > 0
+      ? effectiveGroups.find((g) => g.id === selectedGroup.id) ?? effectiveGroups[0]
+      : effectiveGroups[0] ?? null
 
-        const doc = new jsPDF()
-        const groupName = selectedGroupFromApi.name
-        const date = new Date().toLocaleDateString("en-TZ", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        })
-
-        doc.setFontSize(18)
-        doc.text(t("dashboard.title") + " Summary", 14, 20)
-        doc.setFontSize(12)
-        doc.text(groupName, 14, 28)
-        doc.text(date, 14, 34)
-
-        autoTable(doc, {
-            startY: 42,
-            head: [["Metric", "Value"]],
-            body: [
-                [t("dashboard.totalGroupAssets"), formatAmount(selectedGroupFromApi.totalBalance ?? 0)],
-                [t("dashboard.availableCash"), formatAmount(selectedGroupFromApi.totalBalance ?? 0)],
-                [t("dashboard.totalMemberSavings"), formatAmount(totalMemberSavings)],
-                [t("dashboard.outstandingLoans"), formatAmount(outstandingLoansTotal)],
-            ],
-            theme: "striped",
-        })
-
-        doc.save(`${groupName.replace(/\s+/g, "-")}-dashboard-${new Date().toISOString().slice(0, 10)}.pdf`)
+  useEffect(() => {
+    const list = groups.length > 0 ? groups : reduxGroups
+    if (!selectedGroup && list.length > 0) {
+      dispatch(setActiveGroup(list[0]))
     }
+  }, [groups, reduxGroups, selectedGroup, dispatch])
 
-    return (
-        <div className="flex flex-col flex-1 overflow-auto w-full">
-            {/* Dashboard header */}
-            <div className="flex items-center justify-between px-4 py-4 md:px-6">
-                <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-bold tracking-tight">{t("dashboard.title")}</h2>
-                    {hasGroups && selectedGroupFromApi && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="gap-2 cursor-pointer"
-                            onClick={handleDownloadSummary}
-                        >
-                            <Download className="size-4" />
-                        </Button>
-                    )}
-                </div>
-                <div className="flex items-center gap-2">
-                    {hasGroups && <GroupSelector groups={effectiveGroups} />}
-                    <CreateGroupDialog
-                        variant="default"
-                        onSuccess={handleGroupCreated}
-                    />
-                </div>
-            </div>
+  useEffect(() => {
+    const groupId = selectedGroupFromApi?.id
+    let cancelled = false
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-4 md:px-6 pb-6 w-full">
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardDescription>{t("dashboard.totalGroupAssets")}</CardDescription>
-                        <CardTitle className="text-2xl font-bold">
-                            {/* {formatAmount(totalGroupAssets)} */}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardDescription>{t("dashboard.availableCash")}</CardDescription>
-                        <CardTitle className="text-2xl font-bold">
-                            {formatAmount(selectedGroupFromApi?.totalBalance ?? 0)}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardDescription>{t("dashboard.totalMemberSavings")}</CardDescription>
-                        <CardTitle className="text-2xl font-bold">
-                            {formatAmount(totalMemberSavings)}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardDescription>{t("dashboard.outstandingLoans")}</CardDescription>
-                        <CardTitle className="text-2xl font-bold">
-                            {formatAmount(outstandingLoansTotal)}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-            </div>
+    void (async () => {
+      if (!groupId) {
+        if (!cancelled) setTotalMemberSavings(0)
+        return
+      }
+      try {
+        const contributions = await getContributions(groupId)
+        if (cancelled) return
+        const sum = contributions.reduce(
+          (acc, c) => acc + Number(c.amount ?? 0),
+          0
+        )
+        setTotalMemberSavings(sum)
+      } catch {
+        if (!cancelled) setTotalMemberSavings(0)
+      }
+    })()
 
-            {/* Quick Actions */}
-            <div className="flex-1 px-4 md:px-6 pb-6 w-full min-w-0">
-                <h3 className="text-lg font-semibold mb-4">{t("dashboard.quickActions")}</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                    {QUICK_ACTION_KEYS.map(({ key, href, icon: Icon }) => {
-                        const canNavigate = hasGroups && selectedGroupFromApi
-                        const card = (
-                            <Card
-                                className={cn(
-                                    "w-full h-full transition-colors cursor-not-allowed",
-                                    canNavigate && "hover:bg-accent/50 cursor-pointer"
-                                )}
-                            >
-                                <CardHeader className="py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                            <Icon className="h-5 w-5" />
-                                        </div>
-                                        <CardTitle className="text-base font-medium truncate">{t(`dashboard.${key}`)}</CardTitle>
-                                    </div>
-                                </CardHeader>
-                            </Card>
-                        )
+    return () => {
+      cancelled = true
+    }
+  }, [selectedGroupFromApi?.id])
 
-                        return canNavigate ? (
-                            <Link
-                                key={href}
-                                href={href}
-                                className={cn("min-w-0")}
-                            >
-                                {card}
-                            </Link>
-                        ) : (
-                            <div
-                                key={href}
-                                className={cn("min-w-0 opacity-60 pointer-events-none")}
-                            >
-                                {card}
-                            </div>
-                        )
-                    })}
-                </div>
-                {!hasGroups && (
-                    <Card className="border-dashed mt-4">
-                        <CardContent className="flex flex-col items-center justify-center py-10 px-6">
-                            <div className="rounded-full bg-muted p-3 mb-3">
-                                <Users className="size-8 text-muted-foreground" />
-                            </div>
-                            <h3 className="text-base font-semibold mb-1">{t("dashboard.noGroupsYet")}</h3>
-                            <p className="text-sm text-muted-foreground text-center max-w-sm">
-                                {t("dashboard.createFirstGroup")}
-                            </p>
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
+  useEffect(() => {
+    const groupId = selectedGroupFromApi?.id
+    let cancelled = false
+
+    void (async () => {
+      if (!groupId) {
+        if (!cancelled) setOutstandingLoansTotal(0)
+        return
+      }
+      try {
+        const loans = await getLoans(groupId)
+        if (cancelled) return
+        const total = loans
+          .filter((loan) => loan.status === "PENDING" || loan.status === "OVERDUE")
+          .reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
+        setOutstandingLoansTotal(total)
+      } catch {
+        if (!cancelled) setOutstandingLoansTotal(0)
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [selectedGroupFromApi?.id])
+
+  function handleGroupCreated(createdGroup: GroupResponse) {
+    dispatch(addGroup(createdGroup))
+    dispatch(setActiveGroup(createdGroup))
+  }
+
+  function handleDownloadSummary() {
+    if (!selectedGroupFromApi) return
+
+    const doc = new jsPDF()
+    const groupName = selectedGroupFromApi.name
+    const date = new Date().toLocaleDateString("en-TZ", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+
+    doc.setFontSize(18)
+    doc.text(t("dashboard.title") + " Summary", 14, 20)
+    doc.setFontSize(12)
+    doc.text(groupName, 14, 28)
+    doc.text(date, 14, 34)
+
+    autoTable(doc, {
+      startY: 42,
+      head: [["Metric", "Value"]],
+      body: [
+        [t("dashboard.totalGroupAssets"), formatAmount(selectedGroupFromApi.totalBalance ?? 0)],
+        [t("dashboard.availableCash"), formatAmount(selectedGroupFromApi.totalBalance ?? 0)],
+        [t("dashboard.totalMemberSavings"), formatAmount(totalMemberSavings)],
+        [t("dashboard.outstandingLoans"), formatAmount(outstandingLoansTotal)],
+      ],
+      theme: "striped",
+    })
+
+    doc.save(`${groupName.replace(/\s+/g, "-")}-dashboard-${new Date().toISOString().slice(0, 10)}.pdf`)
+  }
+
+  return (
+    <div className="flex flex-col flex-1 overflow-auto w-full">
+      <PageHeader
+        title={t("dashboard.title")}
+      >
+        {hasGroups && selectedGroupFromApi && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 border-border/60"
+            onClick={handleDownloadSummary}
+          >
+            <Download className="size-4" />
+            <span className="hidden sm:inline">Export</span>
+          </Button>
+        )}
+        <CreateGroupDialog
+          variant="default"
+          onSuccess={handleGroupCreated}
+        />
+      </PageHeader>
+
+      <ContentContainer>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <SummaryCard
+            icon={TrendingUp}
+            label={t("dashboard.totalGroupAssets")}
+            value=""
+          />
+          <SummaryCard
+            icon={Landmark}
+            label={t("dashboard.availableCash")}
+            value={formatAmount(selectedGroupFromApi?.totalBalance ?? 0)}
+          />
+          <SummaryCard
+            icon={PiggyBank}
+            label={t("dashboard.totalMemberSavings")}
+            value={formatAmount(totalMemberSavings)}
+          />
+          <SummaryCard
+            icon={AlertTriangle}
+            label={t("dashboard.outstandingLoans")}
+            value={formatAmount(outstandingLoansTotal)}
+            iconClassName="bg-amber-500/10 text-amber-600"
+          />
         </div>
-    )
+
+        {/* Quick Actions */}
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+            {t("dashboard.quickActions")}
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {QUICK_ACTION_KEYS.map(({ key, href, icon: Icon, color }) => {
+              const canNavigate = hasGroups && selectedGroupFromApi
+              const card = (
+                <Card
+                  className={cn(
+                    "w-full h-full transition-all border-border/60 shadow-sm",
+                    canNavigate
+                      ? "hover:shadow-md hover:border-border cursor-pointer"
+                      : "opacity-50 cursor-not-allowed"
+                  )}
+                >
+                  <CardHeader className="p-5">
+                    <div className="flex items-center gap-3">
+                      <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", color)}>
+                        <Icon className="size-5" />
+                      </div>
+                      <CardTitle className="text-sm font-medium truncate">
+                        {t(`dashboard.${key}`)}
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                </Card>
+              )
+
+              return canNavigate ? (
+                <Link key={href} href={href} className="min-w-0">
+                  {card}
+                </Link>
+              ) : (
+                <div key={href} className="min-w-0 pointer-events-none">
+                  {card}
+                </div>
+              )
+            })}
+          </div>
+
+          {!hasGroups && (
+            <div className="mt-6">
+              <EmptyState
+                icon={Users}
+                title={t("dashboard.noGroupsYet")}
+                description={t("dashboard.createFirstGroup")}
+              >
+                <CreateGroupDialog
+                  variant="default"
+                  onSuccess={handleGroupCreated}
+                />
+              </EmptyState>
+            </div>
+          )}
+        </div>
+      </ContentContainer>
+    </div>
+  )
 }

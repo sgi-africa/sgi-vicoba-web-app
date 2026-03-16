@@ -14,6 +14,7 @@ import { AddMeetingFormProps } from "@/interfaces/interface"
 import { cn } from "@/lib/utils"
 import { addMeeting } from "@/app/home/meetings/_action"
 import { addMeetingSchema } from "@/lib/zod"
+import { Loader2 } from "lucide-react"
 
 
 export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeetingFormProps) {
@@ -182,14 +183,21 @@ export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeet
                 )}
             </div>
 
-            <DialogFooter className="gap-4 sm:gap-4 pt-2">
+            <DialogFooter className="gap-3 sm:gap-3 pt-2">
                 <DialogClose asChild>
-                <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
+                <Button type="button" variant="outline" disabled={isPending}>
                     {t("common.cancel")}
                 </Button>
             </DialogClose>
-            <Button type="submit" disabled={isPending} className="cursor-pointer">
-                {isPending ? t("common.adding") : t("meetings.addMeetingButton")}
+            <Button type="submit" disabled={isPending}>
+                {isPending ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t("common.adding")}
+                    </>
+                ) : (
+                    t("meetings.addMeetingButton")
+                )}
             </Button>
             </DialogFooter>
         </form>

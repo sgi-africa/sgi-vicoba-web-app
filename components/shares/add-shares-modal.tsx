@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Plus } from "lucide-react"
+import { Plus, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -144,14 +144,21 @@ export function AddSharesModal({
               <p className="text-sm text-destructive">{fieldErrors.sharePrice}</p>
             )}
           </div>
-          <DialogFooter className="gap-4 sm:gap-4 pt-2">
+          <DialogFooter className="gap-3 sm:gap-3 pt-2">
             <DialogClose asChild>
-              <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
+              <Button type="button" variant="outline" disabled={isPending}>
                 {t("common.cancel")}
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={isPending} className="cursor-pointer">
-              {isPending ? t("common.adding") : t("shares.addSharesButton")}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t("common.adding")}
+                </>
+              ) : (
+                t("shares.addSharesButton")
+              )}
             </Button>
           </DialogFooter>
         </form>

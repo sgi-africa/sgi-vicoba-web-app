@@ -151,6 +151,7 @@
     "by": "by"
   },
   "sidebar": {
+    "navigation": "Navigation",
     "home": "Home",
     "memberRegistry": "Member Registry",
     "contributionLedger": "Contribution Ledger",

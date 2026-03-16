@@ -44,7 +44,7 @@ export async function updateGroup(groupId: number, data: UpdateGroupFormValues):
     };
 
     try {
-        const response = await api.put(`/groups/${groupId}`, payload, {
+        const response = await api.patch(`/groups/${groupId}`, payload, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${session.user.accessToken}`,

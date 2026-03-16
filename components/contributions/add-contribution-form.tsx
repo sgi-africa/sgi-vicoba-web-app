@@ -19,6 +19,7 @@ import {
 import { addContribution } from "@/app/home/contributions/_action"
 import { addContributionSchema, CONTRIBUTION_TYPES } from "@/lib/zod"
 import { Member, Penalty } from "@/interfaces/interface"
+import { Loader2 } from "lucide-react"
 
 const CONTRIBUTION_TYPE_OPTIONS = [
   { value: "SAVINGS" as const, labelKey: "savings" },
@@ -232,14 +233,21 @@ export function AddContributionForm({
           <p className="text-sm text-destructive">{fieldErrors.amount}</p>
         )}
       </div>
-      <DialogFooter className="gap-4 sm:gap-4 pt-2">
+      <DialogFooter className="gap-3 sm:gap-3 pt-2">
         <DialogClose asChild>
-          <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
+          <Button type="button" variant="outline" disabled={isPending}>
             {t("common.cancel")}
           </Button>
         </DialogClose>
-        <Button type="submit" disabled={isPending} className="cursor-pointer">
-          {isPending ? t("common.adding") : t("contributions.addContributionButton")}
+        <Button type="submit" disabled={isPending}>
+          {isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t("common.adding")}
+            </>
+          ) : (
+            t("contributions.addContributionButton")
+          )}
         </Button>
       </DialogFooter>
     </form>

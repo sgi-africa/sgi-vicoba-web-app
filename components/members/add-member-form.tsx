@@ -19,6 +19,7 @@ import {
 import { addMember } from "@/app/home/members/_action"
 import { addMemberSchema, ADD_MEMBER_TITLES } from "@/lib/zod"
 import { AddMemberFormProps } from "@/interfaces/interface"
+import { Loader2 } from "lucide-react"
 
 
 type MemberRole = (typeof ADD_MEMBER_TITLES)[number]
@@ -160,14 +161,21 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
           <p className="text-sm text-destructive">{fieldErrors.file}</p>
         )}
       </div>
-      <DialogFooter className="gap-4 sm:gap-4 pt-2">
+      <DialogFooter className="gap-3 sm:gap-3 pt-2">
         <DialogClose asChild>
-          <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
+          <Button type="button" variant="outline" disabled={isPending}>
             {t("common.cancel")}
           </Button>
         </DialogClose>
-        <Button type="submit" disabled={isPending} className="cursor-pointer">
-          {isPending ? t("common.adding") : t("members.addMemberButton")}
+        <Button type="submit" disabled={isPending}>
+          {isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t("common.adding")}
+            </>
+          ) : (
+            t("members.addMemberButton")
+          )}
         </Button>
       </DialogFooter>
     </form>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { Plus, HandCoins, Download, Search } from "lucide-react"
+import { Plus, HandCoins, Download, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,8 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
 import { useAppSelector } from "@/hooks/redux"
 import { getMembers } from "@/app/home/members/_action"
 import { Member, LoanRequest } from "@/interfaces/interface"
@@ -21,6 +20,12 @@ import { getLoans } from "@/app/home/loans/_action"
 import { toast } from "sonner"
 import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
+import { PageHeader } from "@/components/shared/page-header"
+import { SummaryCard } from "@/components/shared/summary-card"
+import { EmptyState } from "@/components/shared/empty-state"
+import { SearchInput } from "@/components/shared/search-input"
+import { StatusBadge } from "@/components/shared/status-badge"
+import { ContentContainer } from "@/components/shared/content-container"
 
 function formatAmount(amount: number | string) {
   return new Intl.NumberFormat("en-TZ", {
@@ -38,16 +43,12 @@ function formatDate(dateStr: string) {
   }
 }
 
-function getStatusStyle(status: LoanRequest["status"]) {
+function getStatusVariant(status: LoanRequest["status"]): "success" | "warning" | "error" {
   switch (status) {
-    case "PAID":
-      return "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-    case "PENDING":
-      return "bg-amber-500/15 text-amber-700 dark:text-amber-400"
-    case "OVERDUE":
-      return "bg-destructive/15 text-destructive dark:text-destructive"
-    default:
-      return "bg-muted text-muted-foreground"
+    case "PAID": return "success"
+    case "PENDING": return "warning"
+    case "OVERDUE": return "error"
+    default: return "warning"
   }
 }
 
@@ -162,51 +163,43 @@ export default function LoansPage() {
 
   if (!activeGroup) {
     return (
-      <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-            <div className="rounded-full bg-muted p-4 mb-4">
-              <HandCoins className="size-10 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-1">{t("common.noGroupSelected")}</h3>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              {t("common.selectGroupToViewLoans")}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <ContentContainer className="pt-5">
+        <EmptyState
+          icon={HandCoins}
+          title={t("common.noGroupSelected")}
+          description={t("common.selectGroupToViewLoans")}
+        />
+      </ContentContainer>
     )
   }
 
   return (
     <div className="flex flex-col flex-1 overflow-auto w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 md:px-6">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">{t("loans.title")}</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("members.countInGroup", { count: loans.length, label: loans.length === 1 ? t("common.loan") : t("common.loans") })}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {loans.length > 0 && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="cursor-pointer shrink-0"
-              onClick={handleDownloadLoans}
-              title={t("common.download") + " " + t("common.loans")}
-            >
-              <Download className="size-4" />
+      <PageHeader
+        title={t("loans.title")}
+        description={t("members.countInGroup", {
+          count: loans.length,
+          label: loans.length === 1 ? t("common.loan") : t("common.loans"),
+        })}
+      >
+        {loans.length > 0 && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="shrink-0 border-border/60"
+            onClick={handleDownloadLoans}
+            title={t("common.download") + " " + t("common.loans")}
+          >
+            <Download className="size-4" />
+          </Button>
+        )}
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="gap-2">
+              <Plus className="size-4" />
+              {t("loans.addLoan")}
             </Button>
-          )}
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="gap-2 cursor-pointer">
-                <Plus className="size-4" />
-                {t("loans.addLoan")}
-              </Button>
-            </DialogTrigger>
+          </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>{t("loans.addNewLoan")}</DialogTitle>
@@ -220,133 +213,94 @@ export default function LoansPage() {
               />
             )}
           </DialogContent>
-          </Dialog>
+        </Dialog>
+      </PageHeader>
+
+      <ContentContainer>
+        {/* Summary cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <SummaryCard label={t("loans.totalRequested")} value={formatAmount(totalRequested)} />
+          <SummaryCard label={t("loans.paid")} value={formatAmount(totalPaid)} valueClassName="text-emerald-600 dark:text-emerald-400" />
+          <SummaryCard label={t("loans.pending")} value={formatAmount(totalPending)} valueClassName="text-amber-600 dark:text-amber-400" />
         </div>
-      </div>
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-4 md:px-6 pb-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>{t("loans.totalRequested")}</CardDescription>
-            <CardTitle className="text-xl font-bold">
-              {formatAmount(totalRequested)}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>{t("loans.paid")}</CardDescription>
-            <CardTitle className="text-xl font-bold">
-              {formatAmount(totalPaid)}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>{t("loans.pending")}</CardDescription>
-            <CardTitle className="text-xl font-bold">
-              {formatAmount(totalPending)}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-
-      <div className="flex-1 px-4 md:px-6 pb-6">
         {loans.length > 0 && !isLoading && (
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-            <Input
-              type="search"
-              placeholder={t("loans.searchPlaceholder")}
+          <div className="mb-4">
+            <SearchInput
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-10 bg-muted/50"
-              aria-label="Search loans"
+              onChange={setSearchQuery}
+              placeholder={t("loans.searchPlaceholder")}
             />
           </div>
         )}
+
         {isLoading ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+          <Card className="border-dashed border-border/60">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <Loader2 className="size-6 text-muted-foreground animate-spin mb-3" />
               <p className="text-sm text-muted-foreground">{t("loans.loadingLoans")}</p>
             </CardContent>
           </Card>
         ) : loans.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-              <div className="rounded-full bg-muted p-4 mb-4">
-                <HandCoins className="size-10 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-1">{t("loans.noLoansYet")}</h3>
-              <p className="text-sm text-muted-foreground text-center max-w-sm">
-                {t("loans.disburseFirstLoan")}
+          <EmptyState
+            icon={HandCoins}
+            title={t("loans.noLoansYet")}
+            description={t("loans.disburseFirstLoan")}
+          />
+        ) : filteredLoans.length === 0 ? (
+          <Card className="border-dashed border-border/60">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <p className="text-sm text-muted-foreground">
+                {searchQuery.trim() ? t("loans.noMatchSearch") : t("loans.noLoansYet")}
               </p>
+              {searchQuery.trim() && (
+                <Button variant="link" className="mt-2" onClick={() => setSearchQuery("")}>
+                  {t("common.clearSearch")}
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-2">
-            {filteredLoans.length === 0 ? (
-              <Card className="border-dashed">
-                <CardContent className="flex flex-col items-center justify-center py-12 px-6">
-                  <p className="text-sm text-muted-foreground">
-                    {searchQuery.trim()
-                      ? t("loans.noMatchSearch")
-                      : t("loans.noLoansYet")}
-                  </p>
-                  {searchQuery.trim() && (
-                    <Button
-                      variant="link"
-                      className="mt-2 cursor-pointer"
-                      onClick={() => setSearchQuery("")}
-                    >
-                      {t("common.clearSearch")}
-                    </Button>
-                  )}
+            {filteredLoans.map((loan) => (
+              <Card
+                key={loan.id}
+                className="shadow-sm border-border/60 transition-all hover:shadow-md hover:border-border"
+              >
+                <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium">
+                      {`${loan.requester.firstName} ${loan.requester.lastName}`
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .slice(0, 2)
+                        .toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {loan.requester.firstName} {loan.requester.lastName}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("loans.requestedLabel")} {formatDate(loan.createdAt)} · {t("loans.dueLabel")} {formatDate(loan.dueDate)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <span className="font-semibold text-foreground">
+                      {formatAmount(loan.principal)}
+                    </span>
+                    <StatusBadge
+                      label={loan.status.toLowerCase()}
+                      variant={getStatusVariant(loan.status)}
+                    />
+                  </div>
                 </CardContent>
               </Card>
-            ) : (
-              filteredLoans.map((loan) => (
-                <Card
-                  key={loan.id}
-                  className="transition-colors hover:bg-accent/30 cursor-default"
-                >
-                  <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
-                        {`${loan.requester.firstName} ${loan.requester.lastName}`
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .slice(0, 2)
-                          .toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-medium">
-                          {loan.requester.firstName} {loan.requester.lastName}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {t("loans.requestedLabel")} {formatDate(loan.createdAt)} · {t("loans.dueLabel")} {formatDate(loan.dueDate)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className="font-semibold text-primary">
-                        {formatAmount(loan.principal)}
-                      </span>
-                      <span
-                        className={`text-xs font-medium px-2 py-0.5 rounded-full ${getStatusStyle(loan.status)}`}
-                      >
-                        {loan.status.toLowerCase()}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
+            ))}
           </div>
         )}
-      </div>
+      </ContentContainer>
     </div>
   )
 }

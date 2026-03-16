@@ -1,11 +1,38 @@
 "use client"
 
-import { Home, User2, ChevronUp, UsersRound, Wallet, HandCoins, ClipboardPenLine, BanknoteArrowUp, UserRoundMinus, Settings } from "lucide-react"
-import { SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import {
+  Home,
+  User2,
+  ChevronUp,
+  UsersRound,
+  Wallet,
+  HandCoins,
+  ClipboardPenLine,
+  BanknoteArrowUp,
+  UserRoundMinus,
+  Settings,
+  Shield,
+} from "lucide-react"
+import {
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu"
 import LogoutButton from "@/components/auth/logout"
 import Link from "next/link"
-import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { useTranslation } from "react-i18next"
 import { Session } from "next-auth"
 
@@ -27,52 +54,65 @@ interface AppSidebarContentProps {
 
 export function AppSidebarContent({ session }: AppSidebarContentProps) {
   const { t } = useTranslation()
+  const pathname = usePathname()
 
   return (
     <>
-      <SidebarContent>
-        <SidebarGroup>
-          <div className="w-32 h-32 rounded-full overflow-hidden mx-auto my-4">
-            <Image
-              src="/logo.jpg"
-              width={128}
-              height={128}
-              alt="Dashboard Image"
-              className="object-cover w-full h-full"
-            />
+      <SidebarHeader className="px-4 py-5">
+        <Link href="/home" className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+            <Shield className="size-4" />
           </div>
+          <span className="text-sm font-semibold text-sidebar-foreground tracking-tight">
+            SGI VICOBA
+          </span>
+        </Link>
+      </SidebarHeader>
+
+      <SidebarContent className="px-2">
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-sidebar-foreground/50 text-[11px] font-medium uppercase tracking-wider px-3">
+            {t("sidebar.navigation") ?? "Navigation"}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {MENU_ITEMS.map((item) => (
-                <SidebarMenuItem key={item.key} className="mt-2">
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{t(`sidebar.${item.key}`)}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {MENU_ITEMS.map((item) => {
+                const isActive = pathname === item.url
+                return (
+                  <SidebarMenuItem key={item.key}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={t(`sidebar.${item.key}`)}
+                    >
+                      <Link href={item.url}>
+                        <item.icon className="size-4" />
+                        <span>{t(`sidebar.${item.key}`)}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="">
+      <SidebarFooter className="px-2 pb-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton className="w-full">
-                  <User2 className="mr-2" />
-                  <span>{session?.user?.name}</span>
-                  <ChevronUp className="ml-auto" />
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-sidebar-accent-foreground text-xs font-medium">
+                    {session?.user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+                  </div>
+                  <span className="truncate text-sm">{session?.user?.name}</span>
+                  <ChevronUp className="ml-auto size-4 shrink-0 opacity-50" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                side="top"
-                className="w-full">
-                <DropdownMenuItem>
+              <DropdownMenuContent side="top" className="w-56">
+                <DropdownMenuItem className="p-0">
                   <LogoutButton />
                 </DropdownMenuItem>
               </DropdownMenuContent>

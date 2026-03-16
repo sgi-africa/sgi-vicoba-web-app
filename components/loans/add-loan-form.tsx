@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { addLoanSchema } from "@/lib/zod"
 import { AddLoanFormProps } from "@/interfaces/interface"
 import { addLoan } from "@/app/home/loans/_action"
+import { Loader2 } from "lucide-react"
 
 // Simple interest: I = P × R × T / 100 (T in years). With T in months: I = P × R × (months/12) / 100
 function simpleInterest(principal: number, ratePercent: number, durationMonths: number): number {
@@ -235,14 +236,21 @@ export function AddLoanForm({
         </Card>
       )}
 
-      <DialogFooter className="gap-4 sm:gap-4 pt-2">
+      <DialogFooter className="gap-3 sm:gap-3 pt-2">
         <DialogClose asChild>
-          <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
+          <Button type="button" variant="outline" disabled={isPending}>
             {t("common.cancel")}
           </Button>
         </DialogClose>
-        <Button type="submit" disabled={isPending} className="cursor-pointer">
-          {isPending ? t("common.adding") : t("loans.addLoanButton")}
+        <Button type="submit" disabled={isPending}>
+          {isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t("common.adding")}
+            </>
+          ) : (
+            t("loans.addLoanButton")
+          )}
         </Button>
       </DialogFooter>
     </form>

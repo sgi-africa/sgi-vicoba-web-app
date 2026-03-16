@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { Plus, AlertCircle, UserRoundMinus, Download, Search } from "lucide-react"
+import { Plus, AlertCircle, UserRoundMinus, Download, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,8 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
 import { useAppSelector } from "@/hooks/redux"
 import { getPenalties } from "./_action"
 import { getMembers } from "@/app/home/members/_action"
@@ -21,6 +20,12 @@ import { Penalty, Member } from "@/interfaces/interface"
 import { toast } from "sonner"
 import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
+import { PageHeader } from "@/components/shared/page-header"
+import { SummaryCard } from "@/components/shared/summary-card"
+import { EmptyState } from "@/components/shared/empty-state"
+import { SearchInput } from "@/components/shared/search-input"
+import { StatusBadge } from "@/components/shared/status-badge"
+import { ContentContainer } from "@/components/shared/content-container"
 
 function formatAmount(amount: number | string) {
   return new Intl.NumberFormat("en-TZ", {
@@ -166,216 +171,140 @@ export default function PenaltiesPage() {
 
   if (!activeGroup || !groupId) {
     return (
-      <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-            <div className="rounded-full bg-muted p-4 mb-4">
-              <UserRoundMinus className="size-10 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-1">{t("common.noGroupSelected")}</h3>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              {t("common.selectGroupToViewPenalties")}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <ContentContainer className="pt-5">
+        <EmptyState
+          icon={UserRoundMinus}
+          title={t("common.noGroupSelected")}
+          description={t("common.selectGroupToViewPenalties")}
+        />
+      </ContentContainer>
     )
   }
 
   return (
     <div className="flex flex-col flex-1 overflow-auto w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 md:px-6">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">
-            {t("penalties.title")}
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("members.countInGroup", { count: penalties.length, label: penalties.length === 1 ? t("common.penalty") : t("common.penalties") })}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {penalties.length > 0 && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="cursor-pointer shrink-0"
-              onClick={handleDownloadPenalties}
-              title={t("penalties.downloadPenalties")}
-            >
-              <Download className="size-4" />
-            </Button>
-          )}
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="gap-2 cursor-pointer">
-                <Plus className="size-4" />
-                {t("penalties.addPenalty")}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>{t("penalties.addPenaltyTitle")}</DialogTitle>
-              </DialogHeader>
-              <AddPenaltyForm
-                groupId={groupId}
-                members={members}
-                onSuccess={handleAddSuccess}
-                onClose={() => setOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-
-      {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-4 md:px-6 pb-4">
-        {isLoading ? (
-          <>
-            <Card className="overflow-hidden">
-              <CardHeader className="pb-2">
-                <div className="h-4 w-24 bg-muted rounded animate-pulse" />
-                <div className="h-8 w-28 bg-muted rounded animate-pulse mt-2" />
-              </CardHeader>
-            </Card>
-            <Card className="overflow-hidden">
-              <CardHeader className="pb-2">
-                <div className="h-4 w-24 bg-muted rounded animate-pulse" />
-                <div className="h-8 w-28 bg-muted rounded animate-pulse mt-2" />
-              </CardHeader>
-            </Card>
-            <Card className="overflow-hidden">
-              <CardHeader className="pb-2">
-                <div className="h-4 w-24 bg-muted rounded animate-pulse" />
-                <div className="h-8 w-28 bg-muted rounded animate-pulse mt-2" />
-              </CardHeader>
-            </Card>
-          </>
-        ) : (
-          <>
-            <Card className="overflow-hidden">
-              <CardHeader className="pb-2">
-                <CardDescription>{t("penalties.totalPenalties")}</CardDescription>
-                <CardTitle className="text-xl font-bold">
-                  {formatAmount(totalAmount)}
-                </CardTitle>
-              </CardHeader>
-            </Card>
-            <Card className="overflow-hidden">
-              <CardHeader className="pb-2">
-                <CardDescription>{t("common.paid")}</CardDescription>
-                <CardTitle className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-                  {formatAmount(totalPaid)}
-                </CardTitle>
-              </CardHeader>
-            </Card>
-            <Card className="overflow-hidden">
-              <CardHeader className="pb-2">
-                <CardDescription>{t("common.unpaid")}</CardDescription>
-                <CardTitle className="text-xl font-bold text-amber-600 dark:text-amber-400">
-                  {formatAmount(totalUnpaid)}
-                </CardTitle>
-              </CardHeader>
-            </Card>
-          </>
+      <PageHeader
+        title={t("penalties.title")}
+        description={t("members.countInGroup", {
+          count: penalties.length,
+          label: penalties.length === 1 ? t("common.penalty") : t("common.penalties"),
+        })}
+      >
+        {penalties.length > 0 && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="shrink-0 border-border/60"
+            onClick={handleDownloadPenalties}
+            title={t("penalties.downloadPenalties")}
+          >
+            <Download className="size-4" />
+          </Button>
         )}
-      </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="gap-2">
+              <Plus className="size-4" />
+              {t("penalties.addPenalty")}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>{t("penalties.addPenaltyTitle")}</DialogTitle>
+            </DialogHeader>
+            <AddPenaltyForm
+              groupId={groupId}
+              members={members}
+              onSuccess={handleAddSuccess}
+              onClose={() => setOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      </PageHeader>
 
-      <div className="flex-1 px-4 md:px-6 pb-6">
+      <ContentContainer>
+        {/* Summary cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <SummaryCard label={t("penalties.totalPenalties")} value={formatAmount(totalAmount)} />
+          <SummaryCard label={t("common.paid")} value={formatAmount(totalPaid)} valueClassName="text-emerald-600 dark:text-emerald-400" />
+          <SummaryCard label={t("common.unpaid")} value={formatAmount(totalUnpaid)} valueClassName="text-amber-600 dark:text-amber-400" />
+        </div>
+
         {penalties.length > 0 && !isLoading && (
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-            <Input
-              type="search"
-              placeholder={t("penalties.searchPlaceholder")}
+          <div className="mb-4">
+            <SearchInput
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-10 bg-muted/50"
-              aria-label="Search penalties"
+              onChange={setSearchQuery}
+              placeholder={t("penalties.searchPlaceholder")}
             />
           </div>
         )}
+
         {isLoading ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+          <Card className="border-dashed border-border/60">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <Loader2 className="size-6 text-muted-foreground animate-spin mb-3" />
               <p className="text-sm text-muted-foreground">{t("penalties.loadingPenalties")}</p>
             </CardContent>
           </Card>
         ) : penalties.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-              <div className="rounded-full bg-muted p-4 mb-4">
-                <AlertCircle className="size-10 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-1">{t("penalties.noPenaltiesYet")}</h3>
-              <p className="text-sm text-muted-foreground text-center max-w-sm">
-                {t("penalties.recordFirstPenalty")}
+          <EmptyState
+            icon={AlertCircle}
+            title={t("penalties.noPenaltiesYet")}
+            description={t("penalties.recordFirstPenalty")}
+          />
+        ) : filteredPenalties.length === 0 ? (
+          <Card className="border-dashed border-border/60">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <p className="text-sm text-muted-foreground">
+                {searchQuery.trim() ? t("penalties.noMatchSearch") : t("penalties.noPenaltiesYet")}
               </p>
+              {searchQuery.trim() && (
+                <Button variant="link" className="mt-2" onClick={() => setSearchQuery("")}>
+                  {t("common.clearSearch")}
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-2">
-            {filteredPenalties.length === 0 ? (
-              <Card className="border-dashed">
-                <CardContent className="flex flex-col items-center justify-center py-12 px-6">
-                  <p className="text-sm text-muted-foreground">
-                    {searchQuery.trim()
-                      ? t("penalties.noMatchSearch")
-                      : t("penalties.noPenaltiesYet")}
-                  </p>
-                  {searchQuery.trim() && (
-                    <Button
-                      variant="link"
-                      className="mt-2 cursor-pointer"
-                      onClick={() => setSearchQuery("")}
-                    >
-                      {t("common.clearSearch")}
-                    </Button>
-                  )}
+            {filteredPenalties.map((penalty) => (
+              <Card
+                key={penalty.id}
+                className="shadow-sm border-border/60 transition-all hover:shadow-md hover:border-border"
+              >
+                <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium">
+                      {getMemberName(penalty, t("common.unknownMember"))
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .slice(0, 2)
+                        .toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">{getMemberName(penalty, t("common.unknownMember"))}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(penalty.createdAt)} · {formatPenaltyType(penalty.type ?? "OTHER")}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <span className="font-semibold text-foreground">
+                      {formatAmount(penalty.amount)}
+                    </span>
+                    <StatusBadge
+                      label={penalty.status?.toUpperCase() === "PAID" ? t("common.paid") : t("common.unpaid")}
+                      variant={penalty.status?.toUpperCase() === "PAID" ? "success" : "warning"}
+                    />
+                  </div>
                 </CardContent>
               </Card>
-            ) : (
-              filteredPenalties.map((penalty) => (
-                <Card
-                  key={penalty.id}
-                  className="transition-colors hover:bg-accent/30 cursor-default"
-                >
-                  <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
-                        {getMemberName(penalty, t("common.unknownMember"))
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .slice(0, 2)
-                          .toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-medium">{getMemberName(penalty, t("common.unknownMember"))}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {formatDate(penalty.createdAt)} · {formatPenaltyType(penalty.type ?? "OTHER")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className="font-semibold text-primary">
-                        {formatAmount(penalty.amount)}
-                      </span>
-                      <span
-                        className={`text-xs font-medium px-2 py-0.5 rounded-full ${penalty.status?.toUpperCase() === "PAID"
-                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-                          : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
-                          }`}
-                      >
-                        {penalty.status?.toUpperCase() === "PAID" ? t("common.paid") : t("common.unpaid")}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
+            ))}
           </div>
         )}
-      </div>
+      </ContentContainer>
     </div>
   )
 }

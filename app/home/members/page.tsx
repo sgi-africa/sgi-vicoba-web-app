@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Users, Download, Search } from "lucide-react";
+import { Plus, Users, Download, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,8 +12,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/hooks/redux";
 import { AddMemberForm } from "@/components/members/add-member-form";
 import { getMembers } from "@/app/home/members/_action";
@@ -21,6 +19,10 @@ import { Member } from "@/interfaces/interface";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { PageHeader } from "@/components/shared/page-header";
+import { EmptyState } from "@/components/shared/empty-state";
+import { SearchInput } from "@/components/shared/search-input";
+import { ContentContainer } from "@/components/shared/content-container";
 
 const MEMBER_ROLE_KEYS = ["chairperson", "treasurer", "secretary", "member"] as const;
 
@@ -107,156 +109,127 @@ export default function MembersPageClient() {
 
   if (!activeGroup) {
     return (
-      <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-            <div className="rounded-full bg-muted p-4 mb-4">
-              <Users className="size-10 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-1">{t("common.noGroupSelected")}</h3>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              {t("common.selectGroupFromDashboard")}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <ContentContainer className="pt-5">
+        <EmptyState
+          icon={Users}
+          title={t("common.noGroupSelected")}
+          description={t("common.selectGroupFromDashboard")}
+        />
+      </ContentContainer>
     );
   }
 
   return (
     <div className="flex flex-col flex-1 overflow-auto w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 md:px-6">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">{t("members.title")}</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("members.countInGroup", { count: totalMembers, label: totalMembers === 1 ? t("common.member") : t("common.members") })}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {members.length > 0 && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="cursor-pointer shrink-0"
-              onClick={handleDownloadMembers}
-              title={t("members.downloadMembers")}
-            >
-              <Download className="size-4" />
+      <PageHeader
+        title={t("members.title")}
+        description={t("members.countInGroup", {
+          count: totalMembers,
+          label: totalMembers === 1 ? t("common.member") : t("common.members"),
+        })}
+      >
+        {members.length > 0 && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="shrink-0 border-border/60"
+            onClick={handleDownloadMembers}
+            title={t("members.downloadMembers")}
+          >
+            <Download className="size-4" />
+          </Button>
+        )}
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="gap-2">
+              <Plus className="size-4" />
+              {t("members.addMember")}
             </Button>
-          )}
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="gap-2 cursor-pointer">
-                <Plus className="size-4" />
-                {t("members.addMember")}
-              </Button>
-            </DialogTrigger>
-
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("members.addNewMember")}</DialogTitle>
-          </DialogHeader>
-
-          {groupId && (
-            <AddMemberForm
-              groupId={groupId!}
-              onSuccess={handleAddSuccess}
-              onClose={() => setOpen(false)}
-            />
-          )}
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>{t("members.addNewMember")}</DialogTitle>
+            </DialogHeader>
+            {groupId && (
+              <AddMemberForm
+                groupId={groupId!}
+                onSuccess={handleAddSuccess}
+                onClose={() => setOpen(false)}
+              />
+            )}
           </DialogContent>
-          </Dialog>
-        </div>
-      </div>
+        </Dialog>
+      </PageHeader>
 
-      <div className="flex-1 px-4 md:px-6 pb-6">
+      <ContentContainer>
         {members.length > 0 && !isLoading && (
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-            <Input
-              type="search"
-              placeholder={t("members.searchPlaceholder")}
+          <div className="mb-4">
+            <SearchInput
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-10 bg-muted/50"
-              aria-label={t("members.searchAria")}
+              onChange={setSearchQuery}
+              placeholder={t("members.searchPlaceholder")}
+              ariaLabel={t("members.searchAria")}
             />
           </div>
         )}
+
         {isLoading ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+          <Card className="border-dashed border-border/60">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <Loader2 className="size-6 text-muted-foreground animate-spin mb-3" />
               <p className="text-sm text-muted-foreground">{t("members.loadingMembers")}</p>
             </CardContent>
           </Card>
         ) : members.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-              <div className="rounded-full bg-muted p-4 mb-4">
-                <Users className="size-10 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-1">{t("members.noMembersYet")}</h3>
-              <p className="text-sm text-muted-foreground text-center max-w-sm">
-                {t("members.getStartedAddMember")}
+          <EmptyState
+            icon={Users}
+            title={t("members.noMembersYet")}
+            description={t("members.getStartedAddMember")}
+          />
+        ) : filteredMembers.length === 0 ? (
+          <Card className="border-dashed border-border/60">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <p className="text-sm text-muted-foreground">
+                {searchQuery.trim() ? t("members.noMatchSearch") : t("members.noMembersYet")}
               </p>
+              {searchQuery.trim() && (
+                <Button variant="link" className="mt-2" onClick={() => setSearchQuery("")}>
+                  {t("common.clearSearch")}
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-2">
-            {filteredMembers.length === 0 ? (
-              <Card className="border-dashed">
-                <CardContent className="flex flex-col items-center justify-center py-12 px-6">
-                  <p className="text-sm text-muted-foreground">
-                    {searchQuery.trim()
-                      ? t("members.noMatchSearch")
-                      : t("members.noMembersYet")}
-                  </p>
-                  {searchQuery.trim() && (
-                    <Button
-                      variant="link"
-                      className="mt-2 cursor-pointer"
-                      onClick={() => setSearchQuery("")}
-                    >
-                      {t("common.clearSearch")}
-                    </Button>
-                  )}
+            {filteredMembers.map((member) => (
+              <Card
+                key={member.id}
+                className="shadow-sm border-border/60 transition-all hover:shadow-md hover:border-border"
+              >
+                <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-medium">
+                      {member.user.firstName[0]}
+                      {member.user.lastName[0]}
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {member.user.firstName} {member.user.lastName}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {member.user.phone || t("common.noPhone")}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-md">
+                    {getRoleLabel(member.title, t)}
+                  </span>
                 </CardContent>
               </Card>
-            ) : (
-              filteredMembers.map((member) => (
-                <Card
-                  key={member.id}
-                  className={cn("transition-colors hover:bg-accent/30", "cursor-default")}
-                >
-                  <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
-                        {member.user.firstName[0]}
-                        {member.user.lastName[0]}
-                      </div>
-
-                      <div>
-                        <p className="font-medium">
-                          {member.user.firstName} {member.user.lastName}
-                        </p>
-
-                        <p className="text-sm text-muted-foreground">
-                          {member.user.phone || t("common.noPhone")}
-                        </p>
-                      </div>
-                    </div>
-
-                    <span className="text-sm font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-md">
-                      {getRoleLabel(member.title, t)}
-                    </span>
-                  </CardContent>
-                </Card>
-              ))
-            )}
+            ))}
           </div>
         )}
-      </div>
+      </ContentContainer>
     </div>
   );
 }

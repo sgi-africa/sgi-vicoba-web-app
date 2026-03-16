@@ -19,6 +19,7 @@ import {
 import { addPenalty } from "@/app/home/penalties/_action"
 import { addPenaltySchema, PENALTY_TYPES } from "@/lib/zod"
 import { AddPenaltyFormProps } from "@/interfaces/interface"
+import { Loader2 } from "lucide-react"
 
 
 export function AddPenaltyForm({
@@ -147,14 +148,21 @@ export function AddPenaltyForm({
                     <p className="text-sm text-destructive">{fieldErrors.type}</p>
                 )}
             </div>
-            <DialogFooter className="gap-4 sm:gap-4 pt-2">
+            <DialogFooter className="gap-3 sm:gap-3 pt-2">
                 <DialogClose asChild>
-                    <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
+                    <Button type="button" variant="outline" disabled={isPending}>
                         {t("common.cancel")}
                     </Button>
                 </DialogClose>
-                <Button type="submit" disabled={isPending} className="cursor-pointer">
-                    {isPending ? t("common.adding") : t("penalties.addPenaltyButton")}
+                <Button type="submit" disabled={isPending}>
+                    {isPending ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            {t("common.adding")}
+                        </>
+                    ) : (
+                        t("penalties.addPenaltyButton")
+                    )}
                 </Button>
             </DialogFooter>
         </form>

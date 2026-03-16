@@ -1,15 +1,17 @@
 import AppSidebar from "@/components/global/app-sidebar"
-import { SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { HomeHeader } from "@/components/home/home-header"
 
 export default function HomeLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="flex flex-1 flex-col min-w-0">
+      <SidebarInset>
         <HomeHeader />
-        {children}
-      </main>
+        <main className="flex flex-1 flex-col min-w-0">
+          {children}
+        </main>
+      </SidebarInset>
     </SidebarProvider>
   )
 }

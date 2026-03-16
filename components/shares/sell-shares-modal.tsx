@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 import { sellShares } from "@/app/home/shares/_action"
 import { sellSharesSchema } from "@/lib/zod"
 import { MemberOption } from "@/interfaces/interface"
@@ -153,15 +154,22 @@ export function SellSharesModal({
               <p className="text-sm text-destructive">{fieldErrors.quantity}</p>
             )}
           </div>
-          <DialogFooter className="gap-4 sm:gap-4 pt-2">
+          <DialogFooter className="gap-3 sm:gap-3 pt-2">
             <DialogClose asChild>
-            <Button type="button" variant="outline" disabled={isPending}>
-              {t("common.cancel")}
+              <Button type="button" variant="outline" disabled={isPending}>
+                {t("common.cancel")}
+              </Button>
+            </DialogClose>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t("shares.selling")}
+                </>
+              ) : (
+                t("shares.sellSharesButton")
+              )}
             </Button>
-          </DialogClose>
-          <Button type="submit" disabled={isPending}>
-            {isPending ? t("shares.selling") : t("shares.sellSharesButton")}
-          </Button>
           </DialogFooter>
         </form>
       </DialogContent>

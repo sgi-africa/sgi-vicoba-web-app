@@ -1,6 +1,8 @@
 "use client"
 
 import { useTranslation } from "react-i18next"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 function LanguageSwitcher() {
   const { i18n } = useTranslation()
@@ -15,27 +17,24 @@ function LanguageSwitcher() {
   }
 
   return (
-    <div className="flex items-center gap-1">
-      <button
-        type="button"
-        onClick={() => changeLanguage("en")}
-        className={`px-2.5 py-1 rounded text-sm transition-colors cursor-pointer ${currentLang === "en"
-            ? "font-semibold bg-primary/30 text-primary"
-            : "text-muted-foreground hover:text-foreground"
-          }`}
-      >
-        EN
-      </button>
-      <button
-        type="button"
-        onClick={() => changeLanguage("sw")}
-        className={`px-2.5 py-1 rounded text-sm transition-colors cursor-pointer ${currentLang === "sw"
-            ? "font-semibold bg-primary/30 text-primary"
-            : "text-muted-foreground hover:text-foreground"
-          }`}
-      >
-        SW
-      </button>
+    <div className="flex items-center rounded-md border border-border/60 bg-card p-0.5">
+      {(["en", "sw"] as const).map((lang) => (
+        <Button
+          key={lang}
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => changeLanguage(lang)}
+          className={cn(
+            "h-6 px-2.5 text-xs font-medium rounded-sm transition-colors",
+            currentLang === lang
+              ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-transparent"
+          )}
+        >
+          {lang.toUpperCase()}
+        </Button>
+      ))}
     </div>
   )
 }
