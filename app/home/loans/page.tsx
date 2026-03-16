@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, HandCoins } from "lucide-react"
+import { Plus, HandCoins, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -17,6 +17,8 @@ import { Member, LoanRequest } from "@/interfaces/interface"
 import { AddLoanForm } from "@/components/loans/add-loan-form"
 import { getLoans } from "@/app/home/loans/_action"
 import { toast } from "sonner"
+import { jsPDF } from "jspdf"
+import autoTable from "jspdf-autotable"
 
 function formatAmount(amount: number | string) {
   return new Intl.NumberFormat("en-TZ", {
@@ -88,6 +90,51 @@ export default function LoansPage() {
     }
   }
 
+  function handleDownloadLoans() {
+    if (!activeGroup || loans.length === 0) return
+
+    const doc = new jsPDF()
+    const groupName = activeGroup.name
+    const date = new Date().toLocaleDateString("en-TZ", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+
+    doc.setFontSize(18)
+    doc.text("Loans", 14, 20)
+    doc.setFontSize(12)
+    doc.text(groupName, 14, 28)
+    doc.text(date, 14, 34)
+
+    autoTable(doc, {
+      startY: 42,
+      head: [["Borrower", "Principal", "Due Date", "Status"]],
+      body: loans.map((loan) => [
+        `${loan.requester.firstName} ${loan.requester.lastName}`,
+        formatAmount(loan.principal),
+        formatDate(loan.dueDate),
+        loan.status.toLowerCase(),
+      ]),
+      theme: "striped",
+    })
+
+    const tableEndY = (doc as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?? 42
+    autoTable(doc, {
+      startY: tableEndY + 10,
+      head: [["Summary", "Amount"]],
+      body: [
+        ["Total requested", formatAmount(totalRequested)],
+        ["Paid", formatAmount(totalPaid)],
+        ["Pending", formatAmount(totalPending)],
+      ],
+      theme: "plain",
+    })
+
+    doc.save(`${groupName.replace(/\s+/g, "-")}-loans-${new Date().toISOString().slice(0, 10)}.pdf`)
+  }
+
   const totalRequested = loans.reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
   const totalPaid = loans
     .filter((loan) => loan.status === "PAID")
@@ -123,13 +170,26 @@ export default function LoansPage() {
             {loans.length} {loans.length === 1 ? "loan" : "loans"} in this group
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="gap-2 cursor-pointer">
-              <Plus className="size-4" />
-              Add loan
+
+        <div className="flex items-center gap-2">
+          {loans.length > 0 && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="cursor-pointer shrink-0"
+              onClick={handleDownloadLoans}
+              title="Download loans"
+            >
+              <Download className="size-4" />
             </Button>
-          </DialogTrigger>
+          )}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-2 cursor-pointer">
+                <Plus className="size-4" />
+                Add loan
+              </Button>
+            </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Add new loan</DialogTitle>
@@ -143,7 +203,8 @@ export default function LoansPage() {
               />
             )}
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {/* Summary cards */}

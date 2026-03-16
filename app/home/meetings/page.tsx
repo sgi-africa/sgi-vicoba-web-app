@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, ClipboardList, Calendar } from "lucide-react"
+import { Plus, ClipboardList, Calendar, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -17,6 +17,8 @@ import { getGroupMeetings } from "@/app/home/meetings/_action"
 import { AddMeetingForm } from "@/components/meetings/add-meeting-form"
 import { Member, GroupMeetingsResponse } from "@/interfaces/interface"
 import { toast } from "sonner"
+import { jsPDF } from "jspdf"
+import autoTable from "jspdf-autotable"
 
 function formatDateTime(dateStr: string) {
   try {
@@ -80,6 +82,39 @@ export default function MeetingsPage() {
       .finally(() => setIsLoading(false))
   }, [groupId])
 
+  function handleDownloadMeetings() {
+    if (!activeGroup || meetings.length === 0) return
+
+    const doc = new jsPDF()
+    const groupName = activeGroup.name
+    const date = new Date().toLocaleDateString("en-TZ", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+
+    doc.setFontSize(18)
+    doc.text("Meetings & Minutes", 14, 20)
+    doc.setFontSize(12)
+    doc.text(groupName, 14, 28)
+    doc.text(date, 14, 34)
+
+    autoTable(doc, {
+      startY: 42,
+      head: [["Topic", "Next Meeting", "Status", "Attendees"]],
+      body: meetings.map((m) => [
+        m.topic,
+        formatDateTime(m.nextMeetingDate),
+        getStatusFromDate(m.nextMeetingDate),
+        String(m.attendees?.length ?? 0),
+      ]),
+      theme: "striped",
+    })
+
+    doc.save(`${groupName.replace(/\s+/g, "-")}-meetings-${new Date().toISOString().slice(0, 10)}.pdf`)
+  }
+
   if (!activeGroup) {
     return (
       <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
@@ -108,13 +143,26 @@ export default function MeetingsPage() {
             {meetings.length === 1 ? "meeting" : "meetings"} in this group
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="gap-2 cursor-pointer">
-              <Plus className="size-4" />
-              Add meeting
+
+        <div className="flex items-center gap-2">
+          {meetings.length > 0 && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="cursor-pointer shrink-0"
+              onClick={handleDownloadMeetings}
+              title="Download meetings"
+            >
+              <Download className="size-4" />
             </Button>
-          </DialogTrigger>
+          )}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-2 cursor-pointer">
+                <Plus className="size-4" />
+                Add meeting
+              </Button>
+            </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Add new meeting</DialogTitle>
@@ -136,7 +184,8 @@ export default function MeetingsPage() {
               />
             )}
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       <div className="flex-1 px-4 md:px-6 pb-6">
