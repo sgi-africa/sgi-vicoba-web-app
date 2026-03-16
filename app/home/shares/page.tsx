@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Banknote, Coins, ShoppingCart, Info, BanknoteArrowUp } from "lucide-react"
+import { Banknote, Coins, ShoppingCart, Info, BanknoteArrowUp, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { useAppSelector, useAppDispatch } from "@/hooks/redux"
@@ -12,6 +12,8 @@ import { getGroupShares, getMemberShares } from "./_action"
 import { getMembers } from "@/app/home/members/_action"
 import { toast } from "sonner"
 import { MemberSharesRow } from "@/interfaces/interface"
+import { jsPDF } from "jspdf"
+import autoTable from "jspdf-autotable"
 
 
 function formatAmount(amount: number | string) {
@@ -143,6 +145,50 @@ export default function SharesPage() {
         toast.success("Shares sold successfully")
     }
 
+    function handleDownloadShares() {
+        if (!activeGroup) return
+
+        const doc = new jsPDF()
+        const groupName = activeGroup.name
+        const date = new Date().toLocaleDateString("en-TZ", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        })
+
+        doc.setFontSize(18)
+        doc.text("Shares", 14, 20)
+        doc.setFontSize(12)
+        doc.text(groupName, 14, 28)
+        doc.text(date, 14, 34)
+
+        const startY = 42
+
+        autoTable(doc, {
+            startY,
+            head: [["Summary", "Value"]],
+            body: [
+                ["Share price", formatAmount(sharePrice)],
+                ["Shares available", String(availableShares)],
+            ],
+            theme: "plain",
+        })
+
+        const tableEndY = (doc as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?? 42
+
+        if (memberShares.length > 0) {
+            autoTable(doc, {
+                startY: tableEndY + 10,
+                head: [["Member", "Shares purchased"]],
+                body: memberShares.map((row) => [row.name, String(row.totalShares)]),
+                theme: "striped",
+            })
+        }
+
+        doc.save(`${groupName.replace(/\s+/g, "-")}-shares-${new Date().toISOString().slice(0, 10)}.pdf`)
+    }
+
     if (!activeGroup || !groupId) {
         return (
             <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
@@ -174,7 +220,18 @@ export default function SharesPage() {
                         Manage group shares and pricing
                     </p>
                 </div>
-                {hasSharesConfigured ? (
+
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="cursor-pointer shrink-0"
+                        onClick={handleDownloadShares}
+                        title="Download shares"
+                    >
+                        <Download className="size-4" />
+                    </Button>
+                    {hasSharesConfigured ? (
                     <SellSharesModal
                         groupId={groupId}
                         members={memberShares.map((m) => ({ userId: m.userId, name: m.name }))}
@@ -193,6 +250,7 @@ export default function SharesPage() {
                         variant="default"
                     />
                 )}
+                </div>
             </div>
 
             {/* Banner to inform the user that once shares are configured for a group, total shares and share price cannot be edited or changed. */}

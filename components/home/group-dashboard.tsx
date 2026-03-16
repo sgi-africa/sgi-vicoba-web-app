@@ -4,7 +4,8 @@ import { useEffect,
     // useMemo, 
     useState } from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Wallet, Users, HandCoins, ClipboardList } from "lucide-react"
+import { Wallet, Users, HandCoins, ClipboardList, Download } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import GroupSelector from "./group-selector"
 import { CreateGroupDialog } from "./create-group-dialog"
 import { GroupResponse } from "@/interfaces/interface"
@@ -14,6 +15,8 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { getContributions } from "@/app/home/contributions/_action"
 import { getLoans } from "@/app/home/loans/_action"
+import { jsPDF } from "jspdf"
+import autoTable from "jspdf-autotable"
 
 function formatAmount(amount: number | string) {
     return new Intl.NumberFormat("en-TZ", {
@@ -132,11 +135,56 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
         dispatch(setActiveGroup(createdGroup))
     }
 
+    function handleDownloadSummary() {
+        if (!selectedGroupFromApi) return
+
+        const doc = new jsPDF()
+        const groupName = selectedGroupFromApi.name
+        const date = new Date().toLocaleDateString("en-TZ", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        })
+
+        doc.setFontSize(18)
+        doc.text("Group Dashboard Summary", 14, 20)
+        doc.setFontSize(12)
+        doc.text(groupName, 14, 28)
+        doc.text(date, 14, 34)
+
+        autoTable(doc, {
+            startY: 42,
+            head: [["Metric", "Value"]],
+            body: [
+                ["Total group assets", formatAmount(selectedGroupFromApi.totalBalance ?? 0)],
+                ["Available cash", formatAmount(selectedGroupFromApi.totalBalance ?? 0)],
+                ["Total member savings", formatAmount(totalMemberSavings)],
+                ["Outstanding loans", formatAmount(outstandingLoansTotal)],
+            ],
+            theme: "striped",
+        })
+
+        doc.save(`${groupName.replace(/\s+/g, "-")}-dashboard-${new Date().toISOString().slice(0, 10)}.pdf`)
+    }
+
     return (
         <div className="flex flex-col flex-1 overflow-auto w-full">
             {/* Dashboard header */}
             <div className="flex items-center justify-between px-4 py-4 md:px-6">
-                <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
+                <div className="flex items-center gap-2">
+                    <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
+                    {hasGroups && selectedGroupFromApi && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2 cursor-pointer"
+                            onClick={handleDownloadSummary}
+                        >
+                            <Download className="size-4" />
+                        </Button>
+                    )}
+                </div>
                 <div className="flex items-center gap-2">
                     {hasGroups && <GroupSelector groups={effectiveGroups} />}
                     <CreateGroupDialog

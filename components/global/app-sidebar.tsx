@@ -43,6 +43,11 @@ const items = [
         url: "/home/penalties",
         icon: UserRoundMinus,
     },
+    {
+        title: "Fund Disbursements",
+        url: "/home/funds",
+        icon: BanknoteArrowUp,
+    },
 ]
 
 export default async function AppSidebar() {
