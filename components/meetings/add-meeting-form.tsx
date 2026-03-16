@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
     DialogClose,
@@ -16,6 +17,7 @@ import { addMeetingSchema } from "@/lib/zod"
 
 
 export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeetingFormProps) {
+    const { t } = useTranslation()
     const [error, setError] = useState<string | null>(null)
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
     const [isPending, setIsPending] = useState(false)
@@ -97,7 +99,7 @@ export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeet
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="nextMeetingDate">Next meeting date</Label>
+                <Label htmlFor="nextMeetingDate">{t("meetings.nextMeetingDate")}</Label>
                 <Input
                     id="nextMeetingDate"
                     name="nextMeetingDate"
@@ -111,7 +113,7 @@ export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeet
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="topic">Meeting topic</Label>
+                <Label htmlFor="topic">{t("meetings.meetingTopic")}</Label>
                 <Input
                     id="topic"
                     name="topic"
@@ -124,7 +126,7 @@ export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeet
             </div>
 
             <div className="grid gap-2">
-                <Label>Attendees</Label>
+                <Label>{t("meetings.attendees")}</Label>
                 {fieldErrors.attendeeIds && (
                     <p className="text-sm text-destructive">{fieldErrors.attendeeIds}</p>
                 )}
@@ -136,7 +138,7 @@ export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeet
                 >
                     {members.length === 0 ? (
                         <p className="text-sm text-muted-foreground py-2">
-                            No members in this group yet.
+                            {t("meetings.noMembersInGroup")}
                         </p>
                     ) : (
                         members.map((member) => (
@@ -167,11 +169,11 @@ export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeet
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="resolutions">Resolutions</Label>
+                <Label htmlFor="resolutions">{t("meetings.resolutions")}</Label>
                 <Textarea
                     id="resolutions"
                     name="resolutions"
-                    placeholder="Optional meeting resolutions..."
+                    placeholder={t("meetings.resolutionsPlaceholder")}
                     rows={3}
                     aria-invalid={!!fieldErrors.resolutions}
                 />
@@ -182,13 +184,13 @@ export function AddMeetingForm({ groupId, members, onSuccess, onClose }: AddMeet
 
             <DialogFooter className="gap-4 sm:gap-4 pt-2">
                 <DialogClose asChild>
-                    <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
-                        Cancel
-                    </Button>
-                </DialogClose>
-                <Button type="submit" disabled={isPending} className="cursor-pointer">
-                    {isPending ? "Adding…" : "Add meeting"}
+                <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
+                    {t("common.cancel")}
                 </Button>
+            </DialogClose>
+            <Button type="submit" disabled={isPending} className="cursor-pointer">
+                {isPending ? t("common.adding") : t("meetings.addMeetingButton")}
+            </Button>
             </DialogFooter>
         </form>
     )

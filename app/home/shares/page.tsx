@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { Banknote, Coins, ShoppingCart, Info, BanknoteArrowUp, Download, Search } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -33,6 +34,7 @@ function matchesSearch(row: MemberSharesRow, query: string): boolean {
 }
 
 export default function SharesPage() {
+    const { t } = useTranslation()
     const dispatch = useAppDispatch()
     const activeGroup = useAppSelector((state) => state.group.activeGroup)
     const sharesConfiguredGroupIds = useAppSelector((state) => state.group.sharesConfiguredGroupIds)
@@ -129,7 +131,7 @@ export default function SharesPage() {
             })
         )
         setMemberShares(memberResults)
-        toast.success("Shares added successfully")
+        toast.success(t("notifications.sharesAdded"))
     }
 
     const handleSellSuccess = async () => {
@@ -155,7 +157,7 @@ export default function SharesPage() {
             })
         )
         setMemberShares(memberResults)
-        toast.success("Shares sold successfully")
+        toast.success(t("notifications.sharesSold"))
     }
 
     function handleDownloadShares() {
@@ -171,7 +173,7 @@ export default function SharesPage() {
         })
 
         doc.setFontSize(18)
-        doc.text("Shares", 14, 20)
+        doc.text(t("shares.title"), 14, 20)
         doc.setFontSize(12)
         doc.text(groupName, 14, 28)
         doc.text(date, 14, 34)
@@ -182,8 +184,8 @@ export default function SharesPage() {
             startY,
             head: [["Summary", "Value"]],
             body: [
-                ["Share price", formatAmount(sharePrice)],
-                ["Shares available", String(availableShares)],
+                [t("shares.sharePrice"), formatAmount(sharePrice)],
+                [t("shares.sharesAvailable"), String(availableShares)],
             ],
             theme: "plain",
         })
@@ -193,7 +195,7 @@ export default function SharesPage() {
         if (memberShares.length > 0) {
             autoTable(doc, {
                 startY: tableEndY + 10,
-                head: [["Member", "Shares purchased"]],
+                head: [[t("shares.member"), t("shares.sharesPurchased")]],
                 body: memberShares.map((row) => [row.name, String(row.totalShares)]),
                 theme: "striped",
             })
@@ -210,9 +212,9 @@ export default function SharesPage() {
                         <div className="rounded-full bg-muted p-4 mb-4">
                             <BanknoteArrowUp className="size-10 text-muted-foreground" />
                         </div>
-                        <h3 className="text-lg font-semibold mb-1">No group selected</h3>
+                        <h3 className="text-lg font-semibold mb-1">{t("common.noGroupSelected")}</h3>
                         <p className="text-sm text-muted-foreground text-center max-w-sm">
-                            Select a group from the dashboard to view shares.
+                            {t("common.selectGroupToViewShares")}
                         </p>
                     </CardContent>
                 </Card>
@@ -228,9 +230,9 @@ export default function SharesPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 md:px-6">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Shares</h2>
+                    <h2 className="text-2xl font-bold tracking-tight">{t("shares.title")}</h2>
                     <p className="text-sm text-muted-foreground mt-1">
-                        Manage group shares and pricing
+                        {t("shares.manageSharesPricing")}
                     </p>
                 </div>
 
@@ -240,7 +242,7 @@ export default function SharesPage() {
                         size="icon"
                         className="cursor-pointer shrink-0"
                         onClick={handleDownloadShares}
-                        title="Download shares"
+                        title={t("shares.downloadShares")}
                     >
                         <Download className="size-4" />
                     </Button>
@@ -252,7 +254,7 @@ export default function SharesPage() {
                         trigger={
                             <Button size="sm" className="gap-2 cursor-pointer">
                                 <ShoppingCart className="size-4" />
-                                Sell shares
+                                {t("shares.sellShares")}
                             </Button>
                         }
                     />
@@ -272,7 +274,7 @@ export default function SharesPage() {
                     <CardContent className="flex items-start gap-3 py-4">
                         <Info className="h-5 w-5 shrink-0 text-muted-foreground mt-0.5" />
                         <p className="text-sm text-muted-foreground">
-                            Once shares are configured for this group, total shares and share price cannot be edited or changed.
+                            {t("shares.configureBanner")}
                         </p>
                     </CardContent>
                 </Card>
@@ -314,11 +316,11 @@ export default function SharesPage() {
                                         <Coins className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <CardDescription>Share price</CardDescription>
+                                        <CardDescription>{t("shares.sharePrice")}</CardDescription>
                                         <CardTitle className="text-2xl font-bold">
                                             {formatAmount(sharePrice)}
                                         </CardTitle>
-                                        <p className="text-xs text-muted-foreground mt-0.5">Per share</p>
+                                        <p className="text-xs text-muted-foreground mt-0.5">{t("shares.perShare")}</p>
                                     </div>
                                 </div>
                             </CardHeader>
@@ -330,11 +332,11 @@ export default function SharesPage() {
                                         <Banknote className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <CardDescription>Shares available</CardDescription>
+                                        <CardDescription>{t("shares.sharesAvailable")}</CardDescription>
                                         <CardTitle className="text-2xl font-bold">
                                             {availableShares.toLocaleString()}
                                         </CardTitle>
-                                        <p className="text-xs text-muted-foreground mt-0.5">Total for this group</p>
+                                        <p className="text-xs text-muted-foreground mt-0.5">{t("shares.totalForGroup")}</p>
                                     </div>
                                 </div>
                             </CardHeader>
@@ -345,13 +347,13 @@ export default function SharesPage() {
 
             {/* Member shares table */}
             <div className="px-4 md:px-6 pb-6">
-                <h3 className="text-lg font-semibold mb-4">Shares by member</h3>
+                <h3 className="text-lg font-semibold mb-4">{t("shares.sharesByMember")}</h3>
                 {memberShares.length > 0 && !isTableLoading && (
                     <div className="relative mb-4">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                         <Input
                             type="search"
-                            placeholder="Search by member name…"
+                            placeholder={t("shares.searchPlaceholder")}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-9 h-10 bg-muted/50"
@@ -370,19 +372,19 @@ export default function SharesPage() {
                 ) : memberShares.length === 0 ? (
                     <Card>
                         <div className="p-8 text-center text-muted-foreground">
-                            No members in this group yet.
+                            {t("shares.noMembersInGroup")}
                         </div>
                     </Card>
                 ) : filteredMemberShares.length === 0 ? (
                     <Card>
                         <div className="p-8 flex flex-col items-center justify-center text-muted-foreground">
-                            <p className="text-sm">No members match your search.</p>
+                            <p className="text-sm">{t("shares.noMatchSearch")}</p>
                             <Button
                                 variant="link"
                                 className="mt-2 cursor-pointer"
                                 onClick={() => setSearchQuery("")}
                             >
-                                Clear search
+                                {t("common.clearSearch")}
                             </Button>
                         </div>
                     </Card>
@@ -392,8 +394,8 @@ export default function SharesPage() {
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b bg-muted/50">
-                                        <th className="text-left px-6 py-4 font-medium">Member</th>
-                                        <th className="text-right px-6 py-4 font-medium">Shares purchased</th>
+                                        <th className="text-left px-6 py-4 font-medium">{t("shares.member")}</th>
+                                        <th className="text-right px-6 py-4 font-medium">{t("shares.sharesPurchased")}</th>
                                     </tr>
                                 </thead>
                                 <tbody>

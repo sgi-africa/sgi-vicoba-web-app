@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { Plus, Wallet, Download, Search } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -38,22 +39,23 @@ function formatDate(dateStr: string) {
   }
 }
 
-function getMemberName(contribution: Contribution): string {
+function getMemberName(contribution: Contribution, unknownLabel: string): string {
   if (contribution.user) {
     return `${contribution.user.firstName} ${contribution.user.lastName}`
   }
-  return "Unknown member"
+  return unknownLabel
 }
 
-function matchesSearch(contribution: Contribution, query: string): boolean {
+function matchesSearch(contribution: Contribution, query: string, unknownLabel: string): boolean {
   if (!query.trim()) return true
   const q = query.trim().toLowerCase()
-  const name = getMemberName(contribution).toLowerCase()
+  const name = getMemberName(contribution, unknownLabel).toLowerCase()
   const type = (contribution.type === "SAVINGS" ? "savings" : "jamii").toLowerCase()
   return name.includes(q) || type.includes(q)
 }
 
 export default function ContributionsPage() {
+  const { t } = useTranslation()
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
   const [contributions, setContributions] = useState<Contribution[]>([])
   const [members, setMembers] = useState<Member[]>([])
@@ -65,8 +67,8 @@ export default function ContributionsPage() {
   const groupId = activeGroup?.id
 
   const filteredContributions = useMemo(
-    () => contributions.filter((c) => matchesSearch(c, searchQuery)),
-    [contributions, searchQuery]
+    () => contributions.filter((c) => matchesSearch(c, searchQuery, t("common.unknownMember"))),
+    [contributions, searchQuery, t]
   )
 
   useEffect(() => {
@@ -105,7 +107,7 @@ export default function ContributionsPage() {
     setMembers(mems)
     setPenalties(pens)
     setOpen(false)
-    toast.success("Contribution added successfully")
+    toast.success(t("notifications.contributionAdded"))
   }
 
   function handleDownloadContributions() {
@@ -121,19 +123,19 @@ export default function ContributionsPage() {
     })
 
     doc.setFontSize(18)
-    doc.text("Contribution Ledger", 14, 20)
+    doc.text(t("contributions.title"), 14, 20)
     doc.setFontSize(12)
     doc.text(groupName, 14, 28)
     doc.text(date, 14, 34)
 
     autoTable(doc, {
       startY: 42,
-      head: [["Member", "Date", "Amount", "Type"]],
+      head: [[t("contributions.member"), t("common.date"), t("common.amount"), t("common.type")]],
       body: contributions.map((c) => [
-        getMemberName(c),
+        getMemberName(c, t("common.unknownMember")),
         formatDate(c.createdAt),
         formatAmount(c.amount),
-        c.type === "SAVINGS" ? "Savings" : "Jamii",
+        c.type === "SAVINGS" ? t("common.savings") : t("common.jamii"),
       ]),
       theme: "striped",
     })
@@ -143,8 +145,8 @@ export default function ContributionsPage() {
       startY: tableEndY + 10,
       head: [["Summary", "Amount"]],
       body: [
-        ["Total Savings", formatAmount(totalSavings)],
-        ["Total Jamii", formatAmount(totalJamii)],
+        [t("contributions.totalSavings"), formatAmount(totalSavings)],
+        [t("contributions.totalJamii"), formatAmount(totalJamii)],
       ],
       theme: "plain",
     })
@@ -160,9 +162,9 @@ export default function ContributionsPage() {
             <div className="rounded-full bg-muted p-4 mb-4">
               <Wallet className="size-10 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-1">No group selected</h3>
+            <h3 className="text-lg font-semibold mb-1">{t("common.noGroupSelected")}</h3>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Select a group from the dashboard to view contributions.
+              {t("common.selectGroupToViewContributions")}
             </p>
           </CardContent>
         </Card>
@@ -183,11 +185,11 @@ export default function ContributionsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 md:px-6">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
-            Contribution Ledger
+            {t("contributions.title")}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
             {contributions.length}{" "}
-            {contributions.length === 1 ? "contribution" : "contributions"}
+            {contributions.length === 1 ? t("common.contribution") : t("common.contributions")}
           </p>
         </div>
 
@@ -198,7 +200,7 @@ export default function ContributionsPage() {
               size="icon"
               className="cursor-pointer shrink-0"
               onClick={handleDownloadContributions}
-              title="Download contributions"
+              title={t("common.download") + " " + t("common.contributions")}
             >
               <Download className="size-4" />
             </Button>
@@ -207,12 +209,12 @@ export default function ContributionsPage() {
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2 cursor-pointer">
                 <Plus className="size-4" />
-                Add contribution
+                {t("contributions.addContribution")}
               </Button>
             </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Add contribution</DialogTitle>
+              <DialogTitle>{t("contributions.addContributionTitle")}</DialogTitle>
             </DialogHeader>
             <AddContributionForm
               groupId={groupId}
@@ -230,7 +232,7 @@ export default function ContributionsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-4 md:px-6 pb-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total Savings</CardDescription>
+            <CardDescription>{t("contributions.totalSavings")}</CardDescription>
             <CardTitle className="text-xl font-bold">
               {formatAmount(totalSavings)}
             </CardTitle>
@@ -238,7 +240,7 @@ export default function ContributionsPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total Jamii</CardDescription>
+            <CardDescription>{t("contributions.totalJamii")}</CardDescription>
             <CardTitle className="text-xl font-bold">
               {formatAmount(totalJamii)}
             </CardTitle>
@@ -252,7 +254,7 @@ export default function ContributionsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
             <Input
               type="search"
-              placeholder="Search by member name or type (savings, jamii)…"
+              placeholder={t("contributions.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 h-10 bg-muted/50"
@@ -263,7 +265,7 @@ export default function ContributionsPage() {
         {isLoading ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-              <p className="text-sm text-muted-foreground">Loading contributions…</p>
+              <p className="text-sm text-muted-foreground">{t("contributions.loadingContributions")}</p>
             </CardContent>
           </Card>
         ) : contributions.length === 0 ? (
@@ -272,10 +274,9 @@ export default function ContributionsPage() {
               <div className="rounded-full bg-muted p-4 mb-4">
                 <Wallet className="size-10 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-1">No contributions yet</h3>
+              <h3 className="text-lg font-semibold mb-1">{t("contributions.noContributionsYet")}</h3>
               <p className="text-sm text-muted-foreground text-center max-w-sm">
-                Record your first contribution by clicking the &quot;Add
-                contribution&quot; button above.
+                {t("contributions.recordFirstContribution")}
               </p>
             </CardContent>
           </Card>
@@ -286,8 +287,8 @@ export default function ContributionsPage() {
                 <CardContent className="flex flex-col items-center justify-center py-12 px-6">
                   <p className="text-sm text-muted-foreground">
                     {searchQuery.trim()
-                      ? "No contributions match your search."
-                      : "No contributions yet."}
+                      ? t("contributions.noMatchSearch")
+                      : t("contributions.noContributionsYet")}
                   </p>
                   {searchQuery.trim() && (
                     <Button
@@ -295,7 +296,7 @@ export default function ContributionsPage() {
                       className="mt-2 cursor-pointer"
                       onClick={() => setSearchQuery("")}
                     >
-                      Clear search
+                      {t("common.clearSearch")}
                     </Button>
                   )}
                 </CardContent>
@@ -308,7 +309,7 @@ export default function ContributionsPage() {
                 >
                   <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
                     <div>
-                      <p className="font-medium">{getMemberName(contribution)}</p>
+                      <p className="font-medium">{getMemberName(contribution, t("common.unknownMember"))}</p>
                       <p className="text-sm text-muted-foreground">
                         {formatDate(contribution.createdAt)}
                       </p>
@@ -323,7 +324,7 @@ export default function ContributionsPage() {
                           : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
                           }`}
                       >
-                        {contribution.type === "SAVINGS" ? "Savings" : "Jamii"}
+                        {contribution.type === "SAVINGS" ? t("common.savings") : t("common.jamii")}
                       </span>
                     </div>
                   </CardContent>

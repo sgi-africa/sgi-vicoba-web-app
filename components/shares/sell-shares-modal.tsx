@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ export function SellSharesModal({
   onSuccess,
   trigger,
 }: SellSharesModalProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [userId, setUserId] = useState<string>("")
   const [error, setError] = useState<string | null>(null)
@@ -110,7 +112,7 @@ export function SellSharesModal({
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Sell shares</DialogTitle>
+          <DialogTitle>{t("shares.sellSharesTitle")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && (
@@ -119,10 +121,10 @@ export function SellSharesModal({
             </p>
           )}
           <div className="grid gap-2">
-            <Label htmlFor="userId">Member</Label>
+            <Label htmlFor="userId">{t("shares.member")}</Label>
             <Select value={userId} onValueChange={setUserId}>
               <SelectTrigger id="userId" aria-invalid={!!fieldErrors.userId}>
-                <SelectValue placeholder="Select member" />
+                <SelectValue placeholder={t("common.selectMember")} />
               </SelectTrigger>
               <SelectContent>
                 {members.map((member) => (
@@ -137,7 +139,7 @@ export function SellSharesModal({
             )}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="quantity">Quantity</Label>
+            <Label htmlFor="quantity">{t("shares.quantity")}</Label>
             <Input
               id="quantity"
               name="quantity"
@@ -153,13 +155,13 @@ export function SellSharesModal({
           </div>
           <DialogFooter className="gap-4 sm:gap-4 pt-2">
             <DialogClose asChild>
-              <Button type="button" variant="outline" disabled={isPending}>
-                Cancel
-              </Button>
-            </DialogClose>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Selling…" : "Sell shares"}
+            <Button type="button" variant="outline" disabled={isPending}>
+              {t("common.cancel")}
             </Button>
+          </DialogClose>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? t("shares.selling") : t("shares.sellSharesButton")}
+          </Button>
           </DialogFooter>
         </form>
       </DialogContent>

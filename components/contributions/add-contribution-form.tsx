@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
   DialogClose,
@@ -20,9 +21,9 @@ import { addContributionSchema, CONTRIBUTION_TYPES } from "@/lib/zod"
 import { Member, Penalty } from "@/interfaces/interface"
 
 const CONTRIBUTION_TYPE_OPTIONS = [
-  { value: "SAVINGS" as const, label: "Savings" },
-  { value: "JAMII" as const, label: "Jamii" },
-  { value: "PENALTY" as const, label: "Penalty" },
+  { value: "SAVINGS" as const, labelKey: "savings" },
+  { value: "JAMII" as const, labelKey: "jamii" },
+  { value: "PENALTY" as const, labelKey: "penalty" },
 ]
 
 type ContributionType = (typeof CONTRIBUTION_TYPES)[number]
@@ -44,6 +45,7 @@ export function AddContributionForm({
   onSuccess,
   onClose,
 }: AddContributionFormProps) {
+  const { t } = useTranslation()
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [isPending, setIsPending] = useState(false)
@@ -79,7 +81,7 @@ export function AddContributionForm({
     const amountInput = amount || (form.elements.namedItem("amount") as HTMLInputElement)?.value?.trim() || ""
 
     if (type === "PENALTY" && pendingPenalties.length > 0 && !penaltyId) {
-      setFieldErrors({ penaltyId: "Please select a penalty to pay" })
+      setFieldErrors({ penaltyId: t("contributions.pleaseSelectPenalty") })
       setIsPending(false)
       return
     }
@@ -139,10 +141,10 @@ export function AddContributionForm({
         </p>
       )}
       <div className="grid gap-2">
-        <Label htmlFor="userId">Member</Label>
+        <Label htmlFor="userId">{t("contributions.member")}</Label>
         <Select value={userId} onValueChange={setUserId}>
           <SelectTrigger id="userId" aria-invalid={!!fieldErrors.userId}>
-            <SelectValue placeholder="Select member" />
+            <SelectValue placeholder={t("common.selectMember")} />
           </SelectTrigger>
           <SelectContent>
             {members.map((member) => (
@@ -160,7 +162,7 @@ export function AddContributionForm({
         )}
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="type">Type</Label>
+        <Label htmlFor="type">{t("common.type")}</Label>
         <Select
           value={type}
           onValueChange={(v) => {
@@ -172,12 +174,12 @@ export function AddContributionForm({
           }}
         >
           <SelectTrigger id="type" aria-invalid={!!fieldErrors.type}>
-            <SelectValue placeholder="Select type" />
+            <SelectValue placeholder={t("common.selectType")} />
           </SelectTrigger>
           <SelectContent>
-            {CONTRIBUTION_TYPE_OPTIONS.map(({ value, label }) => (
+            {CONTRIBUTION_TYPE_OPTIONS.map(({ value, labelKey }) => (
               <SelectItem key={value} value={value}>
-                {label}
+                {t(`common.${labelKey}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -188,7 +190,7 @@ export function AddContributionForm({
       </div>
       {type === "PENALTY" && pendingPenalties.length > 0 && (
         <div className="grid gap-2">
-          <Label htmlFor="penaltyId">Penalty to pay</Label>
+          <Label htmlFor="penaltyId">{t("contributions.penaltyToPay")}</Label>
           <Select
             value={penaltyId}
             onValueChange={(id) => {
@@ -198,7 +200,7 @@ export function AddContributionForm({
             }}
           >
             <SelectTrigger id="penaltyId" aria-invalid={!!fieldErrors.penaltyId}>
-              <SelectValue placeholder="Select penalty to pay" />
+              <SelectValue placeholder={t("contributions.selectPenaltyToPay")} />
             </SelectTrigger>
             <SelectContent>
               {pendingPenalties.map((p) => (
@@ -214,7 +216,7 @@ export function AddContributionForm({
         </div>
       )}
       <div className="grid gap-2">
-        <Label htmlFor="amount">Amount (TZS)</Label>
+        <Label htmlFor="amount">{t("contributions.amountTzs")}</Label>
         <Input
           id="amount"
           name="amount"
@@ -233,11 +235,11 @@ export function AddContributionForm({
       <DialogFooter className="gap-4 sm:gap-4 pt-2">
         <DialogClose asChild>
           <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
-            Cancel
+            {t("common.cancel")}
           </Button>
         </DialogClose>
         <Button type="submit" disabled={isPending} className="cursor-pointer">
-          {isPending ? "Adding…" : "Add contribution"}
+          {isPending ? t("common.adding") : t("contributions.addContributionButton")}
         </Button>
       </DialogFooter>
     </form>

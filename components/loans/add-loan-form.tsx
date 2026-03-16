@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card"
 import {
@@ -42,6 +43,7 @@ export function AddLoanForm({
   onSuccess,
   onClose,
 }: AddLoanFormProps) {
+  const { t } = useTranslation()
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [isPending, setIsPending] = useState(false)
@@ -126,10 +128,10 @@ export function AddLoanForm({
         </p>
       )}
       <div className="grid gap-2">
-        <Label htmlFor="userId">Member (borrower)</Label>
+        <Label htmlFor="userId">{t("loans.memberBorrower")}</Label>
         <Select value={userId} onValueChange={setUserId}>
           <SelectTrigger id="userId" aria-invalid={!!fieldErrors.userId}>
-            <SelectValue placeholder="Select member" />
+            <SelectValue placeholder={t("common.selectMember")} />
           </SelectTrigger>
           <SelectContent>
             {members.map((member) => (
@@ -148,7 +150,7 @@ export function AddLoanForm({
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="grid gap-2 min-w-0">
-          <Label htmlFor="principal">Principal (TZS)</Label>
+          <Label htmlFor="principal">{t("loans.principalTzs")}</Label>
           <Input
             id="principal"
             name="principal"
@@ -165,7 +167,7 @@ export function AddLoanForm({
           )}
         </div>
         <div className="grid gap-2 min-w-0">
-          <Label htmlFor="interestRate">Interest rate (%)</Label>
+          <Label htmlFor="interestRate">{t("loans.interestRate")}</Label>
           <Input
             id="interestRate"
             name="interestRate"
@@ -184,7 +186,7 @@ export function AddLoanForm({
         </div>
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="durationMonths">Duration (months)</Label>
+        <Label htmlFor="durationMonths">{t("loans.durationMonths")}</Label>
         <Input
           id="durationMonths"
           name="durationMonths"
@@ -201,7 +203,7 @@ export function AddLoanForm({
         )}
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="reason">Reason (optional)</Label>
+        <Label htmlFor="reason">{t("loans.reasonOptional")}</Label>
         <Textarea
           id="reason"
           name="reason"
@@ -218,15 +220,15 @@ export function AddLoanForm({
       {hasValidInputs && (
         <Card className="bg-muted/50">
           <CardHeader className="pb-2">
-            <CardDescription>Repayment (simple interest: P × R × T / 100)</CardDescription>
+            <CardDescription>{t("loans.repaymentFormula")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Interest</span>
+              <span className="text-muted-foreground">{t("loans.interest")}</span>
               <span className="font-medium">{formatTzs(interest)}</span>
             </div>
             <div className="flex justify-between font-semibold text-base pt-1 border-t">
-              <span>Total to repay</span>
+              <span>{t("loans.totalToRepay")}</span>
               <span>{formatTzs(totalRepayment)}</span>
             </div>
           </CardContent>
@@ -236,11 +238,11 @@ export function AddLoanForm({
       <DialogFooter className="gap-4 sm:gap-4 pt-2">
         <DialogClose asChild>
           <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
-            Cancel
+            {t("common.cancel")}
           </Button>
         </DialogClose>
         <Button type="submit" disabled={isPending} className="cursor-pointer">
-          {isPending ? "Adding…" : "Add loan"}
+          {isPending ? t("common.adding") : t("loans.addLoanButton")}
         </Button>
       </DialogFooter>
     </form>

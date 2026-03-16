@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Plus } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -30,7 +31,7 @@ import { cn } from "@/lib/utils"
 
 const GROUP_TYPE_OPTIONS = GROUP_TYPES.map((value) => ({
   value,
-  label: value === "EQUALANNUAL" ? "Equal Annual" : "Rotational",
+  labelKey: value === "EQUALANNUAL" ? "equalAnnual" : "rotational",
 }))
 
 type GroupType = (typeof GROUP_TYPES)[number]
@@ -43,6 +44,7 @@ interface CreateGroupDialogProps {
 
 export function CreateGroupDialog({ variant = "default", className, onSuccess }: CreateGroupDialogProps) {
   const router = useRouter()
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [type, setType] = useState<GroupType | "">("")
   const [error, setError] = useState<string | null>(null)
@@ -81,7 +83,7 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
 
     try {
       const createdGroup = await createGroup(result.data)
-      toast.success("Group created successfully")
+      toast.success(t("notifications.groupCreated"))
       setOpen(false)
       setType("")
       form.reset()
@@ -117,12 +119,12 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
       <DialogTrigger asChild>
         <Button variant={variant ?? "default"} size="sm" className={cn("cursor-pointer", className)}>
           <Plus className="size-4" />
-          Create group
+          {t("groups.createGroup")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create new group</DialogTitle>
+          <DialogTitle>{t("groups.createNewGroup")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && (
@@ -131,11 +133,11 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
             </p>
           )}
           <div className="grid gap-2">
-            <Label htmlFor="name">Group name</Label>
+            <Label htmlFor="name">{t("groups.groupName")}</Label>
             <Input
               id="name"
               name="name"
-              placeholder="e.g. My Savings Group"
+              placeholder={t("groups.groupNamePlaceholder")}
               aria-invalid={!!fieldErrors.name}
             />
             {fieldErrors.name && (
@@ -143,11 +145,11 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
             )}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="country">Country</Label>
+            <Label htmlFor="country">{t("groups.country")}</Label>
             <Input
               id="country"
               name="country"
-              placeholder="e.g. Tanzania"
+              placeholder={t("groups.countryPlaceholder")}
               aria-invalid={!!fieldErrors.country}
             />
             {fieldErrors.country && (
@@ -155,11 +157,11 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
             )}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="city">City</Label>
+            <Label htmlFor="city">{t("groups.city")}</Label>
             <Input
               id="city"
               name="city"
-              placeholder="e.g. Dar es Salaam"
+              placeholder={t("groups.cityPlaceholder")}
               aria-invalid={!!fieldErrors.city}
             />
             {fieldErrors.city && (
@@ -167,11 +169,11 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
             )}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="region">Region</Label>
+            <Label htmlFor="region">{t("groups.region")}</Label>
             <Input
               id="region"
               name="region"
-              placeholder="e.g. Dar es Salaam"
+              placeholder={t("groups.regionPlaceholder")}
               aria-invalid={!!fieldErrors.region}
             />
             {fieldErrors.region && (
@@ -179,11 +181,11 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
             )}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="street">Street address</Label>
+            <Label htmlFor="street">{t("groups.streetAddress")}</Label>
             <Input
               id="street"
               name="street"
-              placeholder="e.g. 123 Main Street"
+              placeholder={t("groups.streetPlaceholder")}
               aria-invalid={!!fieldErrors.street}
             />
             {fieldErrors.street && (
@@ -191,11 +193,11 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
             )}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="description">Description (optional)</Label>
+            <Label htmlFor="description">{t("groups.descriptionOptional")}</Label>
             <Input
               id="description"
               name="description"
-              placeholder="Brief description of the group"
+              placeholder={t("groups.descriptionPlaceholder")}
               aria-invalid={!!fieldErrors.description}
             />
             {fieldErrors.description && (
@@ -203,15 +205,15 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
             )}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="type">Type</Label>
+            <Label htmlFor="type">{t("groups.type")}</Label>
             <Select value={type} onValueChange={(v) => setType(v as GroupType)}>
               <SelectTrigger id="type" aria-invalid={!!fieldErrors.type}>
-                <SelectValue placeholder="Select type" />
+                <SelectValue placeholder={t("groups.selectType")} />
               </SelectTrigger>
               <SelectContent>
-                {GROUP_TYPE_OPTIONS.map(({ value, label }) => (
+                {GROUP_TYPE_OPTIONS.map(({ value, labelKey }) => (
                   <SelectItem key={value} value={value}>
-                    {label}
+                    {t(`groups.${labelKey}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -223,11 +225,11 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
           <DialogFooter className="gap-4 sm:gap-4 pt-2">
             <DialogClose asChild>
               <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
-                Cancel
+                {t("common.cancel")}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={isPending} className="cursor-pointer">
-              {isPending ? "Creating…" : "Create group"}
+              {isPending ? t("groups.creating") : t("groups.createGroupButton")}
             </Button>
           </DialogFooter>
         </form>
