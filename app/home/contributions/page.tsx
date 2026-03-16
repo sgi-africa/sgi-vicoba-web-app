@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Wallet } from "lucide-react"
+import { Plus, Wallet, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,6 +18,8 @@ import { getPenalties } from "@/app/home/penalties/_action"
 import { AddContributionForm } from "@/components/contributions/add-contribution-form"
 import { Contribution, Member, Penalty } from "@/interfaces/interface"
 import { toast } from "sonner"
+import { jsPDF } from "jspdf"
+import autoTable from "jspdf-autotable"
 
 function formatAmount(amount: number | string) {
   return new Intl.NumberFormat("en-TZ", {
@@ -91,6 +93,50 @@ export default function ContributionsPage() {
     toast.success("Contribution added successfully")
   }
 
+  function handleDownloadContributions() {
+    if (!activeGroup || contributions.length === 0) return
+
+    const doc = new jsPDF()
+    const groupName = activeGroup.name
+    const date = new Date().toLocaleDateString("en-TZ", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+
+    doc.setFontSize(18)
+    doc.text("Contribution Ledger", 14, 20)
+    doc.setFontSize(12)
+    doc.text(groupName, 14, 28)
+    doc.text(date, 14, 34)
+
+    autoTable(doc, {
+      startY: 42,
+      head: [["Member", "Date", "Amount", "Type"]],
+      body: contributions.map((c) => [
+        getMemberName(c),
+        formatDate(c.createdAt),
+        formatAmount(c.amount),
+        c.type === "SAVINGS" ? "Savings" : "Jamii",
+      ]),
+      theme: "striped",
+    })
+
+    const tableEndY = (doc as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?? 42
+    autoTable(doc, {
+      startY: tableEndY + 10,
+      head: [["Summary", "Amount"]],
+      body: [
+        ["Total Savings", formatAmount(totalSavings)],
+        ["Total Jamii", formatAmount(totalJamii)],
+      ],
+      theme: "plain",
+    })
+
+    doc.save(`${groupName.replace(/\s+/g, "-")}-contributions-${new Date().toISOString().slice(0, 10)}.pdf`)
+  }
+
   if (!activeGroup || !groupId) {
     return (
       <div className="flex flex-col flex-1 overflow-auto w-full px-4 py-4 md:px-6">
@@ -129,13 +175,26 @@ export default function ContributionsPage() {
             {contributions.length === 1 ? "contribution" : "contributions"}
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="gap-2 cursor-pointer sm:ml-auto">
-              <Plus className="size-4" />
-              Add contribution
+
+        <div className="flex items-center gap-2">
+          {contributions.length > 0 && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="cursor-pointer shrink-0"
+              onClick={handleDownloadContributions}
+              title="Download contributions"
+            >
+              <Download className="size-4" />
             </Button>
-          </DialogTrigger>
+          )}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-2 cursor-pointer">
+                <Plus className="size-4" />
+                Add contribution
+              </Button>
+            </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Add contribution</DialogTitle>
@@ -148,7 +207,8 @@ export default function ContributionsPage() {
               onClose={() => setOpen(false)}
             />
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {/* Summary cards */}
