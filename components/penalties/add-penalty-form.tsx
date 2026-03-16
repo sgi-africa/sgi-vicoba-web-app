@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
     DialogClose,
@@ -26,6 +27,7 @@ export function AddPenaltyForm({
     onSuccess,
     onClose,
 }: AddPenaltyFormProps) {
+    const { t } = useTranslation()
     const [error, setError] = useState<string | null>(null)
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
     const [isPending, setIsPending] = useState(false)
@@ -92,10 +94,10 @@ export function AddPenaltyForm({
                 </p>
             )}
             <div className="grid gap-2">
-                <Label htmlFor="userId">Member</Label>
+                <Label htmlFor="userId">{t("contributions.member")}</Label>
                 <Select value={userId} onValueChange={setUserId}>
                     <SelectTrigger id="userId" aria-invalid={!!fieldErrors.userId}>
-                        <SelectValue placeholder="Select member" />
+                        <SelectValue placeholder={t("common.selectMember")} />
                     </SelectTrigger>
                     <SelectContent>
                         {members.map((member) => (
@@ -113,7 +115,7 @@ export function AddPenaltyForm({
                 )}
             </div>
             <div className="grid gap-2">
-                <Label htmlFor="amount">Amount (TZS)</Label>
+                <Label htmlFor="amount">{t("contributions.amountTzs")}</Label>
                 <Input
                     id="amount"
                     name="amount"
@@ -128,10 +130,10 @@ export function AddPenaltyForm({
                 )}
             </div>
             <div className="grid gap-2">
-                <Label htmlFor="type">Type</Label>
+                <Label htmlFor="type">{t("common.type")}</Label>
                 <Select value={type} onValueChange={setType}>
                     <SelectTrigger id="type" aria-invalid={!!fieldErrors.type}>
-                        <SelectValue placeholder="Select type" />
+                        <SelectValue placeholder={t("common.selectType")} />
                     </SelectTrigger>
                     <SelectContent>
                         {PENALTY_TYPES.map((value) => (
@@ -148,11 +150,11 @@ export function AddPenaltyForm({
             <DialogFooter className="gap-4 sm:gap-4 pt-2">
                 <DialogClose asChild>
                     <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
-                        Cancel
+                        {t("common.cancel")}
                     </Button>
                 </DialogClose>
                 <Button type="submit" disabled={isPending} className="cursor-pointer">
-                    {isPending ? "Adding…" : "Add penalty"}
+                    {isPending ? t("common.adding") : t("penalties.addPenaltyButton")}
                 </Button>
             </DialogFooter>
         </form>

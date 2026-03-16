@@ -1,1 +1,1 @@
-## The SGI Africa Official web App
+## The SGI Africa VICOBA Official web App

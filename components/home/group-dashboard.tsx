@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, 
+import {
+    useEffect,
     // useMemo, 
-    useState } from "react"
+    useState
+} from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Wallet, Users, HandCoins, ClipboardList, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -17,6 +19,7 @@ import { getContributions } from "@/app/home/contributions/_action"
 import { getLoans } from "@/app/home/loans/_action"
 import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
+import { useTranslation } from "react-i18next"
 
 function formatAmount(amount: number | string) {
     return new Intl.NumberFormat("en-TZ", {
@@ -26,14 +29,15 @@ function formatAmount(amount: number | string) {
     }).format(Number(amount))
 }
 
-const QUICK_ACTIONS = [
-    { title: "Contributions", href: "/home/contributions", icon: Wallet },
-    { title: "Loans", href: "/home/loans", icon: HandCoins },
-    { title: "Meetings", href: "/home/meetings", icon: ClipboardList },
-    { title: "Members", href: "/home/members", icon: Users },
-]
+const QUICK_ACTION_KEYS = [
+    { key: "contributions", href: "/home/contributions", icon: Wallet },
+    { key: "loans", href: "/home/loans", icon: HandCoins },
+    { key: "meetings", href: "/home/meetings", icon: ClipboardList },
+    { key: "members", href: "/home/members", icon: Users },
+] as const
 
 export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) {
+    const { t } = useTranslation()
     const dispatch = useAppDispatch()
     const selectedGroup = useAppSelector((state) => state.group.activeGroup)
     const reduxGroups = useAppSelector((state) => state.group.groups)
@@ -148,7 +152,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
         })
 
         doc.setFontSize(18)
-        doc.text("Group Dashboard Summary", 14, 20)
+        doc.text(t("dashboard.title") + " Summary", 14, 20)
         doc.setFontSize(12)
         doc.text(groupName, 14, 28)
         doc.text(date, 14, 34)
@@ -157,10 +161,10 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
             startY: 42,
             head: [["Metric", "Value"]],
             body: [
-                ["Total group assets", formatAmount(selectedGroupFromApi.totalBalance ?? 0)],
-                ["Available cash", formatAmount(selectedGroupFromApi.totalBalance ?? 0)],
-                ["Total member savings", formatAmount(totalMemberSavings)],
-                ["Outstanding loans", formatAmount(outstandingLoansTotal)],
+                [t("dashboard.totalGroupAssets"), formatAmount(selectedGroupFromApi.totalBalance ?? 0)],
+                [t("dashboard.availableCash"), formatAmount(selectedGroupFromApi.totalBalance ?? 0)],
+                [t("dashboard.totalMemberSavings"), formatAmount(totalMemberSavings)],
+                [t("dashboard.outstandingLoans"), formatAmount(outstandingLoansTotal)],
             ],
             theme: "striped",
         })
@@ -173,7 +177,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
             {/* Dashboard header */}
             <div className="flex items-center justify-between px-4 py-4 md:px-6">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
+                    <h2 className="text-2xl font-bold tracking-tight">{t("dashboard.title")}</h2>
                     {hasGroups && selectedGroupFromApi && (
                         <Button
                             variant="outline"
@@ -198,7 +202,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-4 md:px-6 pb-6 w-full">
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardDescription>Total group assets</CardDescription>
+                        <CardDescription>{t("dashboard.totalGroupAssets")}</CardDescription>
                         <CardTitle className="text-2xl font-bold">
                             {/* {formatAmount(totalGroupAssets)} */}
                         </CardTitle>
@@ -206,7 +210,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                 </Card>
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardDescription>Available cash</CardDescription>
+                        <CardDescription>{t("dashboard.availableCash")}</CardDescription>
                         <CardTitle className="text-2xl font-bold">
                             {formatAmount(selectedGroupFromApi?.totalBalance ?? 0)}
                         </CardTitle>
@@ -214,7 +218,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                 </Card>
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardDescription>Total member savings</CardDescription>
+                        <CardDescription>{t("dashboard.totalMemberSavings")}</CardDescription>
                         <CardTitle className="text-2xl font-bold">
                             {formatAmount(totalMemberSavings)}
                         </CardTitle>
@@ -222,7 +226,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                 </Card>
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardDescription>Outstanding loans</CardDescription>
+                        <CardDescription>{t("dashboard.outstandingLoans")}</CardDescription>
                         <CardTitle className="text-2xl font-bold">
                             {formatAmount(outstandingLoansTotal)}
                         </CardTitle>
@@ -232,9 +236,9 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
 
             {/* Quick Actions */}
             <div className="flex-1 px-4 md:px-6 pb-6 w-full min-w-0">
-                <h3 className="text-lg font-semibold mb-4">Quick actions</h3>
+                <h3 className="text-lg font-semibold mb-4">{t("dashboard.quickActions")}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                    {QUICK_ACTIONS.map(({ title, href, icon: Icon }) => {
+                    {QUICK_ACTION_KEYS.map(({ key, href, icon: Icon }) => {
                         const canNavigate = hasGroups && selectedGroupFromApi
                         const card = (
                             <Card
@@ -248,7 +252,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                                             <Icon className="h-5 w-5" />
                                         </div>
-                                        <CardTitle className="text-base font-medium truncate">{title}</CardTitle>
+                                        <CardTitle className="text-base font-medium truncate">{t(`dashboard.${key}`)}</CardTitle>
                                     </div>
                                 </CardHeader>
                             </Card>
@@ -278,9 +282,9 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
                             <div className="rounded-full bg-muted p-3 mb-3">
                                 <Users className="size-8 text-muted-foreground" />
                             </div>
-                            <h3 className="text-base font-semibold mb-1">No groups yet</h3>
+                            <h3 className="text-base font-semibold mb-1">{t("dashboard.noGroupsYet")}</h3>
                             <p className="text-sm text-muted-foreground text-center max-w-sm">
-                                Create your first group to access contributions, loans, meetings, and members.
+                                {t("dashboard.createFirstGroup")}
                             </p>
                         </CardContent>
                     </Card>

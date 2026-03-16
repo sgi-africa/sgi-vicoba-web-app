@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { Plus, Users, Download, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,16 +22,12 @@ import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
-const MEMBER_ROLES = [
-  { value: "chairperson", label: "Chairperson" },
-  { value: "treasurer", label: "Treasurer" },
-  { value: "secretary", label: "Secretary" },
-  { value: "member", label: "Member" },
-] as const;
+const MEMBER_ROLE_KEYS = ["chairperson", "treasurer", "secretary", "member"] as const;
 
-function getRoleLabel(value: string) {
+function getRoleLabel(value: string, t: (key: string) => string) {
   const v = value?.toLowerCase();
-  return MEMBER_ROLES.find((r) => r.value === v)?.label ?? value;
+  const key = MEMBER_ROLE_KEYS.find((r) => r === v);
+  return key ? t(`members.${key}`) : value;
 }
 
 function matchesSearch(member: Member, query: string): boolean {
@@ -42,6 +39,7 @@ function matchesSearch(member: Member, query: string): boolean {
 }
 
 export default function MembersPageClient() {
+  const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -66,7 +64,7 @@ export default function MembersPageClient() {
     if (!groupId) return;
     await fetchMembers(groupId);
     setOpen(false);
-    toast.success("Member added successfully");
+    toast.success(t("notifications.memberAdded"));
   };
 
   function handleDownloadMembers() {
@@ -82,18 +80,18 @@ export default function MembersPageClient() {
     });
 
     doc.setFontSize(18);
-    doc.text("Member Registry", 14, 20);
+    doc.text(t("members.title"), 14, 20);
     doc.setFontSize(12);
     doc.text(groupName, 14, 28);
     doc.text(date, 14, 34);
 
     autoTable(doc, {
       startY: 42,
-      head: [["Name", "Phone", "Role"]],
+      head: [[t("common.name"), t("common.phone"), t("common.role")]],
       body: members.map((m) => [
         `${m.user.firstName} ${m.user.lastName}`,
         m.user.phone || "—",
-        getRoleLabel(m.title),
+        getRoleLabel(m.title, t),
       ]),
       theme: "striped",
     });
@@ -115,9 +113,9 @@ export default function MembersPageClient() {
             <div className="rounded-full bg-muted p-4 mb-4">
               <Users className="size-10 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-1">No group selected</h3>
+            <h3 className="text-lg font-semibold mb-1">{t("common.noGroupSelected")}</h3>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Select a group from the dashboard to view and manage its members.
+              {t("common.selectGroupFromDashboard")}
             </p>
           </CardContent>
         </Card>
@@ -129,9 +127,9 @@ export default function MembersPageClient() {
     <div className="flex flex-col flex-1 overflow-auto w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 md:px-6">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Member Registry</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("members.title")}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {totalMembers} {totalMembers === 1 ? "member" : "members"} in this group
+            {t("members.countInGroup", { count: totalMembers, label: totalMembers === 1 ? t("common.member") : t("common.members") })}
           </p>
         </div>
 
@@ -142,7 +140,7 @@ export default function MembersPageClient() {
               size="icon"
               className="cursor-pointer shrink-0"
               onClick={handleDownloadMembers}
-              title="Download members"
+              title={t("members.downloadMembers")}
             >
               <Download className="size-4" />
             </Button>
@@ -151,13 +149,13 @@ export default function MembersPageClient() {
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2 cursor-pointer">
                 <Plus className="size-4" />
-                Add member
+                {t("members.addMember")}
               </Button>
             </DialogTrigger>
 
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add new member</DialogTitle>
+            <DialogTitle>{t("members.addNewMember")}</DialogTitle>
           </DialogHeader>
 
           {groupId && (
@@ -178,18 +176,18 @@ export default function MembersPageClient() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
             <Input
               type="search"
-              placeholder="Search members by name or phone…"
+              placeholder={t("members.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 h-10 bg-muted/50"
-              aria-label="Search members"
+              aria-label={t("members.searchAria")}
             />
           </div>
         )}
         {isLoading ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-              <p className="text-sm text-muted-foreground">Loading members…</p>
+              <p className="text-sm text-muted-foreground">{t("members.loadingMembers")}</p>
             </CardContent>
           </Card>
         ) : members.length === 0 ? (
@@ -198,9 +196,9 @@ export default function MembersPageClient() {
               <div className="rounded-full bg-muted p-4 mb-4">
                 <Users className="size-10 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-1">No members yet</h3>
+              <h3 className="text-lg font-semibold mb-1">{t("members.noMembersYet")}</h3>
               <p className="text-sm text-muted-foreground text-center max-w-sm">
-                Get started by adding your first member. Click &quot;Add member&quot;.
+                {t("members.getStartedAddMember")}
               </p>
             </CardContent>
           </Card>
@@ -211,8 +209,8 @@ export default function MembersPageClient() {
                 <CardContent className="flex flex-col items-center justify-center py-12 px-6">
                   <p className="text-sm text-muted-foreground">
                     {searchQuery.trim()
-                      ? "No members match your search."
-                      : "No members yet."}
+                      ? t("members.noMatchSearch")
+                      : t("members.noMembersYet")}
                   </p>
                   {searchQuery.trim() && (
                     <Button
@@ -220,7 +218,7 @@ export default function MembersPageClient() {
                       className="mt-2 cursor-pointer"
                       onClick={() => setSearchQuery("")}
                     >
-                      Clear search
+                      {t("common.clearSearch")}
                     </Button>
                   )}
                 </CardContent>
@@ -244,13 +242,13 @@ export default function MembersPageClient() {
                         </p>
 
                         <p className="text-sm text-muted-foreground">
-                          {member.user.phone || "No phone"}
+                          {member.user.phone || t("common.noPhone")}
                         </p>
                       </div>
                     </div>
 
                     <span className="text-sm font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-md">
-                      {getRoleLabel(member.title)}
+                      {getRoleLabel(member.title, t)}
                     </span>
                   </CardContent>
                 </Card>

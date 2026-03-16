@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,6 +32,7 @@ export function AddSharesModal({
   variant = "default",
   className,
 }: AddSharesModalProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
@@ -99,12 +101,12 @@ export function AddSharesModal({
       <DialogTrigger asChild>
         <Button variant={variant} size="sm" className={cn(className, "cursor-pointer")}>
           <Plus className="size-4" />
-          Add shares
+          {t("shares.addShares")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add shares</DialogTitle>
+          <DialogTitle>{t("shares.addSharesTitle")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && (
@@ -113,7 +115,7 @@ export function AddSharesModal({
             </p>
           )}
           <div className="grid gap-2">
-            <Label htmlFor="totalShares">Total shares</Label>
+            <Label htmlFor="totalShares">{t("shares.totalShares")}</Label>
             <Input
               id="totalShares"
               name="totalShares"
@@ -128,7 +130,7 @@ export function AddSharesModal({
             )}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="sharePrice">Share price (TZS)</Label>
+            <Label htmlFor="sharePrice">{t("shares.sharePriceTzs")}</Label>
             <Input
               id="sharePrice"
               name="sharePrice"
@@ -145,11 +147,11 @@ export function AddSharesModal({
           <DialogFooter className="gap-4 sm:gap-4 pt-2">
             <DialogClose asChild>
               <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
-                Cancel
+                {t("common.cancel")}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={isPending} className="cursor-pointer">
-              {isPending ? "Adding…" : "Add shares"}
+              {isPending ? t("common.adding") : t("shares.addSharesButton")}
             </Button>
           </DialogFooter>
         </form>

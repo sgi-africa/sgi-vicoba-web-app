@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { Plus, HandCoins, Download, Search } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -59,6 +60,7 @@ function matchesSearch(loan: LoanRequest, query: string): boolean {
 }
 
 export default function LoansPage() {
+  const { t } = useTranslation()
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
   const [loans, setLoans] = useState<LoanRequest[]>([])
   const [members, setMembers] = useState<Member[]>([])
@@ -96,7 +98,7 @@ export default function LoansPage() {
 
   const handleAddSuccess = async () => {
     setOpen(false)
-    toast.success("Loan added successfully")
+    toast.success(t("notifications.loanAdded"))
     if (!groupId) return
     try {
       const loansData = await getLoans(groupId)
@@ -118,14 +120,14 @@ export default function LoansPage() {
     })
 
     doc.setFontSize(18)
-    doc.text("Loans", 14, 20)
+    doc.text(t("loans.title"), 14, 20)
     doc.setFontSize(12)
     doc.text(groupName, 14, 28)
     doc.text(date, 14, 34)
 
     autoTable(doc, {
       startY: 42,
-      head: [["Borrower", "Principal", "Due Date", "Status"]],
+      head: [[t("loans.borrower"), t("loans.principal"), t("loans.dueDate"), t("common.status")]],
       body: loans.map((loan) => [
         `${loan.requester.firstName} ${loan.requester.lastName}`,
         formatAmount(loan.principal),
@@ -140,9 +142,9 @@ export default function LoansPage() {
       startY: tableEndY + 10,
       head: [["Summary", "Amount"]],
       body: [
-        ["Total requested", formatAmount(totalRequested)],
-        ["Paid", formatAmount(totalPaid)],
-        ["Pending", formatAmount(totalPending)],
+        [t("loans.totalRequested"), formatAmount(totalRequested)],
+        [t("loans.paid"), formatAmount(totalPaid)],
+        [t("loans.pending"), formatAmount(totalPending)],
       ],
       theme: "plain",
     })
@@ -166,9 +168,9 @@ export default function LoansPage() {
             <div className="rounded-full bg-muted p-4 mb-4">
               <HandCoins className="size-10 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-1">No group selected</h3>
+            <h3 className="text-lg font-semibold mb-1">{t("common.noGroupSelected")}</h3>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Select a group from the dashboard to view and manage loans.
+              {t("common.selectGroupToViewLoans")}
             </p>
           </CardContent>
         </Card>
@@ -180,9 +182,9 @@ export default function LoansPage() {
     <div className="flex flex-col flex-1 overflow-auto w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 md:px-6">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Loans</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("loans.title")}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {loans.length} {loans.length === 1 ? "loan" : "loans"} in this group
+            {t("members.countInGroup", { count: loans.length, label: loans.length === 1 ? t("common.loan") : t("common.loans") })}
           </p>
         </div>
 
@@ -193,7 +195,7 @@ export default function LoansPage() {
               size="icon"
               className="cursor-pointer shrink-0"
               onClick={handleDownloadLoans}
-              title="Download loans"
+              title={t("common.download") + " " + t("common.loans")}
             >
               <Download className="size-4" />
             </Button>
@@ -202,12 +204,12 @@ export default function LoansPage() {
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2 cursor-pointer">
                 <Plus className="size-4" />
-                Add loan
+                {t("loans.addLoan")}
               </Button>
             </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Add new loan</DialogTitle>
+              <DialogTitle>{t("loans.addNewLoan")}</DialogTitle>
             </DialogHeader>
             {groupId && (
               <AddLoanForm
@@ -226,7 +228,7 @@ export default function LoansPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-4 md:px-6 pb-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total requested</CardDescription>
+            <CardDescription>{t("loans.totalRequested")}</CardDescription>
             <CardTitle className="text-xl font-bold">
               {formatAmount(totalRequested)}
             </CardTitle>
@@ -234,7 +236,7 @@ export default function LoansPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Paid</CardDescription>
+            <CardDescription>{t("loans.paid")}</CardDescription>
             <CardTitle className="text-xl font-bold">
               {formatAmount(totalPaid)}
             </CardTitle>
@@ -242,7 +244,7 @@ export default function LoansPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Pending</CardDescription>
+            <CardDescription>{t("loans.pending")}</CardDescription>
             <CardTitle className="text-xl font-bold">
               {formatAmount(totalPending)}
             </CardTitle>
@@ -256,7 +258,7 @@ export default function LoansPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
             <Input
               type="search"
-              placeholder="Search by borrower name or status (pending, paid, overdue)…"
+              placeholder={t("loans.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 h-10 bg-muted/50"
@@ -267,7 +269,7 @@ export default function LoansPage() {
         {isLoading ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-              <p className="text-sm text-muted-foreground">Loading loans…</p>
+              <p className="text-sm text-muted-foreground">{t("loans.loadingLoans")}</p>
             </CardContent>
           </Card>
         ) : loans.length === 0 ? (
@@ -276,9 +278,9 @@ export default function LoansPage() {
               <div className="rounded-full bg-muted p-4 mb-4">
                 <HandCoins className="size-10 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-1">No loans yet</h3>
+              <h3 className="text-lg font-semibold mb-1">{t("loans.noLoansYet")}</h3>
               <p className="text-sm text-muted-foreground text-center max-w-sm">
-                Disburse your first loan by clicking &quot;Add loan&quot;.
+                {t("loans.disburseFirstLoan")}
               </p>
             </CardContent>
           </Card>
@@ -289,8 +291,8 @@ export default function LoansPage() {
                 <CardContent className="flex flex-col items-center justify-center py-12 px-6">
                   <p className="text-sm text-muted-foreground">
                     {searchQuery.trim()
-                      ? "No loans match your search."
-                      : "No loans yet."}
+                      ? t("loans.noMatchSearch")
+                      : t("loans.noLoansYet")}
                   </p>
                   {searchQuery.trim() && (
                     <Button
@@ -298,7 +300,7 @@ export default function LoansPage() {
                       className="mt-2 cursor-pointer"
                       onClick={() => setSearchQuery("")}
                     >
-                      Clear search
+                      {t("common.clearSearch")}
                     </Button>
                   )}
                 </CardContent>
@@ -324,7 +326,7 @@ export default function LoansPage() {
                           {loan.requester.firstName} {loan.requester.lastName}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Requested {formatDate(loan.createdAt)} · Due {formatDate(loan.dueDate)}
+                          {t("loans.requestedLabel")} {formatDate(loan.createdAt)} · {t("loans.dueLabel")} {formatDate(loan.dueDate)}
                         </p>
                       </div>
                     </div>

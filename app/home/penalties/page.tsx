@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { Plus, AlertCircle, UserRoundMinus, Download, Search } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -37,11 +38,11 @@ function formatDate(dateStr: string) {
   }
 }
 
-function getMemberName(penalty: Penalty): string {
+function getMemberName(penalty: Penalty, unknownLabel: string): string {
   if (penalty.user) {
     return `${penalty.user.firstName} ${penalty.user.lastName}`
   }
-  return "Unknown member"
+  return unknownLabel
 }
 
 function formatPenaltyType(type: string): string {
@@ -49,16 +50,17 @@ function formatPenaltyType(type: string): string {
   return type.charAt(0) + type.slice(1).toLowerCase()
 }
 
-function matchesSearch(penalty: Penalty, query: string): boolean {
+function matchesSearch(penalty: Penalty, query: string, unknownLabel: string): boolean {
   if (!query.trim()) return true
   const q = query.trim().toLowerCase()
-  const name = getMemberName(penalty).toLowerCase()
+  const name = getMemberName(penalty, unknownLabel).toLowerCase()
   const type = formatPenaltyType(penalty.type ?? "OTHER").toLowerCase()
   const status = (penalty.status?.toUpperCase() === "PAID" ? "paid" : "unpaid").toLowerCase()
   return name.includes(q) || type.includes(q) || status.includes(q)
 }
 
 export default function PenaltiesPage() {
+  const { t } = useTranslation()
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
   const [penalties, setPenalties] = useState<Penalty[]>([])
   const [members, setMembers] = useState<Member[]>([])
@@ -69,8 +71,8 @@ export default function PenaltiesPage() {
   const groupId = activeGroup?.id
 
   const filteredPenalties = useMemo(
-    () => penalties.filter((p) => matchesSearch(p, searchQuery)),
-    [penalties, searchQuery]
+    () => penalties.filter((p) => matchesSearch(p, searchQuery, t("common.unknownMember"))),
+    [penalties, searchQuery, t]
   )
 
   useEffect(() => {
@@ -105,7 +107,7 @@ export default function PenaltiesPage() {
     setPenalties(pens)
     setMembers(mems)
     setOpen(false)
-    toast.success("Penalty added successfully")
+    toast.success(t("notifications.penaltyAdded"))
   }
 
   const totalAmount = penalties.reduce((sum, p) => sum + Number(p.amount ?? 0), 0)
@@ -129,20 +131,20 @@ export default function PenaltiesPage() {
     })
 
     doc.setFontSize(18)
-    doc.text("Penalties Ledger", 14, 20)
+    doc.text(t("penalties.title"), 14, 20)
     doc.setFontSize(12)
     doc.text(groupName, 14, 28)
     doc.text(date, 14, 34)
 
     autoTable(doc, {
       startY: 42,
-      head: [["Member", "Date", "Type", "Amount", "Status"]],
+      head: [[t("contributions.member"), t("common.date"), t("common.type"), t("common.amount"), t("common.status")]],
       body: penalties.map((p) => [
-        getMemberName(p),
+        getMemberName(p, t("common.unknownMember")),
         formatDate(p.createdAt),
         formatPenaltyType(p.type ?? "OTHER"),
         formatAmount(p.amount),
-        p.status?.toUpperCase() === "PAID" ? "Paid" : "Unpaid",
+        p.status?.toUpperCase() === "PAID" ? t("common.paid") : t("common.unpaid"),
       ]),
       theme: "striped",
     })
@@ -152,9 +154,9 @@ export default function PenaltiesPage() {
       startY: tableEndY + 10,
       head: [["Summary", "Amount"]],
       body: [
-        ["Total penalties", formatAmount(totalAmount)],
-        ["Paid", formatAmount(totalPaid)],
-        ["Unpaid", formatAmount(totalUnpaid)],
+        [t("penalties.totalPenalties"), formatAmount(totalAmount)],
+        [t("common.paid"), formatAmount(totalPaid)],
+        [t("common.unpaid"), formatAmount(totalUnpaid)],
       ],
       theme: "plain",
     })
@@ -170,9 +172,9 @@ export default function PenaltiesPage() {
             <div className="rounded-full bg-muted p-4 mb-4">
               <UserRoundMinus className="size-10 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-1">No group selected</h3>
+            <h3 className="text-lg font-semibold mb-1">{t("common.noGroupSelected")}</h3>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Select a group from the dashboard to view penalties.
+              {t("common.selectGroupToViewPenalties")}
             </p>
           </CardContent>
         </Card>
@@ -185,11 +187,10 @@ export default function PenaltiesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 md:px-6">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
-            Penalties Ledger
+            {t("penalties.title")}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {penalties.length}{" "}
-            {penalties.length === 1 ? "penalty" : "penalties"}
+            {t("members.countInGroup", { count: penalties.length, label: penalties.length === 1 ? t("common.penalty") : t("common.penalties") })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -199,7 +200,7 @@ export default function PenaltiesPage() {
               size="icon"
               className="cursor-pointer shrink-0"
               onClick={handleDownloadPenalties}
-              title="Download penalties"
+              title={t("penalties.downloadPenalties")}
             >
               <Download className="size-4" />
             </Button>
@@ -208,12 +209,12 @@ export default function PenaltiesPage() {
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2 cursor-pointer">
                 <Plus className="size-4" />
-                Add penalty
+                {t("penalties.addPenalty")}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>Add penalty</DialogTitle>
+                <DialogTitle>{t("penalties.addPenaltyTitle")}</DialogTitle>
               </DialogHeader>
               <AddPenaltyForm
                 groupId={groupId}
@@ -253,7 +254,7 @@ export default function PenaltiesPage() {
           <>
             <Card className="overflow-hidden">
               <CardHeader className="pb-2">
-                <CardDescription>Total penalties</CardDescription>
+                <CardDescription>{t("penalties.totalPenalties")}</CardDescription>
                 <CardTitle className="text-xl font-bold">
                   {formatAmount(totalAmount)}
                 </CardTitle>
@@ -261,7 +262,7 @@ export default function PenaltiesPage() {
             </Card>
             <Card className="overflow-hidden">
               <CardHeader className="pb-2">
-                <CardDescription>Paid</CardDescription>
+                <CardDescription>{t("common.paid")}</CardDescription>
                 <CardTitle className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                   {formatAmount(totalPaid)}
                 </CardTitle>
@@ -269,7 +270,7 @@ export default function PenaltiesPage() {
             </Card>
             <Card className="overflow-hidden">
               <CardHeader className="pb-2">
-                <CardDescription>Unpaid</CardDescription>
+                <CardDescription>{t("common.unpaid")}</CardDescription>
                 <CardTitle className="text-xl font-bold text-amber-600 dark:text-amber-400">
                   {formatAmount(totalUnpaid)}
                 </CardTitle>
@@ -285,7 +286,7 @@ export default function PenaltiesPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
             <Input
               type="search"
-              placeholder="Search by member name, type, or status (paid, unpaid)…"
+              placeholder={t("penalties.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 h-10 bg-muted/50"
@@ -296,7 +297,7 @@ export default function PenaltiesPage() {
         {isLoading ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-              <p className="text-sm text-muted-foreground">Loading penalties…</p>
+              <p className="text-sm text-muted-foreground">{t("penalties.loadingPenalties")}</p>
             </CardContent>
           </Card>
         ) : penalties.length === 0 ? (
@@ -305,10 +306,9 @@ export default function PenaltiesPage() {
               <div className="rounded-full bg-muted p-4 mb-4">
                 <AlertCircle className="size-10 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-1">No penalties yet</h3>
+              <h3 className="text-lg font-semibold mb-1">{t("penalties.noPenaltiesYet")}</h3>
               <p className="text-sm text-muted-foreground text-center max-w-sm">
-                Record your first penalty by clicking the &quot;Add
-                penalty&quot; button above.
+                {t("penalties.recordFirstPenalty")}
               </p>
             </CardContent>
           </Card>
@@ -319,8 +319,8 @@ export default function PenaltiesPage() {
                 <CardContent className="flex flex-col items-center justify-center py-12 px-6">
                   <p className="text-sm text-muted-foreground">
                     {searchQuery.trim()
-                      ? "No penalties match your search."
-                      : "No penalties yet."}
+                      ? t("penalties.noMatchSearch")
+                      : t("penalties.noPenaltiesYet")}
                   </p>
                   {searchQuery.trim() && (
                     <Button
@@ -328,7 +328,7 @@ export default function PenaltiesPage() {
                       className="mt-2 cursor-pointer"
                       onClick={() => setSearchQuery("")}
                     >
-                      Clear search
+                      {t("common.clearSearch")}
                     </Button>
                   )}
                 </CardContent>
@@ -342,7 +342,7 @@ export default function PenaltiesPage() {
                   <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
-                        {getMemberName(penalty)
+                        {getMemberName(penalty, t("common.unknownMember"))
                           .split(" ")
                           .map((n) => n[0])
                           .join("")
@@ -350,7 +350,7 @@ export default function PenaltiesPage() {
                           .toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-medium">{getMemberName(penalty)}</p>
+                        <p className="font-medium">{getMemberName(penalty, t("common.unknownMember"))}</p>
                         <p className="text-sm text-muted-foreground">
                           {formatDate(penalty.createdAt)} · {formatPenaltyType(penalty.type ?? "OTHER")}
                         </p>
@@ -366,7 +366,7 @@ export default function PenaltiesPage() {
                           : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
                           }`}
                       >
-                        {penalty.status?.toUpperCase() === "PAID" ? "Paid" : "Unpaid"}
+                        {penalty.status?.toUpperCase() === "PAID" ? t("common.paid") : t("common.unpaid")}
                       </span>
                     </div>
                   </CardContent>

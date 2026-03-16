@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { Plus, ClipboardList, Calendar, Download, Search } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -72,6 +73,7 @@ function matchesSearch(meeting: GroupMeetingsResponse, query: string): boolean {
 }
 
 export default function MeetingsPage() {
+  const { t } = useTranslation()
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
   const [meetings, setMeetings] = useState<GroupMeetingsResponse[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -119,14 +121,14 @@ export default function MeetingsPage() {
     })
 
     doc.setFontSize(18)
-    doc.text("Meetings & Minutes", 14, 20)
+    doc.text(t("sidebar.meetingsMinutes"), 14, 20)
     doc.setFontSize(12)
     doc.text(groupName, 14, 28)
     doc.text(date, 14, 34)
 
     autoTable(doc, {
       startY: 42,
-      head: [["Topic", "Next Meeting", "Status", "Attendees"]],
+      head: [[t("meetings.topic"), t("common.nextMeeting"), t("common.status"), t("common.attendees")]],
       body: meetings.map((m) => [
         m.topic,
         formatDateTime(m.nextMeetingDate),
@@ -147,9 +149,9 @@ export default function MeetingsPage() {
             <div className="rounded-full bg-muted p-4 mb-4">
               <ClipboardList className="size-10 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-1">No group selected</h3>
+            <h3 className="text-lg font-semibold mb-1">{t("common.noGroupSelected")}</h3>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Select a group from the dashboard to view and manage meetings.
+              {t("common.selectGroupToViewMeetings")}
             </p>
           </CardContent>
         </Card>
@@ -161,10 +163,9 @@ export default function MeetingsPage() {
     <div className="flex flex-col flex-1 overflow-auto w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 md:px-6">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Meetings</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("meetings.title")}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {meetings.length}{" "}
-            {meetings.length === 1 ? "meeting" : "meetings"} in this group
+            {t("members.countInGroup", { count: meetings.length, label: meetings.length === 1 ? t("common.meeting") : t("common.meetings") })}
           </p>
         </div>
 
@@ -175,7 +176,7 @@ export default function MeetingsPage() {
               size="icon"
               className="cursor-pointer shrink-0"
               onClick={handleDownloadMeetings}
-              title="Download meetings"
+              title={t("meetings.downloadMeetings")}
             >
               <Download className="size-4" />
             </Button>
@@ -184,12 +185,12 @@ export default function MeetingsPage() {
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2 cursor-pointer">
                 <Plus className="size-4" />
-                Add meeting
+                {t("meetings.addMeeting")}
               </Button>
             </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Add new meeting</DialogTitle>
+              <DialogTitle>{t("meetings.addNewMeeting")}</DialogTitle>
             </DialogHeader>
             {groupId && (
               <AddMeetingForm
@@ -197,7 +198,7 @@ export default function MeetingsPage() {
                 members={members}
                 onSuccess={() => {
                   setOpen(false)
-                  toast.success("Meeting created successfully")
+                  toast.success(t("notifications.meetingCreated"))
                   if (groupId) {
                     getGroupMeetings(groupId).then((data) =>
                       setMeetings(Array.isArray(data) ? data : [])
@@ -218,7 +219,7 @@ export default function MeetingsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
             <Input
               type="search"
-              placeholder="Search by topic, resolutions, attendee name, or status…"
+              placeholder={t("meetings.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 h-10 bg-muted/50"
@@ -229,7 +230,7 @@ export default function MeetingsPage() {
         {isLoading ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-              <p className="text-sm text-muted-foreground">Loading meetings…</p>
+              <p className="text-sm text-muted-foreground">{t("meetings.loadingMeetings")}</p>
             </CardContent>
           </Card>
         ) : meetings.length === 0 ? (
@@ -238,9 +239,9 @@ export default function MeetingsPage() {
               <div className="rounded-full bg-muted p-4 mb-4">
                 <ClipboardList className="size-10 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-1">No meetings yet</h3>
+              <h3 className="text-lg font-semibold mb-1">{t("meetings.noMeetingsYet")}</h3>
               <p className="text-sm text-muted-foreground text-center max-w-sm">
-                Schedule your first meeting by clicking &quot;Add meeting&quot;.
+                {t("meetings.scheduleFirstMeeting")}
               </p>
             </CardContent>
           </Card>
@@ -251,8 +252,8 @@ export default function MeetingsPage() {
                 <CardContent className="flex flex-col items-center justify-center py-12 px-6">
                   <p className="text-sm text-muted-foreground">
                     {searchQuery.trim()
-                      ? "No meetings match your search."
-                      : "No meetings yet."}
+                      ? t("meetings.noMatchSearch")
+                      : t("meetings.noMeetingsYet")}
                   </p>
                   {searchQuery.trim() && (
                     <Button
@@ -260,7 +261,7 @@ export default function MeetingsPage() {
                       className="mt-2 cursor-pointer"
                       onClick={() => setSearchQuery("")}
                     >
-                      Clear search
+                      {t("common.clearSearch")}
                     </Button>
                   )}
                 </CardContent>
@@ -286,7 +287,7 @@ export default function MeetingsPage() {
                         )}
                         <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
                           <Calendar className="size-3.5 shrink-0" />
-                          Next meeting: {formatDateTime(meeting.nextMeetingDate)}
+                          {t("common.nextMeeting")}: {formatDateTime(meeting.nextMeetingDate)}
                         </p>
                       </div>
                     </div>
@@ -298,7 +299,7 @@ export default function MeetingsPage() {
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {meeting.attendees?.length ?? 0}{" "}
-                        {(meeting.attendees?.length ?? 0) === 1 ? "attendee" : "attendees"}
+                        {(meeting.attendees?.length ?? 0) === 1 ? t("common.attendee") : t("common.attendees")}
                       </span>
                     </div>
                   </CardContent>

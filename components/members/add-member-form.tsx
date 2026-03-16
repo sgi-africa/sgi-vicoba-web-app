@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
   DialogClose,
@@ -19,14 +20,11 @@ import { addMember } from "@/app/home/members/_action"
 import { addMemberSchema, ADD_MEMBER_TITLES } from "@/lib/zod"
 import { AddMemberFormProps } from "@/interfaces/interface"
 
-const MEMBER_ROLES = ADD_MEMBER_TITLES.map((value) => ({
-  value,
-  label: value.charAt(0).toUpperCase() + value.slice(1),
-}))
 
 type MemberRole = (typeof ADD_MEMBER_TITLES)[number]
 
 export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProps) {
+  const { t } = useTranslation()
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [isPending, setIsPending] = useState(false)
@@ -95,7 +93,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
         </p>
       )}
       <div className="grid gap-2">
-        <Label htmlFor="firstName">First name</Label>
+        <Label htmlFor="firstName">{t("members.firstName")}</Label>
         <Input
           id="firstName"
           name="firstName"
@@ -107,7 +105,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
         )}
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="lastName">Last name</Label>
+        <Label htmlFor="lastName">{t("members.lastName")}</Label>
         <Input
           id="lastName"
           name="lastName"
@@ -119,7 +117,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
         )}
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="phone">Phone</Label>
+        <Label htmlFor="phone">{t("members.phone")}</Label>
         <Input
           id="phone"
           name="phone"
@@ -132,15 +130,15 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
         )}
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="title">Title</Label>
+        <Label htmlFor="title">{t("members.title")}</Label>
         <Select value={title} onValueChange={(v) => setTitle(v as MemberRole)}>
           <SelectTrigger id="title" aria-invalid={!!fieldErrors.title}>
-            <SelectValue placeholder="Select role" />
+            <SelectValue placeholder={t("members.selectRole")} />
           </SelectTrigger>
           <SelectContent>
-            {MEMBER_ROLES.map(({ value, label }) => (
+            {ADD_MEMBER_TITLES.map((value) => (
               <SelectItem key={value} value={value}>
-                {label}
+                {t(`members.${value}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -150,7 +148,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
         )}
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="file">Member document (PDF, max 4 MB)</Label>
+        <Label htmlFor="file">{t("members.memberDocument")}</Label>
         <Input
           id="file"
           name="file"
@@ -165,11 +163,11 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
       <DialogFooter className="gap-4 sm:gap-4 pt-2">
         <DialogClose asChild>
           <Button type="button" variant="outline" disabled={isPending} className="cursor-pointer">
-            Cancel
+            {t("common.cancel")}
           </Button>
         </DialogClose>
         <Button type="submit" disabled={isPending} className="cursor-pointer">
-          {isPending ? "Adding…" : "Add member"}
+          {isPending ? t("common.adding") : t("members.addMemberButton")}
         </Button>
       </DialogFooter>
     </form>

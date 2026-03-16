@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,7 +20,7 @@ import { cn } from "@/lib/utils"
 
 const GROUP_TYPE_OPTIONS = GROUP_TYPES.map((value) => ({
   value,
-  label: value === "EQUALANNUAL" ? "Equal Annual" : "Rotational",
+  labelKey: value === "EQUALANNUAL" ? "equalAnnual" : "rotational",
 }))
 
 type GroupType = (typeof GROUP_TYPES)[number]
@@ -27,6 +28,7 @@ type GroupType = (typeof GROUP_TYPES)[number]
 
 
 export function EditGroupForm({ group, onSuccess, className }: EditGroupFormProps) {
+  const { t } = useTranslation()
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [isPending, setIsPending] = useState(false)
@@ -89,12 +91,12 @@ export function EditGroupForm({ group, onSuccess, className }: EditGroupFormProp
         </p>
       )}
       <div className="grid gap-2">
-        <Label htmlFor="name">Group name</Label>
+        <Label htmlFor="name">{t("groups.groupName")}</Label>
         <Input
           id="name"
           name="name"
           defaultValue={group.name}
-          placeholder="e.g. My Savings Group"
+          placeholder={t("groups.groupNamePlaceholder")}
           aria-invalid={!!fieldErrors.name}
         />
         {fieldErrors.name && (
@@ -103,12 +105,12 @@ export function EditGroupForm({ group, onSuccess, className }: EditGroupFormProp
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="grid gap-2">
-          <Label htmlFor="country">Country</Label>
+          <Label htmlFor="country">{t("groups.country")}</Label>
           <Input
             id="country"
             name="country"
             defaultValue={group.country}
-            placeholder="e.g. Tanzania"
+            placeholder={t("groups.countryPlaceholder")}
             aria-invalid={!!fieldErrors.country}
           />
           {fieldErrors.country && (
@@ -116,12 +118,12 @@ export function EditGroupForm({ group, onSuccess, className }: EditGroupFormProp
           )}
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="city">City</Label>
+          <Label htmlFor="city">{t("groups.city")}</Label>
           <Input
             id="city"
             name="city"
             defaultValue={group.city}
-            placeholder="e.g. Dar es Salaam"
+            placeholder={t("groups.cityPlaceholder")}
             aria-invalid={!!fieldErrors.city}
           />
           {fieldErrors.city && (
@@ -131,12 +133,12 @@ export function EditGroupForm({ group, onSuccess, className }: EditGroupFormProp
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="grid gap-2">
-          <Label htmlFor="region">Region</Label>
+          <Label htmlFor="region">{t("groups.region")}</Label>
           <Input
             id="region"
             name="region"
             defaultValue={group.region}
-            placeholder="e.g. Dar es Salaam"
+            placeholder={t("groups.regionPlaceholder")}
             aria-invalid={!!fieldErrors.region}
           />
           {fieldErrors.region && (
@@ -144,12 +146,12 @@ export function EditGroupForm({ group, onSuccess, className }: EditGroupFormProp
           )}
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="street">Street address</Label>
+          <Label htmlFor="street">{t("groups.streetAddress")}</Label>
           <Input
             id="street"
             name="street"
             defaultValue={group.streetAddress}
-            placeholder="e.g. 123 Main Street"
+            placeholder={t("groups.streetPlaceholder")}
             aria-invalid={!!fieldErrors.street}
           />
           {fieldErrors.street && (
@@ -158,12 +160,12 @@ export function EditGroupForm({ group, onSuccess, className }: EditGroupFormProp
         </div>
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="description">Description (optional)</Label>
+        <Label htmlFor="description">{t("groups.descriptionOptional")}</Label>
         <Textarea
           id="description"
           name="description"
           defaultValue={group.description ?? ""}
-          placeholder="Brief description of the group"
+          placeholder={t("groups.descriptionPlaceholder")}
           rows={3}
           aria-invalid={!!fieldErrors.description}
         />
@@ -172,15 +174,15 @@ export function EditGroupForm({ group, onSuccess, className }: EditGroupFormProp
         )}
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="type">Group type</Label>
+        <Label htmlFor="type">{t("groups.type")}</Label>
         <Select value={type} onValueChange={(v) => setType(v as GroupType)}>
           <SelectTrigger id="type" aria-invalid={!!fieldErrors.type}>
-            <SelectValue placeholder="Select type" />
+            <SelectValue placeholder={t("groups.selectType")} />
           </SelectTrigger>
           <SelectContent>
-            {GROUP_TYPE_OPTIONS.map(({ value, label }) => (
+            {GROUP_TYPE_OPTIONS.map(({ value, labelKey }) => (
               <SelectItem key={value} value={value}>
-                {label}
+                {t(`groups.${labelKey}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -190,7 +192,7 @@ export function EditGroupForm({ group, onSuccess, className }: EditGroupFormProp
         )}
       </div>
       <Button type="submit" disabled={isPending} className="cursor-pointer w-fit">
-        {isPending ? "Saving…" : "Save changes"}
+        {isPending ? t("settings.saving") : t("settings.saveChanges")}
       </Button>
     </form>
   )

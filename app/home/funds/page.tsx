@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Banknote, Wallet } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card"
 import { useAppSelector } from "@/hooks/redux"
 
@@ -37,6 +38,7 @@ interface FundDisbursement {
 }
 
 export default function FundsPage() {
+  const { t } = useTranslation()
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
   const [disbursements] = useState<FundDisbursement[]>([])
 
@@ -53,9 +55,9 @@ export default function FundsPage() {
             <div className="rounded-full bg-muted p-4 mb-4">
               <Banknote className="size-10 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-1">No group selected</h3>
+            <h3 className="text-lg font-semibold mb-1">{t("common.noGroupSelected")}</h3>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Select a group from the dashboard to view and manage fund disbursements.
+              {t("common.selectGroupToViewFunds")}
             </p>
           </CardContent>
         </Card>
@@ -68,10 +70,9 @@ export default function FundsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 md:px-6">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Fund Disbursements</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("funds.title")}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {disbursements.length}{" "}
-            {disbursements.length === 1 ? "disbursement" : "disbursements"} recorded
+            {t("funds.disbursementsRecorded", { count: disbursements.length, label: disbursements.length === 1 ? t("common.disbursement") : t("common.disbursements") })}
           </p>
         </div>
       </div>
@@ -80,7 +81,7 @@ export default function FundsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-4 md:px-6 pb-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Available balance</CardDescription>
+            <CardDescription>{t("funds.availableBalance")}</CardDescription>
             <CardTitle className="text-xl font-bold">
               {formatAmount(totalBalance)}
             </CardTitle>
@@ -88,7 +89,7 @@ export default function FundsPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total disbursed</CardDescription>
+            <CardDescription>{t("funds.totalDisbursed")}</CardDescription>
             <CardTitle className="text-xl font-bold">
               {formatAmount(
                 disbursements.reduce((sum, d) => sum + Number(d.amount ?? 0), 0)
@@ -107,10 +108,9 @@ export default function FundsPage() {
               <div className="rounded-full bg-muted p-4 mb-4">
                 <Wallet className="size-10 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-1">No funds allocated yet</h3>
+              <h3 className="text-lg font-semibold mb-1">{t("funds.noFundsAllocated")}</h3>
               <p className="text-sm text-muted-foreground text-center max-w-sm">
-                This group has no available balance. Record contributions first to build up
-                funds before making disbursements.
+                {t("funds.recordContributionsFirst")}
               </p>
             </CardContent>
           </Card>
@@ -121,10 +121,9 @@ export default function FundsPage() {
               <div className="rounded-full bg-muted p-4 mb-4">
                 <Banknote className="size-10 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-1">No disbursements yet</h3>
+              <h3 className="text-lg font-semibold mb-1">{t("funds.noDisbursementsYet")}</h3>
               <p className="text-sm text-muted-foreground text-center max-w-sm">
-                You have {formatAmount(totalBalance)} available. Disbursement actions will
-                appear here once you record your first payout.
+                {t("funds.availableDisbursementInfo", { amount: formatAmount(totalBalance) })}
               </p>
             </CardContent>
           </Card>
@@ -144,10 +143,10 @@ export default function FundsPage() {
                     <div className="min-w-0">
                       <p className="font-medium truncate">{d.purpose}</p>
                       <p className="text-sm text-muted-foreground">
-                        To: {d.recipient}
+                        {t("common.to")} {d.recipient}
                       </p>
                       <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                        {formatDate(d.disbursedAt)} · by {d.disbursedBy}
+                        {formatDate(d.disbursedAt)} · {t("common.by")} {d.disbursedBy}
                       </p>
                     </div>
                   </div>
