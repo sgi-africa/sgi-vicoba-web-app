@@ -49,6 +49,13 @@
       "brand": "SGI VICOBA",
     "copyright": "© {{year}} SGI VICOBA. Haki zote zimehifadhiwa."
   },
+  "forbidden": {
+    "title": "Ufikiaji Umepunguzwa",
+    "description": "Programu ya wavuti imepunguzwa kwa majukumu ya uongozi. Tafadhali tumia programu ya simu kushirikiana na mfumo.",
+    "mobileHint": "Wanachama wanapaswa kutumia programu ya simu ya SGI VICOBA kwa shughuli zao.",
+    "signOut": "Toka",
+    "goToHomepage": "Nenda kwenye ukurasa wa kwanza"
+  },
   "auth": {
     "loginTitle": "Ingia kwenye akaunti yako",
     "loginDescription": "Weka taarifa zako hapa chini kuendelea kwenye akaunti yako",

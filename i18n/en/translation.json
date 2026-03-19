@@ -49,6 +49,13 @@
     "brand": "SGI VICOBA",
     "copyright": "© {{year}} SGI VICOBA. All rights reserved."
   },
+  "forbidden": {
+    "title": "Access Restricted",
+    "description": "The web application is restricted to leadership roles. Please use the mobile application to interact with the system.",
+    "mobileHint": "Members should use the SGI VICOBA mobile app for their activities.",
+    "signOut": "Sign out",
+    "goToHomepage": "Go to homepage"
+  },
   "auth": {
     "loginTitle": "Login to your account",
     "loginDescription": "Enter your credentials below to continue to your account",
