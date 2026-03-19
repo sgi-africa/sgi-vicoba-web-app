@@ -253,7 +253,10 @@
     "requestedOn": "Requested {{date}}",
     "dueOn": "Due {{date}}",
     "requestedLabel": "Requested",
-    "dueLabel": "Due"
+    "dueLabel": "Return",
+    "repay": "Repay",
+    "repayTitle": "Record repayment",
+    "submitRepay": "Submit"
   },
   "meetings": {
     "title": "Meetings",

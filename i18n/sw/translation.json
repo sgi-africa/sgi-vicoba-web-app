@@ -46,7 +46,7 @@
     }
   },
   "footer": {
-      "brand": "SGI VICOBA",
+    "brand": "SGI VICOBA",
     "copyright": "© {{year}} SGI VICOBA. Haki zote zimehifadhiwa."
   },
   "forbidden": {
@@ -242,7 +242,7 @@
     "principal": "Principal",
     "dueDate": "Tarehe ya Malipo",
     "memberBorrower": "Mwanachama (mkopaji)",
-    "principalTzs": "Principal (TZS)",
+    "principalTzs": "Kiasi (TZS)",
     "interestRate": "Kiwango cha riba (%)",
     "durationMonths": "Muda (miezi)",
     "reasonOptional": "Sababu (hiari)",
@@ -253,7 +253,10 @@
     "requestedOn": "Ombi {{date}}",
     "dueOn": "Malipo {{date}}",
     "requestedLabel": "Ombi",
-    "dueLabel": "Malipo"
+    "dueLabel": "Malipo",
+    "repay": "Lipa",
+    "repayTitle": "Rekodi malipo",
+    "submitRepay": "Wasilisha"
   },
   "meetings": {
     "title": "Mikutano",

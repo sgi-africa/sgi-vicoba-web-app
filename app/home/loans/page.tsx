@@ -16,6 +16,7 @@ import { useAppSelector } from "@/hooks/redux"
 import { getMembers } from "@/app/home/members/_action"
 import { Member, LoanRequest } from "@/interfaces/interface"
 import { AddLoanForm } from "@/components/loans/add-loan-form"
+import { RepayLoanDialog } from "@/components/loans/repay-loan-dialog"
 import { getLoans } from "@/app/home/loans/_action"
 import { toast } from "sonner"
 import { jsPDF } from "jspdf"
@@ -281,18 +282,31 @@ export default function LoansPage() {
                       <p className="font-medium text-foreground">
                         {loan.requester.firstName} {loan.requester.lastName}
                       </p>
-                      <p className="text-sm text-muted-foreground">
-                        {t("loans.requestedLabel")} {formatDate(loan.createdAt)} · {t("loans.dueLabel")} {formatDate(loan.dueDate)}
-                      </p>
+                      <div className="block space-y-0.5 text-sm text-muted-foreground">
+                        <p>
+                          {t("loans.requestedLabel")} - {formatDate(loan.createdAt)}
+                        </p>
+                        <p>
+                          {t("loans.dueLabel")} - {formatDate(loan.dueDate)}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1.5">
-                    <span className="font-semibold text-foreground">
-                      {formatAmount(loan.principal)}
-                    </span>
+                  <div className="flex flex-col items-end gap-2">
                     <StatusBadge
                       label={loan.status.toLowerCase()}
                       variant={getStatusVariant(loan.status)}
+                    />
+                    <span className="font-semibold text-foreground">
+                      {formatAmount(loan.principal)}
+                    </span>
+                    <RepayLoanDialog
+                      loan={loan}
+                      onSuccess={() => {
+                        if (groupId) {
+                          getLoans(groupId).then((data) => setLoans(data ?? []))
+                        }
+                      }}
                     />
                   </div>
                 </CardContent>
