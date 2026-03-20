@@ -188,7 +188,9 @@ export interface LoanRequest {
         name: string;
     };
     requester: MemberUser
-    approver: MemberUser
+    approver: MemberUser | null
+    repayments?: Repayment[]
+    remaining?: number
 }
 
 export interface AddMeetingFormProps {
@@ -262,7 +264,6 @@ export interface Repayment {
     amount: string;
     paidAt: string;
 }
-
 
 export interface LoanRepaymentSummary {
     repayment: Repayment;

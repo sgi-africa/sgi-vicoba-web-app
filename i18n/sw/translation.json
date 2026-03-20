@@ -94,6 +94,7 @@
     "memberAdded": "Mwanachama ameongezwa kwa mafanikio",
     "contributionAdded": "Mchango umeongezwa kwa mafanikio",
     "loanAdded": "Mkopo umeongezwa kwa mafanikio",
+    "loanRepaid": "Malipo yamerekodiwa kwa mafanikio",
     "meetingCreated": "Mkutano umeundwa kwa mafanikio",
     "sharesAdded": "Hisa zimeongezwa kwa mafanikio",
     "sharesSold": "Hisa zimeuzwa kwa mafanikio",
@@ -249,6 +250,7 @@
     "repaymentFormula": "Malipo (riba rahisi: P × R × T / 100)",
     "interest": "Riba",
     "totalToRepay": "Jumla ya kulipa",
+    "remaining": "Kilichobaki",
     "addLoanButton": "Ongeza mkopo",
     "requestedOn": "Ombi {{date}}",
     "dueOn": "Malipo {{date}}",
@@ -256,7 +258,10 @@
     "dueLabel": "Malipo",
     "repay": "Lipa",
     "repayTitle": "Rekodi malipo",
-    "submitRepay": "Wasilisha"
+    "submitRepay": "Wasilisha",
+    "submittingRepay": "Inawasilisha…",
+    "repayAmountInvalid": "Weka kiasi halali kikubwa kuliko sifuri.",
+    "repayFailed": "Imeshindikana kurekodi malipo. Jaribu tena."
   },
   "meetings": {
     "title": "Mikutano",

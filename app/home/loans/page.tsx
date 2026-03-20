@@ -61,6 +61,17 @@ function matchesSearch(loan: LoanRequest, query: string): boolean {
   return name.includes(q) || status.includes(q)
 }
 
+/** Uses `loan.remaining` from API, or totalRepayment − sum(repayments) */
+function getLoanRemaining(loan: LoanRequest): number {
+  if (typeof loan.remaining === "number" && !Number.isNaN(loan.remaining)) {
+    return loan.remaining
+  }
+  const total = Number(loan.totalRepayment)
+  const paid =
+    loan.repayments?.reduce((sum, r) => sum + Number(r.amount), 0) ?? 0
+  return Math.max(0, total - paid)
+}
+
 export default function LoansPage() {
   const { t } = useTranslation()
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
@@ -264,53 +275,71 @@ export default function LoansPage() {
         ) : (
           <div className="space-y-2">
             {filteredLoans.map((loan) => (
-              <Card
-                key={loan.id}
-                className="shadow-sm border-border/60 transition-all hover:shadow-md hover:border-border"
-              >
-                <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium">
-                      {`${loan.requester.firstName} ${loan.requester.lastName}`
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .slice(0, 2)
-                        .toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {loan.requester.firstName} {loan.requester.lastName}
-                      </p>
-                      <div className="block space-y-0.5 text-sm text-muted-foreground">
-                        <p>
-                          {t("loans.requestedLabel")} - {formatDate(loan.createdAt)}
+                <Card
+                  key={loan.id}
+                  className="shadow-sm border-border/60 transition-all hover:shadow-md hover:border-border"
+                >
+                  <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium">
+                        {`${loan.requester.firstName} ${loan.requester.lastName}`
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {loan.requester.firstName} {loan.requester.lastName}
                         </p>
-                        <p>
-                          {t("loans.dueLabel")} - {formatDate(loan.dueDate)}
-                        </p>
+                        <div className="block space-y-0.5 text-sm text-muted-foreground">
+                          <p>
+                            {t("loans.requestedLabel")} -{" "}
+                            {formatDate(loan.createdAt)}
+                          </p>
+                          <p>
+                            {t("loans.dueLabel")} - {formatDate(loan.dueDate)}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <StatusBadge
-                      label={loan.status.toLowerCase()}
-                      variant={getStatusVariant(loan.status)}
-                    />
-                    <span className="font-semibold text-foreground">
-                      {formatAmount(loan.totalRepayment)}
-                    </span>
-                    <RepayLoanDialog
-                      loan={loan}
-                      onSuccess={() => {
-                        if (groupId) {
-                          getLoans(groupId).then((data) => setLoans(data ?? []))
-                        }
-                      }}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+
+                    <div className="flex flex-col items-start sm:items-center gap-0.5 sm:min-w-28 sm:flex-1 sm:justify-center">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {t("loans.remaining")}
+                      </span>
+                      <span className="font-semibold text-foreground tabular-nums">
+                        {formatAmount(getLoanRemaining(loan))}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-2">
+                      <StatusBadge
+                        label={loan.status.toLowerCase()}
+                        variant={getStatusVariant(loan.status)}
+                      />
+                      <span className="font-semibold text-foreground tabular-nums">
+                        {formatAmount(loan.totalRepayment)}
+                      </span>
+                      <RepayLoanDialog
+                        loan={loan}
+                        onSuccess={(summary) => {
+                          setLoans((prev) =>
+                            prev.map((l) =>
+                              l.id === summary.loan.id
+                                ? {
+                                    ...summary.loan,
+                                    remaining: summary.remaining,
+                                  }
+                                : l
+                            )
+                          )
+                        }}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
             ))}
           </div>
         )}

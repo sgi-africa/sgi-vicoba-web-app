@@ -94,6 +94,7 @@
     "memberAdded": "Member added successfully",
     "contributionAdded": "Contribution added successfully",
     "loanAdded": "Loan added successfully",
+    "loanRepaid": "Repayment recorded successfully",
     "meetingCreated": "Meeting created successfully",
     "sharesAdded": "Shares added successfully",
     "sharesSold": "Shares sold successfully",
@@ -249,6 +250,7 @@
     "repaymentFormula": "Repayment (simple interest: P × R × T / 100)",
     "interest": "Interest",
     "totalToRepay": "Total to repay",
+    "remaining": "Remaining",
     "addLoanButton": "Add loan",
     "requestedOn": "Requested {{date}}",
     "dueOn": "Due {{date}}",
@@ -256,7 +258,10 @@
     "dueLabel": "Return",
     "repay": "Repay",
     "repayTitle": "Record repayment",
-    "submitRepay": "Submit"
+    "submitRepay": "Submit",
+    "submittingRepay": "Submitting…",
+    "repayAmountInvalid": "Enter a valid amount greater than zero.",
+    "repayFailed": "Could not record repayment. Try again."
   },
   "meetings": {
     "title": "Meetings",
