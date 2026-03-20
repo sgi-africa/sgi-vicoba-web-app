@@ -261,7 +261,8 @@
     "submitRepay": "Wasilisha",
     "submittingRepay": "Inawasilisha…",
     "repayAmountInvalid": "Weka kiasi halali kikubwa kuliko sifuri.",
-    "repayFailed": "Imeshindikana kurekodi malipo. Jaribu tena."
+    "repayFailed": "Imeshindikana kurekodi malipo. Jaribu tena.",
+    "repayDisabledPaid": "Mkopo huu umelipwa kabisa"
   },
   "meetings": {
     "title": "Mikutano",

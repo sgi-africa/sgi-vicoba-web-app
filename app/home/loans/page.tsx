@@ -72,6 +72,17 @@ function getLoanRemaining(loan: LoanRequest): number {
   return Math.max(0, total - paid)
 }
 
+/** Total repaid on a loan (installments); uses `repayments` when present */
+function getTotalRepaidOnLoan(loan: LoanRequest): number {
+  if (loan.repayments?.length) {
+    return loan.repayments.reduce((sum, r) => sum + Number(r.amount), 0)
+  }
+  if (loan.status === "PAID") {
+    return Number(loan.totalRepayment)
+  }
+  return Math.max(0, Number(loan.totalRepayment) - getLoanRemaining(loan))
+}
+
 export default function LoansPage() {
   const { t } = useTranslation()
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
@@ -165,13 +176,19 @@ export default function LoansPage() {
     doc.save(`${groupName.replace(/\s+/g, "-")}-loans-${new Date().toISOString().slice(0, 10)}.pdf`)
   }
 
-  const totalRequested = loans.reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
-  const totalPaid = loans
-    .filter((loan) => loan.status === "PAID")
-    .reduce((sum, loan) => sum + Number(loan.totalRepayment ?? 0), 0)
+  const totalRequested = loans.reduce(
+    (sum, loan) => sum + Number(loan.principal ?? 0),
+    0
+  )
+  /** Cumulative repayments received (updates after each successful repay) */
+  const totalPaid = loans.reduce(
+    (sum, loan) => sum + getTotalRepaidOnLoan(loan),
+    0
+  )
+  /** Outstanding balance on loans not yet fully paid */
   const totalPending = loans
-    .filter((loan) => loan.status === "PENDING")
-    .reduce((sum, loan) => sum + Number(loan.totalRepayment ?? 0), 0)
+    .filter((loan) => loan.status !== "PAID")
+    .reduce((sum, loan) => sum + getLoanRemaining(loan), 0)
 
   if (!activeGroup) {
     return (

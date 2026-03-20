@@ -261,7 +261,8 @@
     "submitRepay": "Submit",
     "submittingRepay": "Submitting…",
     "repayAmountInvalid": "Enter a valid amount greater than zero.",
-    "repayFailed": "Could not record repayment. Try again."
+    "repayFailed": "Could not record repayment. Try again.",
+    "repayDisabledPaid": "This loan is fully repaid"
   },
   "meetings": {
     "title": "Meetings",

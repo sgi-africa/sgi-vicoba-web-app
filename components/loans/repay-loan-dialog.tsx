@@ -16,7 +16,11 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { LoanRepaymentSummary, LoanRequest } from "@/interfaces/interface"
+import {
+  LoanRepaymentSummary,
+  LoanRequest,
+  LoanStatus,
+} from "@/interfaces/interface"
 import { repayLoan } from "@/app/home/loans/_action"
 
 export interface RepayLoanDialogProps {
@@ -38,6 +42,7 @@ function extractErrorMessage(err: unknown, fallback: string): string {
 
 export function RepayLoanDialog({ loan, onSuccess, trigger }: RepayLoanDialogProps) {
   const { t } = useTranslation()
+  const isFullyPaid = loan.status === LoanStatus.PAID
   const [amount, setAmount] = useState("")
   const [open, setOpen] = useState(false)
   const [isPending, setIsPending] = useState(false)
@@ -55,6 +60,7 @@ export function RepayLoanDialog({ loan, onSuccess, trigger }: RepayLoanDialogPro
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (isFullyPaid) return
     setError(null)
 
     const parsed = Number(amount)
@@ -75,6 +81,33 @@ export function RepayLoanDialog({ loan, onSuccess, trigger }: RepayLoanDialogPro
     } finally {
       setIsPending(false)
     }
+  }
+
+  if (isFullyPaid) {
+    if (trigger) {
+      return (
+        <span
+          className="inline-flex cursor-not-allowed rounded-full opacity-60"
+          title={t("loans.repayDisabledPaid")}
+          aria-label={t("loans.repayDisabledPaid")}
+        >
+          <span className="pointer-events-none">{trigger}</span>
+        </span>
+      )
+    }
+    return (
+      <Button
+        type="button"
+        disabled
+        size="sm"
+        variant="ghost"
+        title={t("loans.repayDisabledPaid")}
+        aria-label={t("loans.repayDisabledPaid")}
+        className="h-auto gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-muted/60 text-muted-foreground opacity-80"
+      >
+        {t("loans.repay")}
+      </Button>
+    )
   }
 
   return (
