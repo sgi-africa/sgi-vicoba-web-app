@@ -14,11 +14,11 @@ export type WebUser = {
  *
  * Allowed:
  * - systemRole === "ADMIN" (always)
- * - At least one membership with title in CHAIRPERSON, SECRETARY, TREASURER
+ * - No memberships yet (new user before creating a group; they become chairperson on first group)
+ * - At least one membership with title CHAIRPERSON, SECRETARY, or TREASURER
  *
  * Blocked:
- * - systemRole === "USER" AND all memberships have title === "MEMBER"
- * - (or no memberships at all for a USER)
+ * - systemRole === "USER" with one or more memberships where every title is "MEMBER"
  *
  * @param user - The authenticated user from session
  * @returns true if the user can access the web app, false otherwise
@@ -31,10 +31,14 @@ export function canAccessWeb(user: WebUser | null | undefined): boolean {
 
   const memberships = user.memberships ?? [];
 
-  // If no memberships and not ADMIN, block (e.g. USER with no groups)
-  if (memberships.length === 0) return false;
+  // No groups yet — allow so they can use the web app to create one (first group → chairperson)
+  if (memberships.length === 0) return true;
 
-  // Check if user has at least one leadership role in any membership
+  // Block users who are only MEMBER in every group (mobile-app audience)
+  const onlyMemberEverywhere = memberships.every((m) => m.title === "MEMBER");
+  if (onlyMemberEverywhere) return false;
+
+  // At least one leadership role somewhere
   const hasLeadershipRole = memberships.some((m) =>
     LEADERSHIP_ROLES.includes(m.title as (typeof LEADERSHIP_ROLES)[number])
   );
