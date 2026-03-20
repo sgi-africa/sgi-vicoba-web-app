@@ -161,6 +161,11 @@ export interface AddLoanPayload {
     reason?: string
 }
 
+export enum LoanStatus {
+    PENDING = "PENDING",
+    PAID = "PAID",
+    OVERDUE = "OVERDUE",
+}
 export interface LoanRequest {
     id: number;
     groupId: number;
@@ -173,7 +178,7 @@ export interface LoanRequest {
     monthlyInstallment: string;
     reason: string | null;
     rejectionReason: string | null;
-    status: "PENDING" | "PAID" | "OVERDUE";
+    status: LoanStatus;
     approvedBy: number | null;
     approvedAt: string | null;
     createdAt: string;
@@ -250,4 +255,20 @@ export interface StatusBadgeProps {
     label: string
     variant?: StatusVariant
     className?: string
+}
+
+export interface Repayment {
+    id: number;
+    amount: string;
+    paidAt: string;
+}
+
+
+export interface LoanRepaymentSummary {
+    repayment: Repayment;
+    loan: LoanRequest;
+
+    totalPaid: number;
+    remaining: number;
+    isFullyPaid: boolean;
 }

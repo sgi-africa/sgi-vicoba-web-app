@@ -132,7 +132,7 @@ export default function LoansPage() {
       head: [[t("loans.borrower"), t("loans.principal"), t("loans.dueDate"), t("common.status")]],
       body: loans.map((loan) => [
         `${loan.requester.firstName} ${loan.requester.lastName}`,
-        formatAmount(loan.principal),
+        formatAmount(loan.totalRepayment),
         formatDate(loan.dueDate),
         loan.status.toLowerCase(),
       ]),
@@ -157,10 +157,10 @@ export default function LoansPage() {
   const totalRequested = loans.reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
   const totalPaid = loans
     .filter((loan) => loan.status === "PAID")
-    .reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
+    .reduce((sum, loan) => sum + Number(loan.totalRepayment ?? 0), 0)
   const totalPending = loans
     .filter((loan) => loan.status === "PENDING")
-    .reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
+    .reduce((sum, loan) => sum + Number(loan.totalRepayment ?? 0), 0)
 
   if (!activeGroup) {
     return (
@@ -298,7 +298,7 @@ export default function LoansPage() {
                       variant={getStatusVariant(loan.status)}
                     />
                     <span className="font-semibold text-foreground">
-                      {formatAmount(loan.principal)}
+                      {formatAmount(loan.totalRepayment)}
                     </span>
                     <RepayLoanDialog
                       loan={loan}
