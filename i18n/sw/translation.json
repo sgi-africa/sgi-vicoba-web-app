@@ -30,6 +30,47 @@
       }
     }
   },
+  "pricing": {
+    "badge": "Ada ya Usajili ya SGI Africa",
+    "title": "Bei ya haki inayokua pamoja na ukubwa wa kikundi",
+    "description": "Ada kwa kila mwanachama huanza TZS 1,000 na hushuka hadi TZS 800 kikundi kinapoongezeka. Jumla ya ada ya mwezi haizidi TZS 60,000.",
+    "breakdown": {
+      "title": "Mgawanyo wa Ada",
+      "description": "Ada ya usajili wa mwezi inategemea idadi ya wanachama hai."
+    },
+    "bracketPerMember": "{{amount}} kwa kila mwanachama",
+    "examplePrefix": "Mfano:",
+    "brackets": {
+      "range1": {
+        "groupSize": "Wanachama 1-20",
+        "example": "Wanachama 15 -> TZS 15,000"
+      },
+      "range2": {
+        "groupSize": "Wanachama 21-40",
+        "example": "Wanachama 30 -> TZS 27,000"
+      },
+      "range3": {
+        "groupSize": "Wanachama 41-70",
+        "example": "Wanachama 50 -> TZS 42,500"
+      },
+      "range4": {
+        "groupSize": "Wanachama 71+",
+        "example": "Wanachama 100 -> TZS 60,000 (imewekewa ukomo)"
+      }
+    },
+    "cap": {
+      "title": "Ulinzi wa Ukomo",
+      "description": "Hutalipa zaidi ya kiwango cha juu cha ada ya mwezi.",
+      "amount": "TZS 60,000",
+      "subtext": "Kiwango cha juu cha ada ya usajili wa mwezi kwa kikundi (ukomo).",
+      "notes": [
+        "Programu huhesabu ada sahihi kulingana na idadi ya wanachama",
+        "Vikundi vidogo hulipa zaidi kidogo kwa kila mwanachama",
+        "Vikundi vikubwa hunufaika na ada ndogo kwa kila mwanachama"
+      ]
+    },
+    "fairnessNote": "Bei ni ya haki kwa kila ukubwa wa kikundi: vikundi vidogo hulipa zaidi kidogo kwa kila mwanachama, na kikundi kinapokua ada kwa kila mwanachama hupungua."
+  },
   "benefits": {
     "title": "Kwa nini timu huchagua SGI VICOBA",
     "description": "Kuanzia makampuni mapya hadi makampuni makubwa, tunatoa zana na utulivu wa akili unaohitaji kuzingatia mambo muhimu.",
