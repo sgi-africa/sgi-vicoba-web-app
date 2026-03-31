@@ -133,6 +133,7 @@
     "resetLinkSent": "Kiungo cha kuweka upya nenosiri kimetumwa kwenye barua pepe yako",
     "resetLinkFailed": "Imeshindikana kutuma kiungo cha kuweka upya. Jaribu tena",
     "memberAdded": "Mwanachama ameongezwa kwa mafanikio",
+    "memberAlreadyExists": "Mtumiaji huyu tayari ni mwanachama",
     "credentialsSent": "Taarifa za kuingia zimetumwa kwa mafanikio",
     "credentialsSendFailed": "Imeshindikana kutuma taarifa za kuingia. Jaribu tena",
     "contributionAdded": "Mchango umeongezwa kwa mafanikio",

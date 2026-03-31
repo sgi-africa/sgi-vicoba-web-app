@@ -104,10 +104,19 @@ export default function MembersPageClient() {
     } catch (err: unknown) {
       let message = t("notifications.credentialsSendFailed");
       if (err && typeof err === "object" && "response" in err) {
-        const res = (err as { response?: { data?: { message?: string } } }).response;
-        message = res?.data?.message ?? message;
+        const res = (err as { response?: { status?: number; data?: { message?: string } } }).response;
+        if (res?.status === 409) {
+          message = t("notifications.memberAlreadyExists");
+        } else {
+          message = res?.data?.message ?? message;
+        }
       } else if (err instanceof Error) {
-        message = err.message || message;
+        // Server Actions often serialize Axios errors into plain Error messages (losing response.status)
+        if (/status code 409\b/.test(err.message)) {
+          message = t("notifications.memberAlreadyExists");
+        } else {
+          message = err.message || message;
+        }
       }
       toast.error(message);
     } finally {

@@ -133,6 +133,7 @@
     "resetLinkSent": "Password reset link sent to your email",
     "resetLinkFailed": "Failed to send reset link. Try again",
     "memberAdded": "Member added successfully",
+    "memberAlreadyExists": "This user is already a member",
     "credentialsSent": "Credentials sent successfully",
     "credentialsSendFailed": "Failed to send credentials. Try again",
     "contributionAdded": "Contribution added successfully",
