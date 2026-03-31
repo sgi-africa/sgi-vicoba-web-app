@@ -7,8 +7,8 @@ import en from "./en/translation.json"
 import sw from "./sw/translation.json"
 
 const getInitialLanguage = () => {
-  if (typeof window === "undefined") return "en"
-  return localStorage.getItem("lang") || "en"
+  if (typeof window === "undefined") return "sw"
+  return localStorage.getItem("lang") || "sw"
 }
 
 if (!i18n.isInitialized) {
@@ -18,7 +18,7 @@ if (!i18n.isInitialized) {
       sw: { translation: sw },
     },
     lng: getInitialLanguage(),
-    fallbackLng: "en",
+    fallbackLng: "sw",
     interpolation: {
       escapeValue: false,
     },

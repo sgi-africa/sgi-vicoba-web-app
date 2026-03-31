@@ -133,6 +133,8 @@
     "resetLinkSent": "Password reset link sent to your email",
     "resetLinkFailed": "Failed to send reset link. Try again",
     "memberAdded": "Member added successfully",
+    "credentialsSent": "Credentials sent successfully",
+    "credentialsSendFailed": "Failed to send credentials. Try again",
     "contributionAdded": "Contribution added successfully",
     "loanAdded": "Loan added successfully",
     "loanRepaid": "Repayment recorded successfully",
@@ -248,7 +250,10 @@
     "title": "Title",
     "memberDocument": "Member document (PDF, max 4 MB)",
     "selectRole": "Select role",
-    "addMemberButton": "Add member"
+    "addMemberButton": "Add member",
+    "sendCredentials": "Invite",
+    "sendingCredentials": "Sending…",
+    "sendCredentialsNoPhone": "This member has no phone number"
   },
   "contributions": {
     "title": "Contribution Ledger",

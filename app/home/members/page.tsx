@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Users, Download, Loader2 } from "lucide-react";
+import { Plus, Users, Download, Loader2, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { useAppSelector } from "@/hooks/redux";
 import { AddMemberForm } from "@/components/members/add-member-form";
-import { getMembers } from "@/app/home/members/_action";
+import { addMember, getMembers } from "@/app/home/members/_action";
 import { Member } from "@/interfaces/interface";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
@@ -32,6 +32,19 @@ function getRoleLabel(value: string, t: (key: string) => string) {
   return key ? t(`members.${key}`) : value;
 }
 
+function getRoleBadgeClassName(role: string) {
+  switch (role?.toLowerCase()) {
+    case "chairperson":
+      return "bg-violet-500/10 text-violet-700 dark:text-violet-300 ring-violet-500/20";
+    case "treasurer":
+      return "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 ring-emerald-500/20";
+    case "secretary":
+      return "bg-sky-500/10 text-sky-700 dark:text-sky-300 ring-sky-500/20";
+    default:
+      return "bg-muted text-muted-foreground ring-border/50";
+  }
+}
+
 function matchesSearch(member: Member, query: string): boolean {
   if (!query.trim()) return true;
   const q = query.trim().toLowerCase();
@@ -44,6 +57,7 @@ export default function MembersPageClient() {
   const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [sendingCredentialsFor, setSendingCredentialsFor] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -68,6 +82,38 @@ export default function MembersPageClient() {
     setOpen(false);
     toast.success(t("notifications.memberAdded"));
   };
+
+  async function handleSendCredentials(member: Member) {
+    if (!groupId) return;
+    if (!member.user.phone) {
+      toast.error(t("members.sendCredentialsNoPhone"));
+      return;
+    }
+
+    setSendingCredentialsFor(member.id);
+
+    const formData = new FormData();
+    formData.append("firstName", member.user.firstName);
+    formData.append("lastName", member.user.lastName);
+    formData.append("phone", member.user.phone);
+    formData.append("title", (member.title ?? "").toString().toUpperCase());
+
+    try {
+      await addMember(groupId, formData);
+      toast.success(t("notifications.credentialsSent"));
+    } catch (err: unknown) {
+      let message = t("notifications.credentialsSendFailed");
+      if (err && typeof err === "object" && "response" in err) {
+        const res = (err as { response?: { data?: { message?: string } } }).response;
+        message = res?.data?.message ?? message;
+      } else if (err instanceof Error) {
+        message = err.message || message;
+      }
+      toast.error(message);
+    } finally {
+      setSendingCredentialsFor(null);
+    }
+  }
 
   function handleDownloadMembers() {
     if (!activeGroup || members.length === 0) return;
@@ -221,9 +267,33 @@ export default function MembersPageClient() {
                       </p>
                     </div>
                   </div>
-                  <span className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-md">
-                    {getRoleLabel(member.title, t)}
-                  </span>
+                  <div className="flex flex-col items-start sm:items-end gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 rounded-full border-border/60 bg-background shadow-sm hover:bg-muted/60 hover:border-border focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-[0.99] transition"
+                      disabled={sendingCredentialsFor === member.id}
+                      onClick={() => handleSendCredentials(member)}
+                    >
+                      {sendingCredentialsFor === member.id ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <Send className="size-4" />
+                      )}
+                      {sendingCredentialsFor === member.id
+                        ? t("members.sendingCredentials")
+                        : t("members.sendCredentials")}
+                    </Button>
+                    <span
+                      className={[
+                        "text-xs font-semibold px-3 py-1 rounded-full ring-1",
+                        getRoleBadgeClassName(member.title),
+                      ].join(" ")}
+                    >
+                      {getRoleLabel(member.title, t)}
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
             ))}

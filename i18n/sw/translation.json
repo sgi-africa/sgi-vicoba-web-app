@@ -133,6 +133,8 @@
     "resetLinkSent": "Kiungo cha kuweka upya nenosiri kimetumwa kwenye barua pepe yako",
     "resetLinkFailed": "Imeshindikana kutuma kiungo cha kuweka upya. Jaribu tena",
     "memberAdded": "Mwanachama ameongezwa kwa mafanikio",
+    "credentialsSent": "Taarifa za kuingia zimetumwa kwa mafanikio",
+    "credentialsSendFailed": "Imeshindikana kutuma taarifa za kuingia. Jaribu tena",
     "contributionAdded": "Mchango umeongezwa kwa mafanikio",
     "loanAdded": "Mkopo umeongezwa kwa mafanikio",
     "loanRepaid": "Malipo yamerekodiwa kwa mafanikio",
@@ -248,7 +250,10 @@
     "title": "Cheo",
     "memberDocument": "Hati ya mwanachama (PDF, max 4 MB)",
     "selectRole": "Chagua jukumu",
-    "addMemberButton": "Ongeza mwanachama"
+    "addMemberButton": "Ongeza mwanachama",
+    "sendCredentials": "Alika",
+    "sendingCredentials": "Inatuma…",
+    "sendCredentialsNoPhone": "Mwanachama huyu hana namba ya simu"
   },
   "contributions": {
     "title": "Daftari ya Michango",
