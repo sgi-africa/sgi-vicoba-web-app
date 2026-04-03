@@ -7,6 +7,7 @@ import {
   Zap,
   ArrowRight,
   CheckCircle2,
+  Coins,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -34,8 +35,43 @@ const stagger = {
   },
 }
 
+const pricingCardMotion = {
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  whileHover: { y: -6, scale: 1.01 },
+  viewport: { once: true },
+  transition: { duration: 0.35 },
+}
+
 export default function Home() {
   const { t } = useTranslation()
+  const subscriptionBrackets = [
+    {
+      id: "range1",
+      groupSize: "1-20 members",
+      perMemberFee: "TZS 1,000",
+      exampleKey: "pricing.brackets.range1.example",
+    },
+    {
+      id: "range2",
+      groupSize: "21-40 members",
+      perMemberFee: "TZS 900",
+      exampleKey: "pricing.brackets.range2.example",
+    },
+    {
+      id: "range3",
+      groupSize: "41-70 members",
+      perMemberFee: "TZS 850",
+      exampleKey: "pricing.brackets.range3.example",
+    },
+    {
+      id: "range4",
+      groupSize: "71+ members",
+      perMemberFee: "TZS 800",
+      exampleKey: "pricing.brackets.range4.example",
+    },
+  ]
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <motion.header
@@ -171,6 +207,116 @@ export default function Home() {
                   </Card>
                 </motion.div>
               ))}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Benefits */}
+        <section className="py-24 sm:py-32 border-t border-border/40 bg-card">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="mx-auto max-w-2xl text-center mb-16"
+            >
+              <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary">
+                <Coins className="h-3.5 w-3.5" />
+                {t("pricing.badge")}
+              </span>
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                {t("pricing.title")}
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+                {t("pricing.description")}
+              </p>
+            </motion.div>
+
+            <motion.div
+              variants={stagger}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+              className="grid gap-6 lg:grid-cols-2"
+            >
+              <motion.div {...pricingCardMotion}>
+                <Card className="h-full border-border/50 bg-background">
+                  <CardHeader className="p-6 pb-4">
+                    <CardTitle className="text-lg">{t("pricing.breakdown.title")}</CardTitle>
+                    <CardDescription className="leading-relaxed">
+                      {t("pricing.breakdown.description")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-0">
+                    <div className="space-y-3">
+                      {subscriptionBrackets.map((bracket) => (
+                        <div
+                          key={bracket.id}
+                          className="rounded-lg border border-border/50 bg-muted/20 p-4 transition-colors hover:border-primary/30 hover:bg-primary/5"
+                        >
+                          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <p className="text-sm font-medium text-foreground">
+                              {t(`pricing.brackets.${bracket.id}.groupSize`)}
+                            </p>
+                            <p className="text-sm font-semibold text-primary">
+                              {t("pricing.bracketPerMember", { amount: bracket.perMemberFee })}
+                            </p>
+                          </div>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {t("pricing.examplePrefix")}{" "}
+                            {t(bracket.exampleKey)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div {...pricingCardMotion} transition={{ duration: 0.4, delay: 0.05 }}>
+                <Card className="h-full border-primary/30 bg-linear-to-br from-primary/5 via-background to-background">
+                  <CardHeader className="p-6 pb-4">
+                    <CardTitle className="text-lg">
+                      {t("pricing.cap.title")}
+                    </CardTitle>
+                    <CardDescription className="leading-relaxed">
+                      {t("pricing.cap.description")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-0">
+                    <p className="text-4xl font-bold tracking-tight text-foreground">
+                      {t("pricing.cap.amount")}
+                    </p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {t("pricing.cap.subtext")}
+                    </p>
+                    <ul className="mt-6 space-y-3">
+                      {(Array.isArray(t("pricing.cap.notes", { returnObjects: true }))
+                        ? (t("pricing.cap.notes", { returnObjects: true }) as string[])
+                        : []
+                      ).map((note) => (
+                        <li key={note} className="flex items-start gap-2.5">
+                          <CheckCircle2 className="mt-0.5 h-4.5 w-4.5 shrink-0 text-primary" />
+                          <span className="text-sm text-muted-foreground">
+                            {note}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.05 }}
+              className="mt-8 rounded-xl border border-border/50 bg-background px-5 py-4 text-sm text-muted-foreground"
+            >
+              {t("pricing.fairnessNote")}
             </motion.div>
           </div>
         </section>

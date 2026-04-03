@@ -161,6 +161,11 @@ export interface AddLoanPayload {
     reason?: string
 }
 
+export enum LoanStatus {
+    PENDING = "PENDING",
+    PAID = "PAID",
+    OVERDUE = "OVERDUE",
+}
 export interface LoanRequest {
     id: number;
     groupId: number;
@@ -173,7 +178,7 @@ export interface LoanRequest {
     monthlyInstallment: string;
     reason: string | null;
     rejectionReason: string | null;
-    status: "PENDING" | "PAID" | "OVERDUE";
+    status: LoanStatus;
     approvedBy: number | null;
     approvedAt: string | null;
     createdAt: string;
@@ -183,7 +188,9 @@ export interface LoanRequest {
         name: string;
     };
     requester: MemberUser
-    approver: MemberUser
+    approver: MemberUser | null
+    repayments?: Repayment[]
+    remaining?: number
 }
 
 export interface AddMeetingFormProps {
@@ -223,4 +230,46 @@ export interface EditGroupFormProps {
     group: GroupResponse
     onSuccess?: (updatedGroup: GroupResponse) => void
     className?: string
+}
+
+export interface ContentContainerProps {
+    children: React.ReactNode
+    className?: string
+}
+
+export interface PageHeaderProps {
+    title: string
+    description?: string
+    children?: React.ReactNode
+    className?: string
+}
+
+export interface SearchInputProps {
+    value: string
+    onChange: (value: string) => void
+    placeholder?: string
+    ariaLabel?: string
+}
+
+export type StatusVariant = "success" | "warning" | "error" | "default"
+
+export interface StatusBadgeProps {
+    label: string
+    variant?: StatusVariant
+    className?: string
+}
+
+export interface Repayment {
+    id: number;
+    amount: string;
+    paidAt: string;
+}
+
+export interface LoanRepaymentSummary {
+    repayment: Repayment;
+    loan: LoanRequest;
+
+    totalPaid: number;
+    remaining: number;
+    isFullyPaid: boolean;
 }

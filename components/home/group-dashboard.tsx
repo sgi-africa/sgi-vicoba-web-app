@@ -103,7 +103,9 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
         const loans = await getLoans(groupId)
         if (cancelled) return
         const total = loans
-          .filter((loan) => loan.status === "PENDING" || loan.status === "OVERDUE")
+          .filter(
+            (loan) => loan.status === "PENDING" || loan.status === "OVERDUE"
+          )
           .reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
         setOutstandingLoansTotal(total)
       } catch {

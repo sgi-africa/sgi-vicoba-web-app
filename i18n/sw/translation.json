@@ -30,6 +30,47 @@
       }
     }
   },
+  "pricing": {
+    "badge": "Ada ya Usajili ya SGI Africa",
+    "title": "Bei ya haki inayokua pamoja na ukubwa wa kikundi",
+    "description": "Ada kwa kila mwanachama huanza TZS 1,000 na hushuka hadi TZS 800 kikundi kinapoongezeka. Jumla ya ada ya mwezi haizidi TZS 60,000.",
+    "breakdown": {
+      "title": "Mgawanyo wa Ada",
+      "description": "Ada ya usajili wa mwezi inategemea idadi ya wanachama hai."
+    },
+    "bracketPerMember": "{{amount}} kwa kila mwanachama",
+    "examplePrefix": "Mfano:",
+    "brackets": {
+      "range1": {
+        "groupSize": "Wanachama 1-20",
+        "example": "Wanachama 15 -> TZS 15,000"
+      },
+      "range2": {
+        "groupSize": "Wanachama 21-40",
+        "example": "Wanachama 30 -> TZS 27,000"
+      },
+      "range3": {
+        "groupSize": "Wanachama 41-70",
+        "example": "Wanachama 50 -> TZS 42,500"
+      },
+      "range4": {
+        "groupSize": "Wanachama 71+",
+        "example": "Wanachama 100 -> TZS 60,000 (imewekewa ukomo)"
+      }
+    },
+    "cap": {
+      "title": "Ulinzi wa Ukomo",
+      "description": "Hutalipa zaidi ya kiwango cha juu cha ada ya mwezi.",
+      "amount": "TZS 60,000",
+      "subtext": "Kiwango cha juu cha ada ya usajili wa mwezi kwa kikundi (ukomo).",
+      "notes": [
+        "Programu huhesabu ada sahihi kulingana na idadi ya wanachama",
+        "Vikundi vidogo hulipa zaidi kidogo kwa kila mwanachama",
+        "Vikundi vikubwa hunufaika na ada ndogo kwa kila mwanachama"
+      ]
+    },
+    "fairnessNote": "Bei ni ya haki kwa kila ukubwa wa kikundi: vikundi vidogo hulipa zaidi kidogo kwa kila mwanachama, na kikundi kinapokua ada kwa kila mwanachama hupungua."
+  },
   "benefits": {
     "title": "Kwa nini timu huchagua SGI VICOBA",
     "description": "Kuanzia makampuni mapya hadi makampuni makubwa, tunatoa zana na utulivu wa akili unaohitaji kuzingatia mambo muhimu.",
@@ -46,8 +87,15 @@
     }
   },
   "footer": {
-      "brand": "SGI VICOBA",
+    "brand": "SGI VICOBA",
     "copyright": "© {{year}} SGI VICOBA. Haki zote zimehifadhiwa."
+  },
+  "forbidden": {
+    "title": "Ufikiaji Umepunguzwa",
+    "description": "Programu ya wavuti imepunguzwa kwa majukumu ya uongozi. Tafadhali tumia programu ya simu kushirikiana na mfumo.",
+    "mobileHint": "Wanachama wanapaswa kutumia programu ya simu ya SGI VICOBA kwa shughuli zao.",
+    "signOut": "Toka",
+    "goToHomepage": "Nenda kwenye ukurasa wa kwanza"
   },
   "auth": {
     "loginTitle": "Ingia kwenye akaunti yako",
@@ -85,8 +133,12 @@
     "resetLinkSent": "Kiungo cha kuweka upya nenosiri kimetumwa kwenye barua pepe yako",
     "resetLinkFailed": "Imeshindikana kutuma kiungo cha kuweka upya. Jaribu tena",
     "memberAdded": "Mwanachama ameongezwa kwa mafanikio",
+    "memberAlreadyExists": "Mtumiaji huyu tayari ni mwanachama",
+    "credentialsSent": "Taarifa za kuingia zimetumwa kwa mafanikio",
+    "credentialsSendFailed": "Imeshindikana kutuma taarifa za kuingia. Jaribu tena",
     "contributionAdded": "Mchango umeongezwa kwa mafanikio",
     "loanAdded": "Mkopo umeongezwa kwa mafanikio",
+    "loanRepaid": "Malipo yamerekodiwa kwa mafanikio",
     "meetingCreated": "Mkutano umeundwa kwa mafanikio",
     "sharesAdded": "Hisa zimeongezwa kwa mafanikio",
     "sharesSold": "Hisa zimeuzwa kwa mafanikio",
@@ -199,7 +251,10 @@
     "title": "Cheo",
     "memberDocument": "Hati ya mwanachama (PDF, max 4 MB)",
     "selectRole": "Chagua jukumu",
-    "addMemberButton": "Ongeza mwanachama"
+    "addMemberButton": "Ongeza mwanachama",
+    "sendCredentials": "Alika",
+    "sendingCredentials": "Inatuma…",
+    "sendCredentialsNoPhone": "Mwanachama huyu hana namba ya simu"
   },
   "contributions": {
     "title": "Daftari ya Michango",
@@ -232,21 +287,29 @@
     "disburseFirstLoan": "Gawa mkopo wako wa kwanza kwa kubofya \"Ongeza mkopo\".",
     "noMatchSearch": "Hakuna mikopo inayofanana na utafutaji wako.",
     "borrower": "Mkopaji",
-    "principal": "Principal",
+    "principal": "Kiasi",
     "dueDate": "Tarehe ya Malipo",
     "memberBorrower": "Mwanachama (mkopaji)",
-    "principalTzs": "Principal (TZS)",
+    "principalTzs": "Kiasi (TZS)",
     "interestRate": "Kiwango cha riba (%)",
     "durationMonths": "Muda (miezi)",
     "reasonOptional": "Sababu (hiari)",
     "repaymentFormula": "Malipo (riba rahisi: P × R × T / 100)",
     "interest": "Riba",
     "totalToRepay": "Jumla ya kulipa",
+    "remaining": "Kilichobaki",
     "addLoanButton": "Ongeza mkopo",
     "requestedOn": "Ombi {{date}}",
     "dueOn": "Malipo {{date}}",
     "requestedLabel": "Ombi",
-    "dueLabel": "Malipo"
+    "dueLabel": "Malipo",
+    "repay": "Lipa",
+    "repayTitle": "Rekodi malipo",
+    "submitRepay": "Wasilisha",
+    "submittingRepay": "Inawasilisha…",
+    "repayAmountInvalid": "Weka kiasi halali kikubwa kuliko sifuri.",
+    "repayFailed": "Imeshindikana kurekodi malipo. Jaribu tena.",
+    "repayDisabledPaid": "Mkopo huu umelipwa kabisa"
   },
   "meetings": {
     "title": "Mikutano",

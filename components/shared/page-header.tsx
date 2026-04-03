@@ -1,11 +1,5 @@
 import { cn } from "@/lib/utils"
-
-interface PageHeaderProps {
-  title: string
-  description?: string
-  children?: React.ReactNode
-  className?: string
-}
+import { PageHeaderProps } from "@/interfaces/interface"
 
 export function PageHeader({ title, description, children, className }: PageHeaderProps) {
   return (

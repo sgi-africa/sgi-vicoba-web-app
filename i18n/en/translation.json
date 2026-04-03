@@ -30,6 +30,47 @@
       }
     }
   },
+  "pricing": {
+    "badge": "SGI Africa Subscription Fee",
+    "title": "Fair pricing that scales with group size",
+    "description": "Per-member fee starts at TZS 1,000 and gradually drops to TZS 800 as your group grows. The monthly total is always capped at TZS 60,000.",
+    "breakdown": {
+      "title": "Fee Breakdown",
+      "description": "Monthly subscription is based on active member count."
+    },
+    "bracketPerMember": "{{amount}} per member",
+    "examplePrefix": "Example:",
+    "brackets": {
+      "range1": {
+        "groupSize": "1-20 members",
+        "example": "15 members -> TZS 15,000"
+      },
+      "range2": {
+        "groupSize": "21-40 members",
+        "example": "30 members -> TZS 27,000"
+      },
+      "range3": {
+        "groupSize": "41-70 members",
+        "example": "50 members -> TZS 42,500"
+      },
+      "range4": {
+        "groupSize": "71+ members",
+        "example": "100 members -> TZS 60,000 (capped)"
+      }
+    },
+    "cap": {
+      "title": "Cap Protection",
+      "description": "You never pay more than the maximum monthly fee.",
+      "amount": "TZS 60,000",
+      "subtext": "Maximum monthly subscription fee per group (cap).",
+      "notes": [
+        "App auto-calculates the correct fee by member count",
+        "Small groups pay slightly more per person",
+        "Larger groups benefit from lower per-member rates"
+      ]
+    },
+    "fairnessNote": "Fair for every group size: smaller groups pay a bit more per member, and as the group grows the per-member fee reduces."
+  },
   "benefits": {
     "title": "Why teams choose SGI VICOBA",
     "description": "From startups to enterprises, we provide the tools and peace of mind you need to focus on what matters.",
@@ -48,6 +89,13 @@
   "footer": {
     "brand": "SGI VICOBA",
     "copyright": "© {{year}} SGI VICOBA. All rights reserved."
+  },
+  "forbidden": {
+    "title": "Access Restricted",
+    "description": "The web application is restricted to leadership roles. Please use the mobile application to interact with the system.",
+    "mobileHint": "Members should use the SGI VICOBA mobile app for their activities.",
+    "signOut": "Sign out",
+    "goToHomepage": "Go to homepage"
   },
   "auth": {
     "loginTitle": "Login to your account",
@@ -85,8 +133,12 @@
     "resetLinkSent": "Password reset link sent to your email",
     "resetLinkFailed": "Failed to send reset link. Try again",
     "memberAdded": "Member added successfully",
+    "memberAlreadyExists": "This user is already a member",
+    "credentialsSent": "Credentials sent successfully",
+    "credentialsSendFailed": "Failed to send credentials. Try again",
     "contributionAdded": "Contribution added successfully",
     "loanAdded": "Loan added successfully",
+    "loanRepaid": "Repayment recorded successfully",
     "meetingCreated": "Meeting created successfully",
     "sharesAdded": "Shares added successfully",
     "sharesSold": "Shares sold successfully",
@@ -199,7 +251,10 @@
     "title": "Title",
     "memberDocument": "Member document (PDF, max 4 MB)",
     "selectRole": "Select role",
-    "addMemberButton": "Add member"
+    "addMemberButton": "Add member",
+    "sendCredentials": "Invite",
+    "sendingCredentials": "Sending…",
+    "sendCredentialsNoPhone": "This member has no phone number"
   },
   "contributions": {
     "title": "Contribution Ledger",
@@ -242,11 +297,19 @@
     "repaymentFormula": "Repayment (simple interest: P × R × T / 100)",
     "interest": "Interest",
     "totalToRepay": "Total to repay",
+    "remaining": "Remaining",
     "addLoanButton": "Add loan",
     "requestedOn": "Requested {{date}}",
     "dueOn": "Due {{date}}",
     "requestedLabel": "Requested",
-    "dueLabel": "Due"
+    "dueLabel": "Return",
+    "repay": "Repay",
+    "repayTitle": "Record repayment",
+    "submitRepay": "Submit",
+    "submittingRepay": "Submitting…",
+    "repayAmountInvalid": "Enter a valid amount greater than zero.",
+    "repayFailed": "Could not record repayment. Try again.",
+    "repayDisabledPaid": "This loan is fully repaid"
   },
   "meetings": {
     "title": "Meetings",

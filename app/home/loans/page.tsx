@@ -16,6 +16,7 @@ import { useAppSelector } from "@/hooks/redux"
 import { getMembers } from "@/app/home/members/_action"
 import { Member, LoanRequest } from "@/interfaces/interface"
 import { AddLoanForm } from "@/components/loans/add-loan-form"
+import { RepayLoanDialog } from "@/components/loans/repay-loan-dialog"
 import { getLoans } from "@/app/home/loans/_action"
 import { toast } from "sonner"
 import { jsPDF } from "jspdf"
@@ -58,6 +59,28 @@ function matchesSearch(loan: LoanRequest, query: string): boolean {
   const name = `${loan.requester.firstName} ${loan.requester.lastName}`.toLowerCase()
   const status = loan.status.toLowerCase()
   return name.includes(q) || status.includes(q)
+}
+
+/** Uses `loan.remaining` from API, or totalRepayment − sum(repayments) */
+function getLoanRemaining(loan: LoanRequest): number {
+  if (typeof loan.remaining === "number" && !Number.isNaN(loan.remaining)) {
+    return loan.remaining
+  }
+  const total = Number(loan.totalRepayment)
+  const paid =
+    loan.repayments?.reduce((sum, r) => sum + Number(r.amount), 0) ?? 0
+  return Math.max(0, total - paid)
+}
+
+/** Total repaid on a loan (installments); uses `repayments` when present */
+function getTotalRepaidOnLoan(loan: LoanRequest): number {
+  if (loan.repayments?.length) {
+    return loan.repayments.reduce((sum, r) => sum + Number(r.amount), 0)
+  }
+  if (loan.status === "PAID") {
+    return Number(loan.totalRepayment)
+  }
+  return Math.max(0, Number(loan.totalRepayment) - getLoanRemaining(loan))
 }
 
 export default function LoansPage() {
@@ -131,7 +154,7 @@ export default function LoansPage() {
       head: [[t("loans.borrower"), t("loans.principal"), t("loans.dueDate"), t("common.status")]],
       body: loans.map((loan) => [
         `${loan.requester.firstName} ${loan.requester.lastName}`,
-        formatAmount(loan.principal),
+        formatAmount(loan.totalRepayment),
         formatDate(loan.dueDate),
         loan.status.toLowerCase(),
       ]),
@@ -153,13 +176,19 @@ export default function LoansPage() {
     doc.save(`${groupName.replace(/\s+/g, "-")}-loans-${new Date().toISOString().slice(0, 10)}.pdf`)
   }
 
-  const totalRequested = loans.reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
-  const totalPaid = loans
-    .filter((loan) => loan.status === "PAID")
-    .reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
+  const totalRequested = loans.reduce(
+    (sum, loan) => sum + Number(loan.principal ?? 0),
+    0
+  )
+  /** Cumulative repayments received (updates after each successful repay) */
+  const totalPaid = loans.reduce(
+    (sum, loan) => sum + getTotalRepaidOnLoan(loan),
+    0
+  )
+  /** Outstanding balance on loans not yet fully paid */
   const totalPending = loans
-    .filter((loan) => loan.status === "PENDING")
-    .reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
+    .filter((loan) => loan.status !== "PAID")
+    .reduce((sum, loan) => sum + getLoanRemaining(loan), 0)
 
   if (!activeGroup) {
     return (
@@ -263,40 +292,71 @@ export default function LoansPage() {
         ) : (
           <div className="space-y-2">
             {filteredLoans.map((loan) => (
-              <Card
-                key={loan.id}
-                className="shadow-sm border-border/60 transition-all hover:shadow-md hover:border-border"
-              >
-                <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium">
-                      {`${loan.requester.firstName} ${loan.requester.lastName}`
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .slice(0, 2)
-                        .toUpperCase()}
+                <Card
+                  key={loan.id}
+                  className="shadow-sm border-border/60 transition-all hover:shadow-md hover:border-border"
+                >
+                  <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium">
+                        {`${loan.requester.firstName} ${loan.requester.lastName}`
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {loan.requester.firstName} {loan.requester.lastName}
+                        </p>
+                        <div className="block space-y-0.5 text-sm text-muted-foreground">
+                          <p>
+                            {t("loans.requestedLabel")} -{" "}
+                            {formatDate(loan.createdAt)}
+                          </p>
+                          <p>
+                            {t("loans.dueLabel")} - {formatDate(loan.dueDate)}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {loan.requester.firstName} {loan.requester.lastName}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {t("loans.requestedLabel")} {formatDate(loan.createdAt)} · {t("loans.dueLabel")} {formatDate(loan.dueDate)}
-                      </p>
+
+                    <div className="flex flex-col items-start sm:items-center gap-0.5 sm:min-w-28 sm:flex-1 sm:justify-center">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {t("loans.remaining")}
+                      </span>
+                      <span className="font-semibold text-foreground tabular-nums">
+                        {formatAmount(getLoanRemaining(loan))}
+                      </span>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1.5">
-                    <span className="font-semibold text-foreground">
-                      {formatAmount(loan.principal)}
-                    </span>
-                    <StatusBadge
-                      label={loan.status.toLowerCase()}
-                      variant={getStatusVariant(loan.status)}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+
+                    <div className="flex flex-col items-end gap-2">
+                      <StatusBadge
+                        label={loan.status.toLowerCase()}
+                        variant={getStatusVariant(loan.status)}
+                      />
+                      <span className="font-semibold text-foreground tabular-nums">
+                        {formatAmount(loan.totalRepayment)}
+                      </span>
+                      <RepayLoanDialog
+                        loan={loan}
+                        onSuccess={(summary) => {
+                          setLoans((prev) =>
+                            prev.map((l) =>
+                              l.id === summary.loan.id
+                                ? {
+                                    ...summary.loan,
+                                    remaining: summary.remaining,
+                                  }
+                                : l
+                            )
+                          )
+                        }}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
             ))}
           </div>
         )}

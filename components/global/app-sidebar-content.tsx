@@ -2,7 +2,6 @@
 
 import {
   Home,
-  User2,
   ChevronUp,
   UsersRound,
   Wallet,

@@ -2,13 +2,7 @@
 
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
-
-interface SearchInputProps {
-  value: string
-  onChange: (value: string) => void
-  placeholder?: string
-  ariaLabel?: string
-}
+import { SearchInputProps } from "@/interfaces/interface"
 
 export function SearchInput({ value, onChange, placeholder = "Search...", ariaLabel }: SearchInputProps) {
   return (
