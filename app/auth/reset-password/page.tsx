@@ -1,9 +1,15 @@
 import { Shield } from "lucide-react"
 import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { ResetPassword } from "@/components/auth/reset-password"
 
-export default function Page() {
+export default function Page({
+  searchParams,
+}: {
+  searchParams?: Record<string, string | string[] | undefined>
+}) {
+  const tokenParam = searchParams?.token
+  const token = Array.isArray(tokenParam) ? tokenParam[0] : tokenParam
+
   return (
     <div className="flex min-h-svh flex-col items-center justify-center bg-background p-6 md:p-10">
       <div className="w-full max-w-sm">
@@ -17,22 +23,7 @@ export default function Page() {
             </span>
           </Link>
         </div>
-        <Card className="shadow-sm border-border/60">
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl">Reset Password</CardTitle>
-            <CardDescription>
-              Enter your new password below.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-sm text-muted-foreground mb-4">
-              This page is under construction.
-            </p>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/auth/login">Back to login</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <ResetPassword token={token} />
       </div>
     </div>
   )

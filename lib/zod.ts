@@ -34,6 +34,18 @@ export const forgotPasswordSchema = object({
     .email("Invalid email"),
 })
 
+export const resetPasswordSchema = object({
+  password: string({ error: "Password is required" })
+    .min(1, "Password is required")
+    .min(8, "Password must be more than 8 characters")
+    .max(32, "Password must be less than 32 characters"),
+  confirmPassword: string({ error: "Confirm password is required" })
+    .min(1, "Confirm password is required"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+})
+
 export const ADD_MEMBER_TITLES = [
   "chairperson",
   "treasurer",
