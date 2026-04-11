@@ -273,3 +273,8 @@ export interface LoanRepaymentSummary {
     remaining: number;
     isFullyPaid: boolean;
 }
+
+export type ResetPasswordPayload = {
+    token: string
+    password: string
+}
