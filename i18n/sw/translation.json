@@ -254,7 +254,8 @@
     "addMemberButton": "Ongeza mwanachama",
     "sendCredentials": "Alika",
     "sendingCredentials": "Inatuma…",
-    "sendCredentialsNoPhone": "Mwanachama huyu hana namba ya simu"
+    "sendCredentialsNoPhone": "Mwanachama huyu hana namba ya simu",
+    "sendCredentialsInvalidPhone": "Namba ya simu ya mwanachama huyu si halali. Badilisha kuwa namba ya kimataifa (mfano +255…) kabla ya kualika."
   },
   "contributions": {
     "title": "Daftari ya Michango",

@@ -23,6 +23,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { SearchInput } from "@/components/shared/search-input";
 import { ContentContainer } from "@/components/shared/content-container";
+import { toE164Phone } from "@/lib/phone";
 
 const MEMBER_ROLE_KEYS = ["chairperson", "treasurer", "secretary", "member"] as const;
 
@@ -85,8 +86,15 @@ export default function MembersPageClient() {
 
   async function handleSendCredentials(member: Member) {
     if (!groupId) return;
-    if (!member.user.phone) {
+    const rawPhone = member.user.phone?.trim();
+    if (!rawPhone) {
       toast.error(t("members.sendCredentialsNoPhone"));
+      return;
+    }
+
+    const phoneE164 = toE164Phone(rawPhone);
+    if (!phoneE164) {
+      toast.error(t("members.sendCredentialsInvalidPhone"));
       return;
     }
 
@@ -95,7 +103,7 @@ export default function MembersPageClient() {
     const formData = new FormData();
     formData.append("firstName", member.user.firstName);
     formData.append("lastName", member.user.lastName);
-    formData.append("phone", member.user.phone);
+    formData.append("phone", phoneE164);
     formData.append("title", (member.title ?? "").toString().toUpperCase());
 
     try {

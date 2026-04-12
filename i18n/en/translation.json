@@ -254,7 +254,8 @@
     "addMemberButton": "Add member",
     "sendCredentials": "Invite",
     "sendingCredentials": "Sending…",
-    "sendCredentialsNoPhone": "This member has no phone number"
+    "sendCredentialsNoPhone": "This member has no phone number",
+    "sendCredentialsInvalidPhone": "This member’s phone number is not valid. Update it to an international number (e.g. +255…) before inviting."
   },
   "contributions": {
     "title": "Contribution Ledger",
