@@ -337,7 +337,7 @@ export default function LoansPage() {
                         variant={getStatusVariant(loan.status)}
                       />
                       <span className="font-semibold text-foreground tabular-nums">
-                        {formatAmount(loan.totalRepayment)}
+                        {formatAmount(loan.principal)}
                       </span>
                       <RepayLoanDialog
                         loan={loan}
