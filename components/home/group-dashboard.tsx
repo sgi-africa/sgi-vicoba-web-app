@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Wallet, Users, HandCoins, ClipboardList, Download, TrendingUp, Landmark, PiggyBank, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CreateGroupDialog } from "./create-group-dialog"
