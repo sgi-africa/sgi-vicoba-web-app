@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { Banknote, Coins, ShoppingCart, Info, BanknoteArrowUp, Download, Loader2 } from "lucide-react"
+import { Banknote, Coins, ShoppingCart, Info, BanknoteArrowUp, Download } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -19,21 +19,9 @@ import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
 import { SearchInput } from "@/components/shared/search-input"
 import { ContentContainer } from "@/components/shared/content-container"
+import { formatAmount } from "@/utils/global/formatAmount"
+import { matchesSearch } from "@/utils/shares/share"
 
-function formatAmount(amount: number | string) {
-  return new Intl.NumberFormat("en-TZ", {
-    style: "currency",
-    currency: "TZS",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(Number(amount))
-}
-
-function matchesSearch(row: MemberSharesRow, query: string): boolean {
-  if (!query.trim()) return true
-  const q = query.trim().toLowerCase()
-  return row.name.toLowerCase().includes(q)
-}
 
 export default function SharesPage() {
   const { t } = useTranslation()

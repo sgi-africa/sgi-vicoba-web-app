@@ -19,38 +19,9 @@ import { EmptyState } from "@/components/shared/empty-state"
 import { SearchInput } from "@/components/shared/search-input"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { ContentContainer } from "@/components/shared/content-container"
+import { formatDate } from "@/utils/global/formatDate"
+import { getStatusFromDate, matchesSearch } from "@/utils/meetings/meeting"
 
-function formatDateTime(dateStr: string) {
-  try {
-    const d = new Date(dateStr)
-    return d.toLocaleDateString("en-TZ", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
-  } catch {
-    return dateStr
-  }
-}
-
-function getStatusFromDate(nextMeetingDate: string) {
-  const next = new Date(nextMeetingDate)
-  const now = new Date()
-  return next >= now ? "scheduled" : "completed"
-}
-
-function matchesSearch(meeting: GroupMeetingsResponse, query: string): boolean {
-  if (!query.trim()) return true
-  const q = query.trim().toLowerCase()
-  const topic = (meeting.topic ?? "").toLowerCase()
-  const resolutions = (meeting.resolutions ?? "").toLowerCase()
-  const status = getStatusFromDate(meeting.nextMeetingDate).toLowerCase()
-  const attendeeNames = (meeting.attendees ?? [])
-    .map((a) => `${a.user?.firstName ?? ""} ${a.user?.lastName ?? ""}`.trim().toLowerCase())
-    .join(" ")
-  return topic.includes(q) || resolutions.includes(q) || status.includes(q) || attendeeNames.includes(q)
-}
 
 export default function MeetingsPage() {
   const { t } = useTranslation()
@@ -111,7 +82,7 @@ export default function MeetingsPage() {
       head: [[t("meetings.topic"), t("common.nextMeeting"), t("common.status"), t("common.attendees")]],
       body: meetings.map((m) => [
         m.topic,
-        formatDateTime(m.nextMeetingDate),
+        formatDate(m.nextMeetingDate),
         getStatusFromDate(m.nextMeetingDate),
         String(m.attendees?.length ?? 0),
       ]),
@@ -242,7 +213,7 @@ export default function MeetingsPage() {
                       )}
                       <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
                         <Calendar className="size-3.5 shrink-0" />
-                        {t("common.nextMeeting")}: {formatDateTime(meeting.nextMeetingDate)}
+                        {t("common.nextMeeting")}: {formatDate(meeting.nextMeetingDate)}
                       </p>
                     </div>
                   </div>
