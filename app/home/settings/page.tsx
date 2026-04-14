@@ -1,45 +1,28 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Building2, Users, Calendar, Wallet, AlertCircle, Loader2 } from "lucide-react"
+import { Settings, Building2, Users, Calendar, Wallet, AlertCircle, Loader2, User } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useAppSelector, useAppDispatch } from "@/hooks/redux"
 import { setActiveGroup } from "@/store/groupSlice"
-import { getGroup } from "./_action"
+import { getMe, getGroup } from "./_action"
 import { EditGroupForm } from "@/components/settings/edit-group-form"
-import { GroupResponse } from "@/interfaces/interface"
+import { EditProfileForm } from "@/components/settings/edit-profile-form"
+import { GroupResponse, MemberUser } from "@/interfaces/interface"
 import { toast } from "sonner"
 import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
 import { ContentContainer } from "@/components/shared/content-container"
-
-function formatDate(dateStr: string) {
-  try {
-    return new Date(dateStr).toLocaleDateString("en-TZ", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-  } catch {
-    return dateStr
-  }
-}
-
-function formatAmount(amount: number | string) {
-  return new Intl.NumberFormat("en-TZ", {
-    style: "currency",
-    currency: "TZS",
-    minimumFractionDigits: 0,
-  }).format(Number(amount))
-}
+import { formatDate } from "@/utils/global/formatDate"
+import { formatAmount } from "@/utils/global/formatAmount"
 
 export default function SettingsPage() {
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
   const [group, setGroup] = useState<GroupResponse | null>(null)
+  const [me, setMe] = useState<MemberUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const groupId = activeGroup?.id
@@ -48,14 +31,18 @@ export default function SettingsPage() {
     if (!groupId) {
       queueMicrotask(() => {
         setGroup(null)
+        setMe(null)
         setIsLoading(false)
       })
       return
     }
     let cancelled = false
-    getGroup(groupId)
-      .then((data) => {
-        if (!cancelled) setGroup(data ?? null)
+    Promise.all([getGroup(groupId), getMe()])
+      .then(([groupData, meData]) => {
+        if (!cancelled) {
+          setGroup(groupData ?? null)
+          setMe(meData ?? null)
+        }
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false)
@@ -69,6 +56,11 @@ export default function SettingsPage() {
     setGroup(updatedGroup)
     dispatch(setActiveGroup(updatedGroup))
     toast.success(t("notifications.groupSettingsUpdated"))
+  }
+
+  const handleProfileUpdateSuccess = (updated: MemberUser) => {
+    setMe(updated)
+    toast.success(t("notifications.profileUpdated"))
   }
 
   if (!activeGroup || !groupId) {
@@ -103,6 +95,31 @@ export default function SettingsPage() {
             </Card>
           ) : group ? (
             <>
+              <Card className="shadow-sm border-border/60">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <User className="size-5" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">{t("settings.profileTitle")}</CardTitle>
+                      <CardDescription>{t("settings.profileDescription")}</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {me ? (
+                    <EditProfileForm
+                      key={`${me.id}-${me.firstName}-${me.lastName}-${me.email ?? ""}-${me.phone}`}
+                      member={me}
+                      onSuccess={handleProfileUpdateSuccess}
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{t("settings.profileLoadError")}</p>
+                  )}
+                </CardContent>
+              </Card>
+
               <Card className="shadow-sm border-border/60">
                 <CardHeader>
                   <div className="flex items-center gap-3">

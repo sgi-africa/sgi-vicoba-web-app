@@ -6,23 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { updateGroup } from "@/app/home/settings/_action"
 import { updateGroupSchema, GROUP_TYPES } from "@/lib/zod"
 import { EditGroupFormProps } from "@/interfaces/interface"
 import { cn } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
-
-const GROUP_TYPE_OPTIONS = GROUP_TYPES.map((value) => ({
-  value,
-  labelKey: value === "EQUALANNUAL" ? "equalAnnual" : "rotational",
-}))
 
 type GroupType = (typeof GROUP_TYPES)[number]
 
@@ -31,9 +19,9 @@ export function EditGroupForm({ group, onSuccess, className }: EditGroupFormProp
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [isPending, setIsPending] = useState(false)
-  const [type, setType] = useState<GroupType>(
+  const groupType: GroupType =
     (group.type?.toUpperCase() === "ROTATIONAL" ? "ROTATIONAL" : "EQUALANNUAL") as GroupType
-  )
+  const typeLabelKey = groupType === "EQUALANNUAL" ? "equalAnnual" : "rotational"
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -49,7 +37,7 @@ export function EditGroupForm({ group, onSuccess, className }: EditGroupFormProp
       region: (form.elements.namedItem("region") as HTMLInputElement).value.trim(),
       street: (form.elements.namedItem("street") as HTMLInputElement).value.trim(),
       description: (form.elements.namedItem("description") as HTMLTextAreaElement).value.trim() || undefined,
-      type,
+      type: groupType,
     }
 
     const result = updateGroupSchema.safeParse(rawFormData)
@@ -179,18 +167,13 @@ export function EditGroupForm({ group, onSuccess, className }: EditGroupFormProp
       </div>
       <div className="space-y-2">
         <Label htmlFor="type">{t("groups.type")}</Label>
-        <Select value={type} onValueChange={(v) => setType(v as GroupType)}>
-          <SelectTrigger id="type" aria-invalid={!!fieldErrors.type} className="h-10">
-            <SelectValue placeholder={t("groups.selectType")} />
-          </SelectTrigger>
-          <SelectContent>
-            {GROUP_TYPE_OPTIONS.map(({ value, labelKey }) => (
-              <SelectItem key={value} value={value}>
-                {t(`groups.${labelKey}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div
+          id="type"
+          className="flex h-10 w-full items-center rounded-md border border-input bg-muted/50 px-3 text-sm text-foreground"
+          aria-readonly="true"
+        >
+          {t(`groups.${typeLabelKey}`)}
+        </div>
         {fieldErrors.type && (
           <p className="text-sm text-destructive">{fieldErrors.type}</p>
         )}

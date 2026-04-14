@@ -9,27 +9,8 @@ import { PageHeader } from "@/components/shared/page-header"
 import { SummaryCard } from "@/components/shared/summary-card"
 import { EmptyState } from "@/components/shared/empty-state"
 import { ContentContainer } from "@/components/shared/content-container"
-
-function formatAmount(amount: number | string) {
-  return new Intl.NumberFormat("en-TZ", {
-    style: "currency",
-    currency: "TZS",
-    minimumFractionDigits: 0,
-  }).format(Number(amount))
-}
-
-function formatDate(dateStr: string) {
-  try {
-    return new Date(dateStr).toLocaleDateString("en-TZ", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
-  } catch {
-    return dateStr
-  }
-}
+import { formatAmount } from "@/utils/global/formatAmount"
+import { formatDate } from "@/utils/global/formatDate"
 
 interface FundDisbursement {
   id: number

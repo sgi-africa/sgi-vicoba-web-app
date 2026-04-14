@@ -1,4 +1,5 @@
 import z, { object, string } from "zod"
+import { isValidPhoneNumber } from "libphonenumber-js/min"
 
 export const signInSchema = object({
   email: string({ error: "Email is required" })
@@ -22,7 +23,10 @@ export const registerSchema = object({
     .email("Please enter a valid email address"),
   phone: string()
     .optional()
-    .refine((val) => !val || val.length > 0, "Please enter a valid phone number"),
+    .refine(
+      (val) => val == null || val === "" || isValidPhoneNumber(val),
+      "Please enter a valid phone number"
+    ),
   password: string({ error: "Password is required" })
     .min(8, "Password must be at least 8 characters")
     .max(32, "Password must be less than 32 characters"),
@@ -56,7 +60,12 @@ export const ADD_MEMBER_TITLES = [
 export const addMemberSchema = object({
   firstName: string().min(1, "First name is required").max(50),
   lastName: string().min(1, "Last name is required").max(50),
-  phone: string().min(1, "Phone is required"),
+  phone: string()
+    .min(1, "Phone is required")
+    .refine(
+      (val) => isValidPhoneNumber(val),
+      "Enter a valid international phone number (e.g. +255712345678)"
+    ),
   title: z.enum(ADD_MEMBER_TITLES, {
     message: "Title is required",
   }),
@@ -96,6 +105,61 @@ export const updateGroupSchema = object({
 })
 
 export type UpdateGroupFormValues = z.infer<typeof updateGroupSchema>
+
+export const updateMeSchema = object({
+  firstName: string({ error: "First name is required" })
+    .min(1, "First name is required")
+    .max(50, "First name must be less than 50 characters"),
+  lastName: string({ error: "Last name is required" })
+    .min(1, "Last name is required")
+    .max(50, "Last name must be less than 50 characters"),
+  email: string({ error: "Email is required" })
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+  phone: string()
+    .min(1, "Phone is required")
+    .refine(
+      (val) => isValidPhoneNumber(val),
+      "Enter a valid international phone number (e.g. +255712345678)"
+    ),
+  currentPassword: string().optional(),
+  password: string().optional(),
+}).superRefine((data, ctx) => {
+  const newPwd = data.password?.trim() ?? ""
+  const curPwd = data.currentPassword?.trim() ?? ""
+
+  if (newPwd.length > 0) {
+    if (curPwd.length === 0) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Current password is required to set a new password",
+        path: ["currentPassword"],
+      })
+    }
+    if (newPwd.length < 8) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Password must be at least 8 characters",
+        path: ["password"],
+      })
+    }
+    if (newPwd.length > 32) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Password must be less than 32 characters",
+        path: ["password"],
+      })
+    }
+  } else if (curPwd.length > 0) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Enter a new password or clear the current password field",
+      path: ["password"],
+    })
+  }
+})
+
+export type UpdateMeFormValues = z.infer<typeof updateMeSchema>
 
 export const CONTRIBUTION_TYPES = ["SAVINGS", "JAMII", "PENALTY"] as const
 

@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import "react-phone-number-input/style.css"
+import PhoneInput from "react-phone-number-input"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
@@ -30,6 +32,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [isPending, setIsPending] = useState(false)
   const [title, setTitle] = useState<MemberRole | "">("")
+  const [phone, setPhone] = useState<string | undefined>(undefined)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -40,11 +43,10 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
     const form = e.currentTarget
     const firstName = (form.elements.namedItem("firstName") as HTMLInputElement).value
     const lastName = (form.elements.namedItem("lastName") as HTMLInputElement).value
-    const phone = (form.elements.namedItem("phone") as HTMLInputElement).value
     const fileInput = form.elements.namedItem("file") as HTMLInputElement | null
     const file = fileInput?.files?.[0]
 
-    const rawFormData = { firstName, lastName, phone, title, file }
+    const rawFormData = { firstName, lastName, phone: phone ?? "", title, file }
     const result = addMemberSchema.safeParse(rawFormData)
 
     if (!result.success) {
@@ -119,11 +121,14 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
       </div>
       <div className="grid gap-2">
         <Label htmlFor="phone">{t("members.phone")}</Label>
-        <Input
+        <PhoneInput
+          international
+          defaultCountry="TZ"
+          value={phone}
+          onChange={setPhone}
+          placeholder="e.g. 712 345 678"
           id="phone"
-          name="phone"
-          type="tel"
-          placeholder="e.g. +255712345678"
+          className="phone-input-wrapper"
           aria-invalid={!!fieldErrors.phone}
         />
         {fieldErrors.phone && (

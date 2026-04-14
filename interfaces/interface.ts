@@ -6,6 +6,10 @@ export interface MemberUser {
     email: string | null;
 }
 
+export interface AuthMeResponse {
+    user: MemberUser;
+}
+
 export interface Member {
     id: number;
     userId: number;
@@ -232,6 +236,12 @@ export interface EditGroupFormProps {
     className?: string
 }
 
+export interface EditProfileFormProps {
+    member: MemberUser
+    onSuccess?: (updated: MemberUser) => void
+    className?: string
+}
+
 export interface ContentContainerProps {
     children: React.ReactNode
     className?: string
@@ -277,4 +287,9 @@ export interface LoanRepaymentSummary {
 export type ResetPasswordPayload = {
     token: string
     password: string
+}
+
+export interface LocalizedProfileUpdateError {
+    message: string
+    fieldErrors: Record<string, string>
 }

@@ -4,13 +4,7 @@ import { useState, useEffect, useMemo } from "react"
 import { Plus, Wallet, Download, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAppSelector } from "@/hooks/redux"
 import { getContributions } from "./_action"
@@ -27,37 +21,9 @@ import { EmptyState } from "@/components/shared/empty-state"
 import { SearchInput } from "@/components/shared/search-input"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { ContentContainer } from "@/components/shared/content-container"
-
-function formatAmount(amount: number | string) {
-  return new Intl.NumberFormat("en-TZ", {
-    style: "currency",
-    currency: "TZS",
-    minimumFractionDigits: 0,
-  }).format(Number(amount))
-}
-
-function formatDate(dateStr: string) {
-  try {
-    return new Date(dateStr).toLocaleDateString()
-  } catch {
-    return dateStr
-  }
-}
-
-function getMemberName(contribution: Contribution, unknownLabel: string): string {
-  if (contribution.user) {
-    return `${contribution.user.firstName} ${contribution.user.lastName}`
-  }
-  return unknownLabel
-}
-
-function matchesSearch(contribution: Contribution, query: string, unknownLabel: string): boolean {
-  if (!query.trim()) return true
-  const q = query.trim().toLowerCase()
-  const name = getMemberName(contribution, unknownLabel).toLowerCase()
-  const type = (contribution.type === "SAVINGS" ? "savings" : "jamii").toLowerCase()
-  return name.includes(q) || type.includes(q)
-}
+import { formatAmount } from "@/utils/global/formatAmount"
+import { getMemberName, matchesSearch } from "@/utils/contributions/contribution"
+import { formatDate } from "@/utils/global/formatDate"
 
 export default function ContributionsPage() {
   const { t } = useTranslation()

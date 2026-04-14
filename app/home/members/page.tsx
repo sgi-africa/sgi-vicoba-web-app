@@ -4,13 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Plus, Users, Download, Loader2, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAppSelector } from "@/hooks/redux";
 import { AddMemberForm } from "@/components/members/add-member-form";
@@ -23,35 +17,9 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { SearchInput } from "@/components/shared/search-input";
 import { ContentContainer } from "@/components/shared/content-container";
+import { toE164Phone } from "@/lib/phone";
+import { getRoleLabel, getRoleBadgeClassName, matchesSearch } from "@/utils/members/members";
 
-const MEMBER_ROLE_KEYS = ["chairperson", "treasurer", "secretary", "member"] as const;
-
-function getRoleLabel(value: string, t: (key: string) => string) {
-  const v = value?.toLowerCase();
-  const key = MEMBER_ROLE_KEYS.find((r) => r === v);
-  return key ? t(`members.${key}`) : value;
-}
-
-function getRoleBadgeClassName(role: string) {
-  switch (role?.toLowerCase()) {
-    case "chairperson":
-      return "bg-violet-500/10 text-violet-700 dark:text-violet-300 ring-violet-500/20";
-    case "treasurer":
-      return "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 ring-emerald-500/20";
-    case "secretary":
-      return "bg-sky-500/10 text-sky-700 dark:text-sky-300 ring-sky-500/20";
-    default:
-      return "bg-muted text-muted-foreground ring-border/50";
-  }
-}
-
-function matchesSearch(member: Member, query: string): boolean {
-  if (!query.trim()) return true;
-  const q = query.trim().toLowerCase();
-  const fullName = `${member.user.firstName} ${member.user.lastName}`.toLowerCase();
-  const phone = (member.user.phone ?? "").toLowerCase();
-  return fullName.includes(q) || phone.includes(q);
-}
 
 export default function MembersPageClient() {
   const { t } = useTranslation();
@@ -85,8 +53,15 @@ export default function MembersPageClient() {
 
   async function handleSendCredentials(member: Member) {
     if (!groupId) return;
-    if (!member.user.phone) {
+    const rawPhone = member.user.phone?.trim();
+    if (!rawPhone) {
       toast.error(t("members.sendCredentialsNoPhone"));
+      return;
+    }
+
+    const phoneE164 = toE164Phone(rawPhone);
+    if (!phoneE164) {
+      toast.error(t("members.sendCredentialsInvalidPhone"));
       return;
     }
 
@@ -95,7 +70,7 @@ export default function MembersPageClient() {
     const formData = new FormData();
     formData.append("firstName", member.user.firstName);
     formData.append("lastName", member.user.lastName);
-    formData.append("phone", member.user.phone);
+    formData.append("phone", phoneE164);
     formData.append("title", (member.title ?? "").toString().toUpperCase());
 
     try {

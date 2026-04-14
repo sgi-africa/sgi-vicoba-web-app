@@ -145,6 +145,7 @@
     "penaltyAdded": "Penalty added successfully",
     "groupCreated": "Group created successfully",
     "groupSettingsUpdated": "Group settings updated successfully",
+    "profileUpdated": "Profile updated successfully",
     "loggedOut": "Logged Out Successfully"
   },
   "common": {
@@ -254,7 +255,8 @@
     "addMemberButton": "Add member",
     "sendCredentials": "Invite",
     "sendingCredentials": "Sending…",
-    "sendCredentialsNoPhone": "This member has no phone number"
+    "sendCredentialsNoPhone": "This member has no phone number",
+    "sendCredentialsInvalidPhone": "This member’s phone number is not valid. Update it to an international number (e.g. +255…) before inviting."
   },
   "contributions": {
     "title": "Contribution Ledger",
@@ -383,6 +385,16 @@
   "settings": {
     "title": "Settings",
     "manageGroupSettings": "Manage your group settings and preferences",
+    "profileTitle": "Your profile",
+    "profileDescription": "Update your name, contact details, and optionally your password",
+    "profileLoadError": "Could not load your profile. Please try again later.",
+    "passwordChangeHint": "Leave both password fields empty to keep your current password. To change it, enter your current password and a new one.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "profileUpdateFailed": "Could not update your profile. Try again.",
+    "wrongCurrentPassword": "Current password is incorrect",
+    "emailAlreadyInUse": "Email is already in use",
+    "phoneAlreadyInUse": "Phone is already in use",
     "groupInfo": "Group info",
     "overviewReadOnly": "Overview of your group (read-only)",
     "members": "Members",
