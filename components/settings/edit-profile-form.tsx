@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useTranslation } from "react-i18next"
+import "react-phone-number-input/style.css"
+import PhoneInput from "react-phone-number-input"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -27,6 +29,11 @@ export function EditProfileForm({ member, onSuccess, className }: EditProfileFor
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [isPending, setIsPending] = useState(false)
+  const [phone, setPhone] = useState<string | undefined>(() => member.phone || undefined)
+
+  useEffect(() => {
+    setPhone(member.phone || undefined)
+  }, [member.id, member.phone])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -42,7 +49,7 @@ export function EditProfileForm({ member, onSuccess, className }: EditProfileFor
       firstName: (form.elements.namedItem("firstName") as HTMLInputElement).value.trim(),
       lastName: (form.elements.namedItem("lastName") as HTMLInputElement).value.trim(),
       email: (form.elements.namedItem("email") as HTMLInputElement).value.trim(),
-      phone: (form.elements.namedItem("phone") as HTMLInputElement).value.trim(),
+      phone: (phone ?? "").trim(),
       currentPassword: currentPasswordRaw || undefined,
       password: passwordRaw || undefined,
     }
@@ -68,7 +75,7 @@ export function EditProfileForm({ member, onSuccess, className }: EditProfileFor
         ;(form.elements.namedItem("firstName") as HTMLInputElement).value = updated.firstName
         ;(form.elements.namedItem("lastName") as HTMLInputElement).value = updated.lastName
         ;(form.elements.namedItem("email") as HTMLInputElement).value = updated.email ?? ""
-        ;(form.elements.namedItem("phone") as HTMLInputElement).value = updated.phone
+        setPhone(updated.phone || undefined)
         ;(form.elements.namedItem("currentPassword") as HTMLInputElement).value = ""
         ;(form.elements.namedItem("password") as HTMLInputElement).value = ""
       } else {
@@ -145,14 +152,15 @@ export function EditProfileForm({ member, onSuccess, className }: EditProfileFor
       </div>
       <div className="space-y-2">
         <Label htmlFor="profile-phone">{t("auth.phoneNumber")}</Label>
-        <Input
+        <PhoneInput
+          international
+          defaultCountry="TZ"
+          value={phone}
+          onChange={setPhone}
+          placeholder="e.g. 712 345 678"
           id="profile-phone"
-          name="phone"
-          type="tel"
-          defaultValue={member.phone}
-          autoComplete="tel"
+          className="phone-input-wrapper"
           aria-invalid={!!fieldErrors.phone}
-          className="h-10"
         />
         {fieldErrors.phone && (
           <p className="text-sm text-destructive">{fieldErrors.phone}</p>
