@@ -1,9 +1,13 @@
 'use server'
 
+import axios from "axios"
 import { api } from "@/lib/api"
 import { auth } from "@/auth"
 import { AuthMeResponse, GroupResponse, MemberUser } from "@/interfaces/interface"
+import { getAxiosErrorUserMessage } from "@/lib/getAxiosErrorMessage"
 import { UpdateGroupFormValues, UpdateMeFormValues } from "@/lib/zod"
+
+export type UpdateMeResult = | { ok: true; user: MemberUser } | { ok: false; message: string }
 
 export async function getGroup(groupId: number): Promise<GroupResponse | null> {
     const session = await auth();
@@ -79,11 +83,11 @@ export async function getMe(): Promise<MemberUser | null> {
     }
 }
 
-export async function updateMe(data: UpdateMeFormValues): Promise<MemberUser | null> {
+export async function updateMe(data: UpdateMeFormValues): Promise<UpdateMeResult> {
     const session = await auth();
 
     if (!session?.user.accessToken) {
-        throw new Error("Not authenticated");
+        return { ok: false, message: "Not authenticated. Please sign in again." };
     }
 
     const newPassword = data.password?.trim() ?? ""
@@ -108,9 +112,22 @@ export async function updateMe(data: UpdateMeFormValues): Promise<MemberUser | n
             },
         });
 
-        return response.data?.user ?? null;
+        const user = response.data?.user ?? null;
+        if (!user) {
+            return { ok: false, message: "Profile update failed" };
+        }
+        return { ok: true, user };
     } catch (error) {
         console.error("Me update error:", error);
-        throw error;
+
+        if (axios.isAxiosError(error)) {
+            const msg = getAxiosErrorUserMessage(error) || "Profile update failed";
+            return { ok: false, message: msg };
+        }
+
+        return {
+            ok: false,
+            message: error instanceof Error ? error.message : "Profile update failed",
+        };
     }
 }

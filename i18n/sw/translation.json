@@ -392,6 +392,7 @@
     "currentPassword": "Nenosiri la sasa",
     "newPassword": "Nenosiri jipya",
     "profileUpdateFailed": "Imeshindikana kusasisha wasifu. Jaribu tena.",
+    "wrongCurrentPassword": "Nenosiri la sasa si sahihi",
     "groupInfo": "Taarifa za kikundi",
     "overviewReadOnly": "Muhtasari wa kikundi chako (soma tu)",
     "members": "Wanachama",

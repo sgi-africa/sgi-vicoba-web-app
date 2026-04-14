@@ -392,6 +392,7 @@
     "currentPassword": "Current password",
     "newPassword": "New password",
     "profileUpdateFailed": "Could not update your profile. Try again.",
+    "wrongCurrentPassword": "Current password is incorrect",
     "groupInfo": "Group info",
     "overviewReadOnly": "Overview of your group (read-only)",
     "members": "Members",

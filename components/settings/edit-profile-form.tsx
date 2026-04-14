@@ -11,6 +11,17 @@ import { EditProfileFormProps } from "@/interfaces/interface"
 import { cn } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
 
+/** Backend returns this in English; map to i18n when the locale is not English. */
+const WRONG_CURRENT_PASSWORD_EN = /^current password is incorrect\.?$/i
+
+function localizeProfileApiMessage(message: string, translate: (key: string) => string): string {
+  const trimmed = message.trim()
+  if (WRONG_CURRENT_PASSWORD_EN.test(trimmed)) {
+    return translate("settings.wrongCurrentPassword")
+  }
+  return trimmed
+}
+
 export function EditProfileForm({ member, onSuccess, className }: EditProfileFormProps) {
   const { t } = useTranslation()
   const [error, setError] = useState<string | null>(null)
@@ -50,8 +61,9 @@ export function EditProfileForm({ member, onSuccess, className }: EditProfileFor
     }
 
     try {
-      const updated = await updateMe(result.data)
-      if (updated) {
+      const updateResult = await updateMe(result.data)
+      if (updateResult.ok) {
+        const updated = updateResult.user
         onSuccess?.(updated)
         ;(form.elements.namedItem("firstName") as HTMLInputElement).value = updated.firstName
         ;(form.elements.namedItem("lastName") as HTMLInputElement).value = updated.lastName
@@ -59,16 +71,21 @@ export function EditProfileForm({ member, onSuccess, className }: EditProfileFor
         ;(form.elements.namedItem("phone") as HTMLInputElement).value = updated.phone
         ;(form.elements.namedItem("currentPassword") as HTMLInputElement).value = ""
         ;(form.elements.namedItem("password") as HTMLInputElement).value = ""
+      } else {
+        const attemptedPasswordChange = Boolean(passwordRaw)
+        const message =
+          localizeProfileApiMessage(
+            updateResult.message.trim() || t("settings.profileUpdateFailed"),
+            t
+          )
+        const fieldErrs: Record<string, string> = {}
+        if (attemptedPasswordChange) {
+          fieldErrs.currentPassword = message
+        }
+
+        setFieldErrors((prev) => ({ ...prev, ...fieldErrs }))
+        setError(message)
       }
-    } catch (err: unknown) {
-      let message = t("settings.profileUpdateFailed")
-      if (err && typeof err === "object" && "response" in err) {
-        const res = (err as { response?: { data?: { message?: string } } }).response
-        message = res?.data?.message ?? message
-      } else if (err instanceof Error) {
-        message = err.message
-      }
-      setError(message)
     } finally {
       setIsPending(false)
     }
