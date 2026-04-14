@@ -274,7 +274,9 @@
     "selectPenaltyToPay": "Select penalty to pay",
     "pleaseSelectPenalty": "Please select a penalty to pay",
     "amountTzs": "Amount (TZS)",
-    "addContributionButton": "Add contribution"
+    "addContributionButton": "Add contribution",
+    "addContributionFailed": "Could not add this contribution. Try again.",
+    "penaltyAmountMismatch": "Contribution amount ({{contribution}}) must match penalty amount ({{penalty}})"
   },
   "loans": {
     "title": "Loans",

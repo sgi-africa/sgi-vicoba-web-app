@@ -2,20 +2,12 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import type { TFunction } from "i18next"
 import { Button } from "@/components/ui/button"
-import {
-  DialogClose,
-  DialogFooter,
-} from "@/components/ui/dialog"
+import { DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { addContribution } from "@/app/home/contributions/_action"
 import { addContributionSchema, CONTRIBUTION_TYPES } from "@/lib/zod"
 import { Member, Penalty } from "@/interfaces/interface"
@@ -39,6 +31,32 @@ export interface AddContributionFormProps {
 
 const PENDING_STATUSES = ["PENDING", "UNPAID"]
 
+/** Nest-style message when paying a penalty with the wrong amount. */
+const PENALTY_AMOUNT_MISMATCH_EN =
+  /^Contribution amount \((\d+(?:\.\d+)?)\) must match penalty amount \((\d+(?:\.\d+)?)\)\.?$/i
+
+type LocalizedContributionError = {
+  message: string
+  fieldErrors: Record<string, string>
+}
+
+function localizeContributionApiError(
+  rawMessage: string,
+  t: TFunction
+): LocalizedContributionError {
+  const trimmed = rawMessage.trim()
+  const match = trimmed.match(PENALTY_AMOUNT_MISMATCH_EN)
+  if (match) {
+    const [, contribution, penalty] = match
+    const msg = t("contributions.penaltyAmountMismatch", {
+      contribution,
+      penalty,
+    })
+    return { message: msg, fieldErrors: { amount: msg } }
+  }
+  return { message: trimmed, fieldErrors: {} }
+}
+
 export function AddContributionForm({
   groupId,
   members,
@@ -59,8 +77,8 @@ export function AddContributionForm({
     () =>
       type === "PENALTY" && userId
         ? penalties.filter(
-            (p) => p.userId === Number(userId) && PENDING_STATUSES.includes(p.status?.toUpperCase?.() ?? "")
-          )
+          (p) => p.userId === Number(userId) && PENDING_STATUSES.includes(p.status?.toUpperCase?.() ?? "")
+        )
         : [],
     [type, userId, penalties]
   )
@@ -108,27 +126,28 @@ export function AddContributionForm({
     }
 
     try {
-      await addContribution(groupId, {
+      const submitResult = await addContribution(groupId, {
         userId: result.data.userId,
         amount: result.data.amount,
         type: result.data.type,
         penaltyId: result.data.penaltyId,
       })
-      setUserId("")
-      setType("")
-      setPenaltyId("")
-      setAmount("")
-      onSuccess?.()
-      onClose()
-    } catch (err: unknown) {
-      let message = "Failed to add contribution"
-      if (err && typeof err === "object" && "response" in err) {
-        const res = (err as { response?: { data?: { message?: string } } }).response
-        message = res?.data?.message ?? message
-      } else if (err instanceof Error) {
-        message = err.message
+
+      if (submitResult.ok) {
+        setUserId("")
+        setType("")
+        setPenaltyId("")
+        setAmount("")
+        onSuccess?.()
+        onClose()
+      } else {
+        const raw =
+          submitResult.message.trim() || t("contributions.addContributionFailed")
+        const { message, fieldErrors: apiFieldErrors } =
+          localizeContributionApiError(raw, t)
+        setFieldErrors((prev) => ({ ...prev, ...apiFieldErrors }))
+        setError(message)
       }
-      setError(message)
     } finally {
       setIsPending(false)
     }
