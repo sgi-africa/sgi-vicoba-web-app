@@ -184,7 +184,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
           <SummaryCard
             icon={TrendingUp}
             label={t("dashboard.totalGroupAssets")}
-            value=""
+            value=" Tsh 0"
           />
           <SummaryCard
             icon={Landmark}
