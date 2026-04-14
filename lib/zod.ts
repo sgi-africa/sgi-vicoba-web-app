@@ -106,6 +106,61 @@ export const updateGroupSchema = object({
 
 export type UpdateGroupFormValues = z.infer<typeof updateGroupSchema>
 
+export const updateMeSchema = object({
+  firstName: string({ error: "First name is required" })
+    .min(1, "First name is required")
+    .max(50, "First name must be less than 50 characters"),
+  lastName: string({ error: "Last name is required" })
+    .min(1, "Last name is required")
+    .max(50, "Last name must be less than 50 characters"),
+  email: string({ error: "Email is required" })
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+  phone: string()
+    .min(1, "Phone is required")
+    .refine(
+      (val) => isValidPhoneNumber(val),
+      "Enter a valid international phone number (e.g. +255712345678)"
+    ),
+  currentPassword: string().optional(),
+  password: string().optional(),
+}).superRefine((data, ctx) => {
+  const newPwd = data.password?.trim() ?? ""
+  const curPwd = data.currentPassword?.trim() ?? ""
+
+  if (newPwd.length > 0) {
+    if (curPwd.length === 0) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Current password is required to set a new password",
+        path: ["currentPassword"],
+      })
+    }
+    if (newPwd.length < 8) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Password must be at least 8 characters",
+        path: ["password"],
+      })
+    }
+    if (newPwd.length > 32) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Password must be less than 32 characters",
+        path: ["password"],
+      })
+    }
+  } else if (curPwd.length > 0) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Enter a new password or clear the current password field",
+      path: ["password"],
+    })
+  }
+})
+
+export type UpdateMeFormValues = z.infer<typeof updateMeSchema>
+
 export const CONTRIBUTION_TYPES = ["SAVINGS", "JAMII", "PENALTY"] as const
 
 export const addContributionSchema = object({

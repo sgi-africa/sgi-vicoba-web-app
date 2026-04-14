@@ -6,6 +6,10 @@ export interface MemberUser {
     email: string | null;
 }
 
+export interface AuthMeResponse {
+    user: MemberUser;
+}
+
 export interface Member {
     id: number;
     userId: number;
@@ -229,6 +233,12 @@ export interface GroupMeetingsResponse {
 export interface EditGroupFormProps {
     group: GroupResponse
     onSuccess?: (updatedGroup: GroupResponse) => void
+    className?: string
+}
+
+export interface EditProfileFormProps {
+    member: MemberUser
+    onSuccess?: (updated: MemberUser) => void
     className?: string
 }
 

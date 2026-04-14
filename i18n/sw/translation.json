@@ -145,6 +145,7 @@
     "penaltyAdded": "Adhabu imeongezwa kwa mafanikio",
     "groupCreated": "Kikundi kimeundwa kwa mafanikio",
     "groupSettingsUpdated": "Mipangilio ya kikundi imesasishwa kwa mafanikio",
+    "profileUpdated": "Wasifu umesasishwa kwa mafanikio",
     "loggedOut": "Umetoka kwa mafanikio"
   },
   "common": {
@@ -384,6 +385,13 @@
   "settings": {
     "title": "Mipangilio",
     "manageGroupSettings": "Simamia mipangilio na mapendeleo ya kikundi chako",
+    "profileTitle": "Wasifu wako",
+    "profileDescription": "Sasisha jina, mawasiliano na nenosiri (hiari)",
+    "profileLoadError": "Imeshindikana kupakia wasifu wako. Tafadhali jaribu tena baadaye.",
+    "passwordChangeHint": "Acha sehemu za nenosiri tupu ili kubaki na nenosiri lako la sasa. Kubadilisha, ingiza nenosiri la sasa na jipya.",
+    "currentPassword": "Nenosiri la sasa",
+    "newPassword": "Nenosiri jipya",
+    "profileUpdateFailed": "Imeshindikana kusasisha wasifu. Jaribu tena.",
     "groupInfo": "Taarifa za kikundi",
     "overviewReadOnly": "Muhtasari wa kikundi chako (soma tu)",
     "members": "Wanachama",

@@ -145,6 +145,7 @@
     "penaltyAdded": "Penalty added successfully",
     "groupCreated": "Group created successfully",
     "groupSettingsUpdated": "Group settings updated successfully",
+    "profileUpdated": "Profile updated successfully",
     "loggedOut": "Logged Out Successfully"
   },
   "common": {
@@ -384,6 +385,13 @@
   "settings": {
     "title": "Settings",
     "manageGroupSettings": "Manage your group settings and preferences",
+    "profileTitle": "Your profile",
+    "profileDescription": "Update your name, contact details, and optionally your password",
+    "profileLoadError": "Could not load your profile. Please try again later.",
+    "passwordChangeHint": "Leave both password fields empty to keep your current password. To change it, enter your current password and a new one.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "profileUpdateFailed": "Could not update your profile. Try again.",
     "groupInfo": "Group info",
     "overviewReadOnly": "Overview of your group (read-only)",
     "members": "Members",
