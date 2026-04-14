@@ -4,13 +4,7 @@ import { useState, useEffect, useMemo } from "react"
 import { Plus, HandCoins, Download, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAppSelector } from "@/hooks/redux"
 import { getMembers } from "@/app/home/members/_action"
@@ -27,61 +21,10 @@ import { EmptyState } from "@/components/shared/empty-state"
 import { SearchInput } from "@/components/shared/search-input"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { ContentContainer } from "@/components/shared/content-container"
+import { formatAmount } from "@/utils/global/formatAmount"
+import { formatDate } from "@/utils/global/formatDate"
+import { getStatusVariant, matchesSearch, getLoanRemaining, getTotalRepaidOnLoan } from "@/utils/loans/loan"
 
-function formatAmount(amount: number | string) {
-  return new Intl.NumberFormat("en-TZ", {
-    style: "currency",
-    currency: "TZS",
-    minimumFractionDigits: 0,
-  }).format(Number(amount))
-}
-
-function formatDate(dateStr: string) {
-  try {
-    return new Date(dateStr).toLocaleDateString()
-  } catch {
-    return dateStr
-  }
-}
-
-function getStatusVariant(status: LoanRequest["status"]): "success" | "warning" | "error" {
-  switch (status) {
-    case "PAID": return "success"
-    case "PENDING": return "warning"
-    case "OVERDUE": return "error"
-    default: return "warning"
-  }
-}
-
-function matchesSearch(loan: LoanRequest, query: string): boolean {
-  if (!query.trim()) return true
-  const q = query.trim().toLowerCase()
-  const name = `${loan.requester.firstName} ${loan.requester.lastName}`.toLowerCase()
-  const status = loan.status.toLowerCase()
-  return name.includes(q) || status.includes(q)
-}
-
-/** Uses `loan.remaining` from API, or totalRepayment − sum(repayments) */
-function getLoanRemaining(loan: LoanRequest): number {
-  if (typeof loan.remaining === "number" && !Number.isNaN(loan.remaining)) {
-    return loan.remaining
-  }
-  const total = Number(loan.totalRepayment)
-  const paid =
-    loan.repayments?.reduce((sum, r) => sum + Number(r.amount), 0) ?? 0
-  return Math.max(0, total - paid)
-}
-
-/** Total repaid on a loan (installments); uses `repayments` when present */
-function getTotalRepaidOnLoan(loan: LoanRequest): number {
-  if (loan.repayments?.length) {
-    return loan.repayments.reduce((sum, r) => sum + Number(r.amount), 0)
-  }
-  if (loan.status === "PAID") {
-    return Number(loan.totalRepayment)
-  }
-  return Math.max(0, Number(loan.totalRepayment) - getLoanRemaining(loan))
-}
 
 export default function LoansPage() {
   const { t } = useTranslation()
@@ -292,71 +235,71 @@ export default function LoansPage() {
         ) : (
           <div className="space-y-2">
             {filteredLoans.map((loan) => (
-                <Card
-                  key={loan.id}
-                  className="shadow-sm border-border/60 transition-all hover:shadow-md hover:border-border"
-                >
-                  <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium">
-                        {`${loan.requester.firstName} ${loan.requester.lastName}`
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .slice(0, 2)
-                          .toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">
-                          {loan.requester.firstName} {loan.requester.lastName}
+              <Card
+                key={loan.id}
+                className="shadow-sm border-border/60 transition-all hover:shadow-md hover:border-border"
+              >
+                <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium">
+                      {`${loan.requester.firstName} ${loan.requester.lastName}`
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .slice(0, 2)
+                        .toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {loan.requester.firstName} {loan.requester.lastName}
+                      </p>
+                      <div className="block space-y-0.5 text-sm text-muted-foreground">
+                        <p>
+                          {t("loans.requestedLabel")} -{" "}
+                          {formatDate(loan.createdAt)}
                         </p>
-                        <div className="block space-y-0.5 text-sm text-muted-foreground">
-                          <p>
-                            {t("loans.requestedLabel")} -{" "}
-                            {formatDate(loan.createdAt)}
-                          </p>
-                          <p>
-                            {t("loans.dueLabel")} - {formatDate(loan.dueDate)}
-                          </p>
-                        </div>
+                        <p>
+                          {t("loans.dueLabel")} - {formatDate(loan.dueDate)}
+                        </p>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="flex flex-col items-start sm:items-center gap-0.5 sm:min-w-28 sm:flex-1 sm:justify-center">
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {t("loans.remaining")}
-                      </span>
-                      <span className="font-semibold text-foreground tabular-nums">
-                        {formatAmount(getLoanRemaining(loan))}
-                      </span>
-                    </div>
+                  <div className="flex flex-col items-start sm:items-center gap-0.5 sm:min-w-28 sm:flex-1 sm:justify-center">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {t("loans.remaining")}
+                    </span>
+                    <span className="font-semibold text-foreground tabular-nums">
+                      {formatAmount(getLoanRemaining(loan))}
+                    </span>
+                  </div>
 
-                    <div className="flex flex-col items-end gap-2">
-                      <StatusBadge
-                        label={loan.status.toLowerCase()}
-                        variant={getStatusVariant(loan.status)}
-                      />
-                      <span className="font-semibold text-foreground tabular-nums">
-                        {formatAmount(loan.principal)}
-                      </span>
-                      <RepayLoanDialog
-                        loan={loan}
-                        onSuccess={(summary) => {
-                          setLoans((prev) =>
-                            prev.map((l) =>
-                              l.id === summary.loan.id
-                                ? {
-                                    ...summary.loan,
-                                    remaining: summary.remaining,
-                                  }
-                                : l
-                            )
+                  <div className="flex flex-col items-end gap-2">
+                    <StatusBadge
+                      label={loan.status.toLowerCase()}
+                      variant={getStatusVariant(loan.status)}
+                    />
+                    <span className="font-semibold text-foreground tabular-nums">
+                      {formatAmount(loan.principal)}
+                    </span>
+                    <RepayLoanDialog
+                      loan={loan}
+                      onSuccess={(summary) => {
+                        setLoans((prev) =>
+                          prev.map((l) =>
+                            l.id === summary.loan.id
+                              ? {
+                                ...summary.loan,
+                                remaining: summary.remaining,
+                              }
+                              : l
                           )
-                        }}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
+                        )
+                      }}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}
