@@ -274,7 +274,9 @@
     "selectPenaltyToPay": "Chagua adhabu ya kulipa",
     "pleaseSelectPenalty": "Tafadhali chagua adhabu ya kulipa",
     "amountTzs": "Kiasi (TZS)",
-    "addContributionButton": "Ongeza mchango"
+    "addContributionButton": "Ongeza mchango",
+    "addContributionFailed": "Imeshindikana kuongeza mchango huu. Jaribu tena.",
+    "penaltyAmountMismatch": "Kiasi cha mchango ({{contribution}}) lazima kiendane na kiasi cha adhabu ({{penalty}})"
   },
   "loans": {
     "title": "Mikopo",
