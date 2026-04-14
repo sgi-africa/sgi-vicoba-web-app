@@ -393,6 +393,8 @@
     "newPassword": "Nenosiri jipya",
     "profileUpdateFailed": "Imeshindikana kusasisha wasifu. Jaribu tena.",
     "wrongCurrentPassword": "Nenosiri la sasa si sahihi",
+    "emailAlreadyInUse": "Barua pepe hii tayari inatumika",
+    "phoneAlreadyInUse": "Namba hii ya simu tayari inatumika",
     "groupInfo": "Taarifa za kikundi",
     "overviewReadOnly": "Muhtasari wa kikundi chako (soma tu)",
     "members": "Wanachama",

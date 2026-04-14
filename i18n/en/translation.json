@@ -393,6 +393,8 @@
     "newPassword": "New password",
     "profileUpdateFailed": "Could not update your profile. Try again.",
     "wrongCurrentPassword": "Current password is incorrect",
+    "emailAlreadyInUse": "Email is already in use",
+    "phoneAlreadyInUse": "Phone is already in use",
     "groupInfo": "Group info",
     "overviewReadOnly": "Overview of your group (read-only)",
     "members": "Members",

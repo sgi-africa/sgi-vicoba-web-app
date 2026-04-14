@@ -14,8 +14,8 @@ import { toast } from "sonner"
 import { PageHeader } from "@/components/shared/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
 import { ContentContainer } from "@/components/shared/content-container"
-import { formatDate } from "@/utils/formatDate"
-import { formatAmount } from "@/utils/formatAmount"
+import { formatDate } from "@/utils/global/formatDate"
+import { formatAmount } from "@/utils/global/formatAmount"
 
 export default function SettingsPage() {
   const { t } = useTranslation()

@@ -288,3 +288,8 @@ export type ResetPasswordPayload = {
     token: string
     password: string
 }
+
+export interface LocalizedProfileUpdateError {
+    message: string
+    fieldErrors: Record<string, string>
+}

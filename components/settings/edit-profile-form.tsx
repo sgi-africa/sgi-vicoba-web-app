@@ -12,17 +12,7 @@ import { updateMeSchema } from "@/lib/zod"
 import { EditProfileFormProps } from "@/interfaces/interface"
 import { cn } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
-
-/** Backend returns this in English; map to i18n when the locale is not English. */
-const WRONG_CURRENT_PASSWORD_EN = /^current password is incorrect\.?$/i
-
-function localizeProfileApiMessage(message: string, translate: (key: string) => string): string {
-  const trimmed = message.trim()
-  if (WRONG_CURRENT_PASSWORD_EN.test(trimmed)) {
-    return translate("settings.wrongCurrentPassword")
-  }
-  return trimmed
-}
+import { localizeProfileUpdateError } from "@/utils/settings/profileErrorHandler"
 
 export function EditProfileForm({ member, onSuccess, className }: EditProfileFormProps) {
   const { t } = useTranslation()
@@ -72,25 +62,19 @@ export function EditProfileForm({ member, onSuccess, className }: EditProfileFor
       if (updateResult.ok) {
         const updated = updateResult.user
         onSuccess?.(updated)
-        ;(form.elements.namedItem("firstName") as HTMLInputElement).value = updated.firstName
-        ;(form.elements.namedItem("lastName") as HTMLInputElement).value = updated.lastName
-        ;(form.elements.namedItem("email") as HTMLInputElement).value = updated.email ?? ""
+          ; (form.elements.namedItem("firstName") as HTMLInputElement).value = updated.firstName
+          ; (form.elements.namedItem("lastName") as HTMLInputElement).value = updated.lastName
+          ; (form.elements.namedItem("email") as HTMLInputElement).value = updated.email ?? ""
         setPhone(updated.phone || undefined)
-        ;(form.elements.namedItem("currentPassword") as HTMLInputElement).value = ""
-        ;(form.elements.namedItem("password") as HTMLInputElement).value = ""
+          ; (form.elements.namedItem("currentPassword") as HTMLInputElement).value = ""
+          ; (form.elements.namedItem("password") as HTMLInputElement).value = ""
       } else {
-        const attemptedPasswordChange = Boolean(passwordRaw)
-        const message =
-          localizeProfileApiMessage(
-            updateResult.message.trim() || t("settings.profileUpdateFailed"),
-            t
-          )
-        const fieldErrs: Record<string, string> = {}
-        if (attemptedPasswordChange) {
-          fieldErrs.currentPassword = message
-        }
+        const raw =
+          updateResult.message.trim() || t("settings.profileUpdateFailed")
+        const { message, fieldErrors: apiFieldErrors } =
+          localizeProfileUpdateError(raw, t)
 
-        setFieldErrors((prev) => ({ ...prev, ...fieldErrs }))
+        setFieldErrors((prev) => ({ ...prev, ...apiFieldErrors }))
         setError(message)
       }
     } finally {
