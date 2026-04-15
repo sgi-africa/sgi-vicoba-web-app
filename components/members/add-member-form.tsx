@@ -21,6 +21,7 @@ import {
 import { addMember } from "@/app/home/members/_action"
 import { addMemberSchema, ADD_MEMBER_TITLES } from "@/lib/zod"
 import { AddMemberFormProps } from "@/interfaces/interface"
+import { memberTitleRequiresEmail } from "@/utils/members/members"
 import { Loader2 } from "lucide-react"
 
 
@@ -33,6 +34,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
   const [isPending, setIsPending] = useState(false)
   const [title, setTitle] = useState<MemberRole | "">("")
   const [phone, setPhone] = useState<string | undefined>(undefined)
+  const [email, setEmail] = useState("")
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -46,7 +48,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
     const fileInput = form.elements.namedItem("file") as HTMLInputElement | null
     const file = fileInput?.files?.[0]
 
-    const rawFormData = { firstName, lastName, phone: phone ?? "", title, file }
+    const rawFormData = { firstName, lastName, phone: phone ?? "", title, email, file }
     const result = addMemberSchema.safeParse(rawFormData)
 
     if (!result.success) {
@@ -68,6 +70,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
     formData.append("lastName", rest.lastName)
     formData.append("phone", rest.phone)
     formData.append("title", apiTitle)
+    formData.append("email", (rest.email ?? "").trim())
     formData.append("file", fileObj)
 
     try {
@@ -100,7 +103,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
         <Input
           id="firstName"
           name="firstName"
-          placeholder="e.g. John"
+          placeholder={t("members.firstNamePlaceholder")}
           aria-invalid={!!fieldErrors.firstName}
         />
         {fieldErrors.firstName && (
@@ -112,7 +115,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
         <Input
           id="lastName"
           name="lastName"
-          placeholder="e.g. Doe"
+          placeholder={t("members.lastNamePlaceholder")}
           aria-invalid={!!fieldErrors.lastName}
         />
         {fieldErrors.lastName && (
@@ -126,7 +129,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
           defaultCountry="TZ"
           value={phone}
           onChange={setPhone}
-          placeholder="e.g. 712 345 678"
+          placeholder={t("members.phonePlaceholder")}
           id="phone"
           className="phone-input-wrapper"
           aria-invalid={!!fieldErrors.phone}
@@ -137,7 +140,14 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
       </div>
       <div className="grid gap-2">
         <Label htmlFor="title">{t("members.title")}</Label>
-        <Select value={title} onValueChange={(v) => setTitle(v as MemberRole)}>
+        <Select
+          value={title}
+          onValueChange={(v) => {
+            const next = v as MemberRole
+            setTitle(next)
+            if (!memberTitleRequiresEmail(next)) setEmail("")
+          }}
+        >
           <SelectTrigger id="title" aria-invalid={!!fieldErrors.title}>
             <SelectValue placeholder={t("members.selectRole")} />
           </SelectTrigger>
@@ -153,6 +163,23 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
           <p className="text-sm text-destructive">{fieldErrors.title}</p>
         )}
       </div>
+      {memberTitleRequiresEmail(title) && (
+        <div className="grid gap-2">
+          <Label htmlFor="email">{t("members.email")}</Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder={t("members.emailPlaceholder")}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            aria-invalid={!!fieldErrors.email}
+          />
+          {fieldErrors.email && (
+            <p className="text-sm text-destructive">{fieldErrors.email}</p>
+          )}
+        </div>
+      )}
       <div className="grid gap-2">
         <Label htmlFor="file">{t("members.memberDocument")}</Label>
         <Input

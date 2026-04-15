@@ -37,11 +37,17 @@ export default function SettingsPage() {
       return
     }
     let cancelled = false
+    queueMicrotask(() => {
+      if (!cancelled) setIsLoading(true)
+    })
     Promise.all([getGroup(groupId), getMe()])
       .then(([groupData, meData]) => {
         if (!cancelled) {
           setGroup(groupData ?? null)
           setMe(meData ?? null)
+          if (groupData) {
+            dispatch(setActiveGroup(groupData))
+          }
         }
       })
       .finally(() => {
@@ -50,7 +56,7 @@ export default function SettingsPage() {
     return () => {
       cancelled = true
     }
-  }, [groupId])
+  }, [groupId, dispatch])
 
   const handleUpdateSuccess = (updatedGroup: GroupResponse) => {
     setGroup(updatedGroup)
