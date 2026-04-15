@@ -26,6 +26,9 @@ import { Loader2 } from "lucide-react"
 
 type MemberRole = (typeof ADD_MEMBER_TITLES)[number]
 
+const titleRequiresEmail = (title: MemberRole | "") =>
+  title === "treasurer" || title === "chairperson" || title === "secretary"
+
 export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProps) {
   const { t } = useTranslation()
   const [error, setError] = useState<string | null>(null)
@@ -33,6 +36,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
   const [isPending, setIsPending] = useState(false)
   const [title, setTitle] = useState<MemberRole | "">("")
   const [phone, setPhone] = useState<string | undefined>(undefined)
+  const [email, setEmail] = useState("")
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -46,7 +50,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
     const fileInput = form.elements.namedItem("file") as HTMLInputElement | null
     const file = fileInput?.files?.[0]
 
-    const rawFormData = { firstName, lastName, phone: phone ?? "", title, file }
+    const rawFormData = { firstName, lastName, phone: phone ?? "", title, email, file }
     const result = addMemberSchema.safeParse(rawFormData)
 
     if (!result.success) {
@@ -68,6 +72,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
     formData.append("lastName", rest.lastName)
     formData.append("phone", rest.phone)
     formData.append("title", apiTitle)
+    if (rest.email?.trim()) formData.append("email", rest.email.trim())
     formData.append("file", fileObj)
 
     try {
@@ -100,7 +105,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
         <Input
           id="firstName"
           name="firstName"
-          placeholder="e.g. John"
+          placeholder={t("members.firstNamePlaceholder")}
           aria-invalid={!!fieldErrors.firstName}
         />
         {fieldErrors.firstName && (
@@ -112,7 +117,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
         <Input
           id="lastName"
           name="lastName"
-          placeholder="e.g. Doe"
+          placeholder={t("members.lastNamePlaceholder")}
           aria-invalid={!!fieldErrors.lastName}
         />
         {fieldErrors.lastName && (
@@ -126,7 +131,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
           defaultCountry="TZ"
           value={phone}
           onChange={setPhone}
-          placeholder="e.g. 712 345 678"
+          placeholder={t("members.phonePlaceholder")}
           id="phone"
           className="phone-input-wrapper"
           aria-invalid={!!fieldErrors.phone}
@@ -137,7 +142,14 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
       </div>
       <div className="grid gap-2">
         <Label htmlFor="title">{t("members.title")}</Label>
-        <Select value={title} onValueChange={(v) => setTitle(v as MemberRole)}>
+        <Select
+          value={title}
+          onValueChange={(v) => {
+            const next = v as MemberRole
+            setTitle(next)
+            if (!titleRequiresEmail(next)) setEmail("")
+          }}
+        >
           <SelectTrigger id="title" aria-invalid={!!fieldErrors.title}>
             <SelectValue placeholder={t("members.selectRole")} />
           </SelectTrigger>
@@ -153,6 +165,23 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
           <p className="text-sm text-destructive">{fieldErrors.title}</p>
         )}
       </div>
+      {titleRequiresEmail(title) && (
+        <div className="grid gap-2">
+          <Label htmlFor="email">{t("members.email")}</Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder={t("members.emailPlaceholder")}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            aria-invalid={!!fieldErrors.email}
+          />
+          {fieldErrors.email && (
+            <p className="text-sm text-destructive">{fieldErrors.email}</p>
+          )}
+        </div>
+      )}
       <div className="grid gap-2">
         <Label htmlFor="file">{t("members.memberDocument")}</Label>
         <Input

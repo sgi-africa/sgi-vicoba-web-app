@@ -69,9 +69,30 @@ export const addMemberSchema = object({
   title: z.enum(ADD_MEMBER_TITLES, {
     message: "Title is required",
   }),
+  email: string()
+    .trim()
+    .optional()
+    .refine(
+      (val) => val == null || val === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+      "Please enter a valid email address"
+    ),
   file: z.instanceof(File, { message: "File is required" })
     .refine((file) => file.type === "application/pdf", "File must be a PDF")
     .refine((file) => file.size <= 4 * 1024 * 1024, "File must not exceed 4 MB"),
+}).superRefine((data, ctx) => {
+  const needsEmail =
+    data.title === "chairperson" || data.title === "treasurer" || data.title === "secretary"
+
+  if (needsEmail) {
+    const email = (data.email ?? "").trim()
+    if (email.length === 0) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Email is required",
+        path: ["email"],
+      })
+    }
+  }
 })
 
 export type AddMemberFormValues = z.infer<typeof addMemberSchema>
