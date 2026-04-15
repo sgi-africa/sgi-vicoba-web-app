@@ -21,13 +21,11 @@ import {
 import { addMember } from "@/app/home/members/_action"
 import { addMemberSchema, ADD_MEMBER_TITLES } from "@/lib/zod"
 import { AddMemberFormProps } from "@/interfaces/interface"
+import { memberTitleRequiresEmail } from "@/utils/members/members"
 import { Loader2 } from "lucide-react"
 
 
 type MemberRole = (typeof ADD_MEMBER_TITLES)[number]
-
-const titleRequiresEmail = (title: MemberRole | "") =>
-  title === "treasurer" || title === "chairperson" || title === "secretary"
 
 export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProps) {
   const { t } = useTranslation()
@@ -72,7 +70,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
     formData.append("lastName", rest.lastName)
     formData.append("phone", rest.phone)
     formData.append("title", apiTitle)
-    if (rest.email?.trim()) formData.append("email", rest.email.trim())
+    formData.append("email", (rest.email ?? "").trim())
     formData.append("file", fileObj)
 
     try {
@@ -147,7 +145,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
           onValueChange={(v) => {
             const next = v as MemberRole
             setTitle(next)
-            if (!titleRequiresEmail(next)) setEmail("")
+            if (!memberTitleRequiresEmail(next)) setEmail("")
           }}
         >
           <SelectTrigger id="title" aria-invalid={!!fieldErrors.title}>
@@ -165,7 +163,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
           <p className="text-sm text-destructive">{fieldErrors.title}</p>
         )}
       </div>
-      {titleRequiresEmail(title) && (
+      {memberTitleRequiresEmail(title) && (
         <div className="grid gap-2">
           <Label htmlFor="email">{t("members.email")}</Label>
           <Input

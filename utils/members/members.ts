@@ -2,6 +2,18 @@ import { Member } from "@/interfaces/interface";
 
 const MEMBER_ROLE_KEYS = ["chairperson", "treasurer", "secretary", "member"] as const;
 
+/** Leadership titles that require an email for member add / credential flows */
+export function memberTitleRequiresEmail(title: string) {
+    const v = title?.toLowerCase();
+    return v === "chairperson" || v === "treasurer" || v === "secretary";
+}
+
+const SIMPLE_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function isValidEmailAddress(value: string) {
+    return SIMPLE_EMAIL_RE.test(value.trim());
+}
+
 export function getRoleLabel(value: string, t: (key: string) => string) {
     const v = value?.toLowerCase();
     const key = MEMBER_ROLE_KEYS.find((r) => r === v);

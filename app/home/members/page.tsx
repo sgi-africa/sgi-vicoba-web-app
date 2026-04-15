@@ -18,7 +18,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { SearchInput } from "@/components/shared/search-input";
 import { ContentContainer } from "@/components/shared/content-container";
 import { toE164Phone } from "@/lib/phone";
-import { getRoleLabel, getRoleBadgeClassName, matchesSearch } from "@/utils/members/members";
+import { getRoleLabel, getRoleBadgeClassName, isValidEmailAddress, matchesSearch, memberTitleRequiresEmail } from "@/utils/members/members";
 
 
 export default function MembersPageClient() {
@@ -65,6 +65,18 @@ export default function MembersPageClient() {
       return;
     }
 
+    const rawEmail = member.user.email?.trim() ?? "";
+    if (memberTitleRequiresEmail(member.title)) {
+      if (!rawEmail) {
+        toast.error(t("members.sendCredentialsNoEmail"));
+        return;
+      }
+      if (!isValidEmailAddress(rawEmail)) {
+        toast.error(t("members.sendCredentialsInvalidEmail"));
+        return;
+      }
+    }
+
     setSendingCredentialsFor(member.id);
 
     const formData = new FormData();
@@ -72,6 +84,7 @@ export default function MembersPageClient() {
     formData.append("lastName", member.user.lastName);
     formData.append("phone", phoneE164);
     formData.append("title", (member.title ?? "").toString().toUpperCase());
+    formData.append("email", rawEmail);
 
     try {
       await addMember(groupId, formData);

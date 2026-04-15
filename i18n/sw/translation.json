@@ -261,7 +261,9 @@
     "sendCredentials": "Alika",
     "sendingCredentials": "Inatuma…",
     "sendCredentialsNoPhone": "Mwanachama huyu hana namba ya simu",
-    "sendCredentialsInvalidPhone": "Namba ya simu ya mwanachama huyu si halali. Badilisha kuwa namba ya kimataifa (mfano +255…) kabla ya kualika."
+    "sendCredentialsInvalidPhone": "Namba ya simu ya mwanachama huyu si halali. Badilisha kuwa namba ya kimataifa (mfano +255…) kabla ya kualika.",
+    "sendCredentialsNoEmail": "Jukumu hili la uongozi linahitaji anwani ya barua pepe. Ongeza barua pepe kwa mwanachama huyu kabla ya kualika.",
+    "sendCredentialsInvalidEmail": "Barua pepe ya mwanachama huyu si halali. Sahihisha kabla ya kualika."
   },
   "contributions": {
     "title": "Daftari ya Michango",

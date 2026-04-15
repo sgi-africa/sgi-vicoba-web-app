@@ -261,7 +261,9 @@
     "sendCredentials": "Invite",
     "sendingCredentials": "Sending…",
     "sendCredentialsNoPhone": "This member has no phone number",
-    "sendCredentialsInvalidPhone": "This member’s phone number is not valid. Update it to an international number (e.g. +255…) before inviting."
+    "sendCredentialsInvalidPhone": "This member’s phone number is not valid. Update it to an international number (e.g. +255…) before inviting.",
+    "sendCredentialsNoEmail": "This leadership role requires an email address. Add one for this member before inviting.",
+    "sendCredentialsInvalidEmail": "This member’s email address is not valid. Update it before inviting."
   },
   "contributions": {
     "title": "Contribution Ledger",
