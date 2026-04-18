@@ -118,6 +118,9 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
     }
   }, [selectedGroupFromApi?.id])
 
+  const availableCash = Number(selectedGroupFromApi?.totalBalance ?? 0)
+  const totalGroupAssets = availableCash + outstandingLoansTotal
+
   function handleGroupCreated(createdGroup: GroupResponse) {
     dispatch(addGroup(createdGroup))
     dispatch(setActiveGroup(createdGroup))
@@ -145,8 +148,8 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
       startY: 42,
       head: [["Metric", "Value"]],
       body: [
-        [t("dashboard.totalGroupAssets"), formatAmount(selectedGroupFromApi.totalBalance ?? 0)],
-        [t("dashboard.availableCash"), formatAmount(selectedGroupFromApi.totalBalance ?? 0)],
+        [t("dashboard.totalGroupAssets"), formatAmount(totalGroupAssets)],
+        [t("dashboard.availableCash"), formatAmount(availableCash)],
         [t("dashboard.totalMemberSavings"), formatAmount(totalMemberSavings)],
         [t("dashboard.outstandingLoans"), formatAmount(outstandingLoansTotal)],
       ],
@@ -184,12 +187,12 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
           <SummaryCard
             icon={TrendingUp}
             label={t("dashboard.totalGroupAssets")}
-            value=" Tsh 0"
+            value={formatAmount(totalGroupAssets)}
           />
           <SummaryCard
             icon={Landmark}
             label={t("dashboard.availableCash")}
-            value={formatAmount(selectedGroupFromApi?.totalBalance ?? 0)}
+            value={formatAmount(availableCash)}
           />
           <SummaryCard
             icon={PiggyBank}
