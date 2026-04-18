@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "YOUR_APPLE_TEAM_ID.com.sgiafrica.vicoba",
+        "paths": ["/auth/reset-password", "/auth/reset-password/*"]
+      }
+    ]
+  }
+}
