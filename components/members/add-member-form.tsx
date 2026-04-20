@@ -45,10 +45,12 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
     const form = e.currentTarget
     const firstName = (form.elements.namedItem("firstName") as HTMLInputElement).value
     const lastName = (form.elements.namedItem("lastName") as HTMLInputElement).value
-    const fileInput = form.elements.namedItem("file") as HTMLInputElement | null
-    const file = fileInput?.files?.[0]
+    const uploadInput = form.elements.namedItem("upload") as HTMLInputElement | null
+    const upload = uploadInput?.files?.[0]
+    const file = upload?.type === "application/pdf" ? upload : undefined
+    const image = upload?.type?.startsWith("image/") ? upload : undefined
 
-    const rawFormData = { firstName, lastName, phone: phone ?? "", title, email, file }
+    const rawFormData = { firstName, lastName, phone: phone ?? "", title, email, file, image }
     const result = addMemberSchema.safeParse(rawFormData)
 
     if (!result.success) {
@@ -62,7 +64,7 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
       return
     }
 
-    const { title: validatedTitle, file: fileObj, ...rest } = result.data
+    const { title: validatedTitle, file: fileObj, image: imageObj, ...rest } = result.data
     const apiTitle = validatedTitle.toUpperCase() as "CHAIRPERSON" | "TREASURER" | "SECRETARY" | "MEMBER"
 
     const formData = new FormData()
@@ -71,7 +73,8 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
     formData.append("phone", rest.phone)
     formData.append("title", apiTitle)
     formData.append("email", (rest.email ?? "").trim())
-    formData.append("file", fileObj)
+    if (fileObj) formData.append("file", fileObj)
+    if (imageObj) formData.append("image", imageObj)
 
     try {
       await addMember(groupId, formData)
@@ -181,16 +184,18 @@ export function AddMemberForm({ groupId, onSuccess, onClose }: AddMemberFormProp
         </div>
       )}
       <div className="grid gap-2">
-        <Label htmlFor="file">{t("members.memberDocument")}</Label>
+        <Label htmlFor="upload">{t("members.memberUploadLabel")}</Label>
         <Input
-          id="file"
-          name="file"
+          id="upload"
+          name="upload"
           type="file"
-          accept="application/pdf,.pdf"
+          accept="application/pdf,.pdf,image/jpeg,image/png,image/webp,image/heic,image/heif"
           className="cursor-pointer"
+          aria-invalid={!!fieldErrors.file || !!fieldErrors.image}
         />
-        {fieldErrors.file && (
-          <p className="text-sm text-destructive">{fieldErrors.file}</p>
+        <p className="text-sm text-muted-foreground">{t("members.memberUploadHint")}</p>
+        {(fieldErrors.file || fieldErrors.image) && (
+          <p className="text-sm text-destructive">{fieldErrors.file || fieldErrors.image}</p>
         )}
       </div>
       <DialogFooter className="gap-3 sm:gap-3 pt-2">
