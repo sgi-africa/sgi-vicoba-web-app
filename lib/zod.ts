@@ -57,6 +57,14 @@ export const ADD_MEMBER_TITLES = [
   "member",
 ] as const
 
+const ADD_MEMBER_IMAGE_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+] as const
+
 export const addMemberSchema = object({
   firstName: string().min(1, "First name is required").max(50),
   lastName: string().min(1, "Last name is required").max(50),
@@ -76,9 +84,19 @@ export const addMemberSchema = object({
       (val) => val == null || val === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
       "Please enter a valid email address"
     ),
-  file: z.instanceof(File, { message: "File is required" })
-    .refine((file) => file.type === "application/pdf", "File must be a PDF")
-    .refine((file) => file.size <= 4 * 1024 * 1024, "File must not exceed 4 MB"),
+  file: z
+    .instanceof(File)
+    .optional()
+    .refine((file) => !file || file.type === "application/pdf", "File must be a PDF")
+    .refine((file) => !file || file.size <= 4 * 1024 * 1024, "File must not exceed 4 MB"),
+  image: z
+    .instanceof(File)
+    .optional()
+    .refine(
+      (file) => !file || ADD_MEMBER_IMAGE_MIME_TYPES.includes(file.type as (typeof ADD_MEMBER_IMAGE_MIME_TYPES)[number]),
+      "Image must be a JPEG, PNG, WebP, HEIC, or HEIF"
+    )
+    .refine((file) => !file || file.size <= 4 * 1024 * 1024, "Image must not exceed 4 MB"),
 }).superRefine((data, ctx) => {
   const needsEmail =
     data.title === "chairperson" || data.title === "treasurer" || data.title === "secretary"
@@ -92,6 +110,14 @@ export const addMemberSchema = object({
         path: ["email"],
       })
     }
+  }
+
+  if (!data.file && !data.image) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Please upload a PDF document or an image",
+      path: ["file"],
+    })
   }
 })
 
