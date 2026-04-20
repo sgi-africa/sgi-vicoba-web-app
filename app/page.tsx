@@ -1,25 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import {
-  Shield,
-  Lock,
-  Zap,
-  ArrowRight,
-  CheckCircle2,
-  Coins,
-} from "lucide-react"
+import { Shield, Lock, Zap, ArrowRight, CheckCircle2, Coins } from "lucide-react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTranslation } from "react-i18next"
 import LanguageSwitcher from "@/components/global/language-switcher"
+import Image from "next/image"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -82,9 +70,14 @@ export default function Home() {
       >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-dark text-white">
-              <Shield className="size-4" />
-            </div>
+            <Image
+              src="/sgi.svg"
+              alt="SGI VICOBA"
+              width={48}
+              height={48}
+              className="h-9 w-9 sm:h-10 sm:w-10"
+              priority
+            />
             <span className="font-semibold text-foreground tracking-tight">
               {t("header.brand")}
             </span>
@@ -394,7 +387,13 @@ export default function Home() {
               href="/"
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
-              <Shield className="h-4 w-4" />
+              <Image
+                src="/sgi.svg"
+                alt="SGI VICOBA"
+                width={40}
+                height={40}
+                className="h-9 w-9"
+              />
               <span className="text-sm font-medium">{t("footer.brand")}</span>
             </Link>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
