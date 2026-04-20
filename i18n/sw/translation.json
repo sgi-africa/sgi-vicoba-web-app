@@ -380,7 +380,13 @@
     "noPenaltiesYet": "Hakuna adhabu bado",
     "recordFirstPenalty": "Rekodi adhabu yako ya kwanza kwa kubofya kitufe cha \"Ongeza adhabu\" hapo juu.",
     "noMatchSearch": "Hakuna adhabu zinazofanana na utafutaji wako.",
-    "addPenaltyButton": "Ongeza adhabu"
+    "addPenaltyButton": "Ongeza adhabu",
+    "types": {
+      "ABSENT": "Kutohudhuria",
+      "LATE": "Kuchelewa",
+      "MISCONDUCT": "Utovu wa nidhamu",
+      "OTHER": "Nyingine"
+    }
   },
   "funds": {
     "title": "Ugawaji wa Mfuko",

@@ -139,7 +139,7 @@ export function AddPenaltyForm({
                     <SelectContent>
                         {PENALTY_TYPES.map((value) => (
                             <SelectItem key={value} value={value}>
-                                {value.charAt(0) + value.slice(1).toLowerCase()}
+                                {t(`penalties.types.${value}`)}
                             </SelectItem>
                         ))}
                     </SelectContent>
