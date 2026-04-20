@@ -380,7 +380,13 @@
     "noPenaltiesYet": "No penalties yet",
     "recordFirstPenalty": "Record your first penalty by clicking the \"Add penalty\" button above.",
     "noMatchSearch": "No penalties match your search.",
-    "addPenaltyButton": "Add penalty"
+    "addPenaltyButton": "Add penalty",
+    "types": {
+      "ABSENT": "Absent",
+      "LATE": "Late",
+      "MISCONDUCT": "Misconduct",
+      "OTHER": "Other"
+    }
   },
   "funds": {
     "title": "Fund Disbursements",
