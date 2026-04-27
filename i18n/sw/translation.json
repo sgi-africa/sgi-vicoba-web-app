@@ -228,7 +228,7 @@
     "meetings": "Mikutano",
     "members": "Wanachama",
     "noGroupsYet": "Hakuna vikundi bado",
-    "createFirstGroup": "Undwa kikundi chako cha kwanza ili kufikia michango, mikopo, mikutano na wanachama."
+    "createFirstGroup": "Unda kikundi chako cha kwanza ili kufikia michango, mikopo, mikutano na wanachama."
   },
   "members": {
     "title": "Sajili ya Wanachama",
@@ -424,18 +424,22 @@
     "saving": "Inahifadhi…"
   },
   "groups": {
-    "createGroup": "Undwa kikundi",
-    "createNewGroup": "Undwa kikundi kipya",
+    "createGroup": "Unda kikundi",
+    "createNewGroup": "Unda kikundi kipya",
     "groupName": "Jina la kikundi",
     "country": "Nchi",
     "city": "Jiji",
     "region": "Mkoa",
     "streetAddress": "Anwani ya mitaani",
     "descriptionOptional": "Maelezo (hiari)",
+    "financialCycleDuration": "Muda wa mzunguko wa kifedha",
+    "selectFinancialCycle": "Chagua muda (miezi)",
+    "financialCycleMonthsCount": "Miezi {{count}}",
+    "financialCycleOneYear": "Mwaka 1 (miezi 12)",
     "type": "Aina",
     "selectType": "Chagua aina",
     "creating": "Inaunda…",
-    "createGroupButton": "Undwa kikundi",
+    "createGroupButton": "Unda kikundi",
     "equalAnnual": "Kila Mwaka Sawa",
     "rotational": "Mzunguko",
     "groupNamePlaceholder": "mf. Kikundi Changu cha Akiba",

@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import createGroup from "@/app/home/groups/_action"
-import { createGroupSchema, GROUP_TYPES } from "@/lib/zod"
+import { createGroupSchema, FINANCIAL_CYCLE_MONTHS, GROUP_TYPES } from "@/lib/zod"
 import { toast } from "sonner"
 import { GroupResponse } from "@/interfaces/interface"
 import { cn } from "@/lib/utils"
@@ -35,6 +35,14 @@ const GROUP_TYPE_OPTIONS = GROUP_TYPES.map((value) => ({
 }))
 
 type GroupType = (typeof GROUP_TYPES)[number]
+
+const FINANCIAL_CYCLE_SELECT_VALUES = FINANCIAL_CYCLE_MONTHS.map((m) => String(m)) as [
+  "3",
+  "6",
+  "12",
+]
+
+type FinancialCycleSelectValue = (typeof FINANCIAL_CYCLE_SELECT_VALUES)[number]
 
 interface CreateGroupDialogProps {
   variant?: React.ComponentProps<typeof Button>["variant"]
@@ -47,6 +55,9 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [type, setType] = useState<GroupType | "">("")
+  const [financialCycleMonths, setFinancialCycleMonths] = useState<
+    FinancialCycleSelectValue | ""
+  >("")
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [isPending, setIsPending] = useState(false)
@@ -65,6 +76,7 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
       region: (form.elements.namedItem("region") as HTMLInputElement).value.trim(),
       street: (form.elements.namedItem("street") as HTMLInputElement).value.trim(),
       description: (form.elements.namedItem("description") as HTMLInputElement).value.trim() || undefined,
+      financialCycleMonths,
       type,
     }
 
@@ -86,6 +98,7 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
       toast.success(t("notifications.groupCreated"))
       setOpen(false)
       setType("")
+      setFinancialCycleMonths("")
       form.reset()
       if (onSuccess) {
         onSuccess(createdGroup)
@@ -108,6 +121,7 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
   function handleOpenChange(nextOpen: boolean) {
     if (!nextOpen) {
       setType("")
+      setFinancialCycleMonths("")
       setError(null)
       setFieldErrors({})
     }
@@ -212,6 +226,33 @@ export function CreateGroupDialog({ variant = "default", className, onSuccess }:
             />
             {fieldErrors.description && (
               <p className="text-sm text-destructive">{fieldErrors.description}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="financialCycleMonths">{t("groups.financialCycleDuration")}</Label>
+            <Select
+              value={financialCycleMonths}
+              onValueChange={(v) => setFinancialCycleMonths(v as FinancialCycleSelectValue)}
+            >
+              <SelectTrigger
+                id="financialCycleMonths"
+                aria-invalid={!!fieldErrors.financialCycleMonths}
+                className="h-10"
+              >
+                <SelectValue placeholder={t("groups.selectFinancialCycle")} />
+              </SelectTrigger>
+              <SelectContent>
+                {FINANCIAL_CYCLE_SELECT_VALUES.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {value === "12"
+                      ? t("groups.financialCycleOneYear")
+                      : t("groups.financialCycleMonthsCount", { count: Number(value) })}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {fieldErrors.financialCycleMonths && (
+              <p className="text-sm text-destructive">{fieldErrors.financialCycleMonths}</p>
             )}
           </div>
           <div className="space-y-2">

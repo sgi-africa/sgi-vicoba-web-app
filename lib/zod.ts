@@ -125,6 +125,8 @@ export type AddMemberFormValues = z.infer<typeof addMemberSchema>
 
 export const GROUP_TYPES = ["EQUALANNUAL", "ROTATIONAL"] as const
 
+export const FINANCIAL_CYCLE_MONTHS = [3, 6, 12] as const
+
 export const createGroupSchema = object({
   name: string().min(1, "Group name is required").max(100),
   country: string().min(1, "Country is required").max(100),
@@ -132,6 +134,11 @@ export const createGroupSchema = object({
   region: string().min(1, "Region is required").max(100),
   street: string().min(1, "Street address is required").max(255),
   description: string().optional(),
+  financialCycleMonths: z
+    .enum(["3", "6", "12"], {
+      message: "Financial cycle duration is required",
+    })
+    .transform((v) => Number(v) as (typeof FINANCIAL_CYCLE_MONTHS)[number]),
   type: z.enum(GROUP_TYPES, {
     message: "Type is required",
   }),
