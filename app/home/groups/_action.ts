@@ -18,6 +18,7 @@ export default async function createGroup(data: CreateGroupFormValues): Promise<
         city: data.city,
         region: data.region,
         street: data.street,
+        financialCycleMonths: data.financialCycleMonths,
         ...(data.description && { description: data.description }),
         ...(data.type && { type: data.type }),
     }
