@@ -9,7 +9,7 @@ import {
   PRIVACY_POLICY_LAST_UPDATED,
   PRIVACY_POLICY_VERSION,
 } from "@/content/privacy-policy"
-import { formatPolicyDate } from "@/utils/privacy-policy/privacy-policy"
+import { formatPolicyDate } from "@/utils/privacy-policy/privacyPolicy"
 import LanguageSwitcher from "@/components/global/language-switcher"
 import { useTranslation } from "react-i18next"
 

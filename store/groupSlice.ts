@@ -29,8 +29,21 @@ const groupSlice = createSlice({
                 state.sharesConfiguredGroupIds = [...ids, groupId]
             }
         },
+        mergeGroupFields: (
+            state,
+            action: PayloadAction<{ groupId: number; patch: Partial<GroupResponse> }>
+        ) => {
+            const { groupId, patch } = action.payload
+            state.groups = state.groups.map((g) =>
+                g.id === groupId ? { ...g, ...patch } : g
+            )
+            if (state.activeGroup?.id === groupId) {
+                state.activeGroup = { ...state.activeGroup, ...patch }
+            }
+        },
     },
 })
 
-export const { setGroups, addGroup, setActiveGroup, markSharesConfigured } = groupSlice.actions
+export const { setGroups, addGroup, setActiveGroup, markSharesConfigured, mergeGroupFields } =
+    groupSlice.actions
 export default groupSlice.reducer

@@ -162,7 +162,9 @@
     "groupCreated": "Kikundi kimeundwa kwa mafanikio",
     "groupSettingsUpdated": "Mipangilio ya kikundi imesasishwa kwa mafanikio",
     "profileUpdated": "Wasifu umesasishwa kwa mafanikio",
-    "loggedOut": "Umetoka kwa mafanikio"
+    "loggedOut": "Umetoka kwa mafanikio",
+    "disbursementRecorded": "Ugawaji umerekodiwa kwa mafanikio",
+    "disbursementFailed": "Ugawaji hauwezi kukamilishwa"
   },
   "common": {
     "cancel": "Ghairi",
@@ -412,7 +414,18 @@
     "noFundsAllocated": "Hakuna mfuko ulioagizwa bado",
     "recordContributionsFirst": "Kikundi hiki hakina salio linalopatikana. Rekodi michango kwanza ili kupata mfuko kabla ya kufanya ugawaji.",
     "noDisbursementsYet": "Hakuna ugawaji bado",
-    "availableDisbursementInfo": "Una {{amount}} zinazopatikana. Vitendo vya ugawaji vitajitokeza hapa mara utakaporekodi malipo yako ya kwanza."
+    "availableDisbursementInfo": "Una {{amount}} zinazopatikana. Rekodi ugawaji wakati kikundi kinapata masharti hapa chini.",
+    "disburseBannerShares": "Kikundi lazima kiwe kimeweka bei za hisa na angalau mwanachama mmoja awe ameinunua hisa.",
+    "disburseBannerIrreversible": "Mara ugawaji ukikamilishwa, hauwezi kutenduliwa.",
+    "disburseBannerTiming": "Ugawaji unaruhusiwa tu wakati tarehe ya leo imefikia au imezidi siku ya mwisho ya mwezi wa mzunguko wa fedha wa kikundi.",
+    "runDisbursement": "Rekodi ugawaji",
+    "disbursementCompletedHint": "Ugawaji wa mzunguko huu umekamilishwa. Huwezi kurekodi tena hadi mfumo ufungue mzunguko unaofuata.",
+    "completedNoSnapshotHistory": "Historia ya Mgawanyo haikupatikana. Jaribu kusasisha ukurasa.",
+    "profitWindow": "Dirisha la faida",
+    "startDateLine": "Tarehe ya kuanza: {{date}}",
+    "endDateLine": "Tarehe ya mwisho: {{date}}",
+    "disbursementDateLine": "Tarehe ya ugawaji: {{date}}",
+    "payoutSummary": "Malipo {{count}} · wanachama {{members}}"
   },
   "settings": {
     "title": "Mipangilio",
