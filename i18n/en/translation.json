@@ -162,7 +162,9 @@
     "groupCreated": "Group created successfully",
     "groupSettingsUpdated": "Group settings updated successfully",
     "profileUpdated": "Profile updated successfully",
-    "loggedOut": "Logged Out Successfully"
+    "loggedOut": "Logged Out Successfully",
+    "disbursementRecorded": "Disbursement recorded successfully",
+    "disbursementFailed": "Disbursement could not be completed"
   },
   "common": {
     "cancel": "Cancel",
@@ -412,7 +414,18 @@
     "noFundsAllocated": "No funds allocated yet",
     "recordContributionsFirst": "This group has no available balance. Record contributions first to build up funds before making disbursements.",
     "noDisbursementsYet": "No disbursements yet",
-    "availableDisbursementInfo": "You have {{amount}} available. Disbursement actions will appear here once you record your first payout."
+    "availableDisbursementInfo": "You have {{amount}} available. Record a disbursement when your group meets the requirements below.",
+    "disburseBannerShares": "The group must have configured shares and at least one member must have purchased shares.",
+    "disburseBannerIrreversible": "Once a disbursement is completed, it cannot be undone.",
+    "disburseBannerTiming": "Disbursements are only allowed when today's date is on or after the last day of the group's financial cycle month.",
+    "runDisbursement": "Record disbursement",
+    "disbursementCompletedHint": "Disbursement for this cycle is complete. Recording again is disabled until the system opens the next cycle.",
+    "completedNoSnapshotHistory": "Snapshot history did not load. Try refreshing the page.",
+    "profitWindow": "Profit window",
+    "startDateLine": "Start date: {{date}}",
+    "endDateLine": "End date: {{date}}",
+    "disbursementDateLine": "Disbursement date: {{date}}",
+    "payoutSummary": "{{count}} payouts · {{members}} members"
   },
   "settings": {
     "title": "Settings",

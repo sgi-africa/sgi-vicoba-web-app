@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { getContributions } from "@/app/home/contributions/_action"
 import { getLoans } from "@/app/home/loans/_action"
+import { getPenalties } from "@/app/home/penalties/_action"
 import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
 import { useTranslation } from "react-i18next"
@@ -19,14 +20,10 @@ import { PageHeader } from "@/components/shared/page-header"
 import { SummaryCard } from "@/components/shared/summary-card"
 import { EmptyState } from "@/components/shared/empty-state"
 import { ContentContainer } from "@/components/shared/content-container"
-
-function formatAmount(amount: number | string) {
-  return new Intl.NumberFormat("en-TZ", {
-    style: "currency",
-    currency: "TZS",
-    minimumFractionDigits: 0,
-  }).format(Number(amount))
-}
+import { getLoanRemaining } from "@/utils/loans/loan"
+import { sumPaidPenaltiesAmount } from "@/utils/home/penalties"
+import { sumLoanRepaymentsWithPaidAt } from "@/utils/home/loanRepay"
+import { formatAmount } from "@/utils/global/formatAmount"
 
 const QUICK_ACTION_KEYS = [
   { key: "contributions", href: "/home/contributions", icon: Wallet, color: "bg-primary/10 text-primary" },
@@ -42,6 +39,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
   const reduxGroups = useAppSelector((state) => state.group.groups)
   const [totalMemberSavings, setTotalMemberSavings] = useState<number>(0)
   const [outstandingLoansTotal, setOutstandingLoansTotal] = useState<number>(0)
+  const [availableCash, setAvailableCash] = useState<number>(0)
 
   useEffect(() => {
     if (groups.length > 0) {
@@ -96,20 +94,33 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
 
     void (async () => {
       if (!groupId) {
-        if (!cancelled) setOutstandingLoansTotal(0)
+        if (!cancelled) {
+          setOutstandingLoansTotal(0)
+          setAvailableCash(0)
+        }
         return
       }
       try {
-        const loans = await getLoans(groupId)
+        const [loans, penalties] = await Promise.all([
+          getLoans(groupId),
+          getPenalties(groupId),
+        ])
         if (cancelled) return
         const total = loans
           .filter(
             (loan) => loan.status === "PENDING" || loan.status === "OVERDUE"
           )
-          .reduce((sum, loan) => sum + Number(loan.principal ?? 0), 0)
+          .reduce((sum, loan) => sum + Number(getLoanRemaining(loan) ?? 0), 0)
         setOutstandingLoansTotal(total)
+        setAvailableCash(
+          sumPaidPenaltiesAmount(penalties) +
+            sumLoanRepaymentsWithPaidAt(loans)
+        )
       } catch {
-        if (!cancelled) setOutstandingLoansTotal(0)
+        if (!cancelled) {
+          setOutstandingLoansTotal(0)
+          setAvailableCash(0)
+        }
       }
     })()
 
@@ -117,9 +128,7 @@ export default function GroupDashboard({ groups }: { groups: GroupResponse[] }) 
       cancelled = true
     }
   }, [selectedGroupFromApi?.id])
-
-  const availableCash = Number(selectedGroupFromApi?.totalBalance ?? 0)
-  const totalGroupAssets = availableCash + outstandingLoansTotal
+  const totalGroupAssets = availableCash + totalMemberSavings
 
   function handleGroupCreated(createdGroup: GroupResponse) {
     dispatch(addGroup(createdGroup))

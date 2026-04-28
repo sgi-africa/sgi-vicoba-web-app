@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Settings, Building2, Users, Calendar, Wallet, AlertCircle, Loader2, User, Scale } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import { Settings, Building2, Users, Calendar, Wallet, AlertCircle, Loader2, User } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useAppSelector, useAppDispatch } from "@/hooks/redux"
@@ -16,7 +16,10 @@ import { EmptyState } from "@/components/shared/empty-state"
 import { ContentContainer } from "@/components/shared/content-container"
 import { formatDate } from "@/utils/global/formatDate"
 import { formatAmount } from "@/utils/global/formatAmount"
-import Link from "next/link"
+import { getLoans } from "@/app/home/loans/_action"
+import { getPenalties } from "@/app/home/penalties/_action"
+import { sumPaidPenaltiesAmount } from "@/utils/home/penalties"
+import { sumLoanRepaymentsWithPaidAt } from "@/utils/home/loanRepay"
 
 export default function SettingsPage() {
   const { t } = useTranslation()
@@ -25,8 +28,36 @@ export default function SettingsPage() {
   const [group, setGroup] = useState<GroupResponse | null>(null)
   const [me, setMe] = useState<MemberUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [availableCash, setAvailableCash] = useState(0)
+  const [loadingCash, setLoadingCash] = useState(true)
 
   const groupId = activeGroup?.id
+
+  const refreshAvailableCash = useCallback(async () => {
+    if (!groupId) {
+      setAvailableCash(0)
+      setLoadingCash(false)
+      return
+    }
+    setLoadingCash(true)
+    try {
+      const [loans, penalties] = await Promise.all([
+        getLoans(groupId),
+        getPenalties(groupId),
+      ])
+      setAvailableCash(
+        sumPaidPenaltiesAmount(penalties) + sumLoanRepaymentsWithPaidAt(loans)
+      )
+    } catch {
+      setAvailableCash(0)
+    } finally {
+      setLoadingCash(false)
+    }
+  }, [groupId])
+
+  useEffect(() => {
+    void refreshAvailableCash()
+  }, [refreshAvailableCash])
 
   useEffect(() => {
     if (!groupId) {
@@ -151,8 +182,14 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-4 min-w-0">
                       <Wallet className="size-5 text-muted-foreground shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("settings.totalBalance")}</p>
-                        <p className="text-xl font-bold text-foreground">{formatAmount(group.totalBalance ?? 0)}</p>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("dashboard.availableCash")}</p>
+                        <p className="text-xl font-bold text-foreground">
+                          {loadingCash ? (
+                            <Loader2 className="size-6 animate-spin text-muted-foreground" aria-hidden />
+                          ) : (
+                            formatAmount(availableCash)
+                          )}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-card p-4 min-w-0 sm:col-span-2 lg:col-span-1">
@@ -180,30 +217,6 @@ export default function SettingsPage() {
                 </CardHeader>
                 <CardContent>
                   <EditGroupForm group={group} onSuccess={handleUpdateSuccess} />
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-sm border-border/60">
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                      <Scale className="size-5" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-base">{t("settings.legalCardTitle")}</CardTitle>
-                      <CardDescription>{t("settings.legalCardDescription")}</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Link
-                    href="/legal/privacy-policy"
-                    className="text-sm font-medium text-primary underline-offset-2 transition-colors hover:underline"
-                  >
-                    {t("settings.privacyPolicyLinkLabel", {
-                      policy: t("footer.privacyPolicy"),
-                    })}
-                  </Link>
                 </CardContent>
               </Card>
             </>

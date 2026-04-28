@@ -30,6 +30,7 @@ export interface GroupResponse {
     description: string | null;
     type: string;
     totalBalance: string;
+    disbursementStatus?: string | null;
     totalShares: number | null;
     sharePrice: string | null;
     createdById: number;
@@ -317,4 +318,44 @@ export interface PolicySection {
     title: string
     subsections?: PolicySubsection[]
     blocks?: PolicyBlock[]
+}
+
+export interface Payout {
+    memberId: number;
+    shares: number;
+    payoutAmount: number;
+}
+
+export interface ProfitDistribution {
+    idempotent: boolean;
+    groupId: number;
+    totalProfit: number;
+    totalShares: number;
+    unsoldShares: number;
+    activeMemberCount: number;
+    profitWindowStart: string;
+    profitWindowEnd: string;
+    executedAt: string;
+    payouts: Payout[];
+}
+
+
+export interface ProfitPayoutRecord {
+    id: number;
+    snapshotId: number;
+    userId: number;
+    shares: number;
+    payoutAmount: string;
+}
+export interface ProfitSnapshot {
+    id: number;
+    groupId: number;
+    totalProfit: string;
+    totalShares: number;
+    unsoldShares: number;
+    activeMemberCount: number;
+    profitWindowStart: string;
+    profitWindowEnd: string;
+    executedAt: string;
+    payouts: ProfitPayoutRecord[];
 }
