@@ -293,3 +293,28 @@ export interface LocalizedProfileUpdateError {
     message: string
     fieldErrors: Record<string, string>
 }
+
+export type PolicyContactLabel = "email" | "web"
+
+export type PolicyContactLine =
+    | { variant: "text"; text: string }
+    | { variant: "link"; contactLabel: PolicyContactLabel; href: string; linkText: string; external?: boolean }
+
+export type PolicyBlock =
+    | { type: "p"; text: string }
+    | { type: "ul"; items: string[] }
+    | { type: "note"; text: string }
+    | { type: "contactList"; lines: PolicyContactLine[] }
+
+export interface PolicySubsection {
+    id: string
+    title: string
+    blocks: PolicyBlock[]
+}
+
+export interface PolicySection {
+    id: string
+    title: string
+    subsections?: PolicySubsection[]
+    blocks?: PolicyBlock[]
+}

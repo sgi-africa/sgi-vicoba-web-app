@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Building2, Users, Calendar, Wallet, AlertCircle, Loader2, User } from "lucide-react"
+import { Settings, Building2, Users, Calendar, Wallet, AlertCircle, Loader2, User, Scale } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useAppSelector, useAppDispatch } from "@/hooks/redux"
@@ -16,6 +16,7 @@ import { EmptyState } from "@/components/shared/empty-state"
 import { ContentContainer } from "@/components/shared/content-container"
 import { formatDate } from "@/utils/global/formatDate"
 import { formatAmount } from "@/utils/global/formatAmount"
+import Link from "next/link"
 
 export default function SettingsPage() {
   const { t } = useTranslation()
@@ -179,6 +180,30 @@ export default function SettingsPage() {
                 </CardHeader>
                 <CardContent>
                   <EditGroupForm group={group} onSuccess={handleUpdateSuccess} />
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-sm border-border/60">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                      <Scale className="size-5" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">{t("settings.legalCardTitle")}</CardTitle>
+                      <CardDescription>{t("settings.legalCardDescription")}</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Link
+                    href="/legal/privacy-policy"
+                    className="text-sm font-medium text-primary underline-offset-2 transition-colors hover:underline"
+                  >
+                    {t("settings.privacyPolicyLinkLabel", {
+                      policy: t("footer.privacyPolicy"),
+                    })}
+                  </Link>
                 </CardContent>
               </Card>
             </>

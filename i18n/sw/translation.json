@@ -88,7 +88,8 @@
   },
   "footer": {
     "brand": "SGI VICOBA",
-    "copyright": "© {{year}} SGI VICOBA. Haki zote zimehifadhiwa."
+    "copyright": "© {{year}} SGI VICOBA. Haki zote zimehifadhiwa.",
+    "privacyPolicy": "Sera ya faragha"
   },
   "forbidden": {
     "title": "Ufikiaji Umepunguzwa",
@@ -96,6 +97,20 @@
     "mobileHint": "Wanachama wanapaswa kutumia programu ya simu ya SGI VICOBA kwa shughuli zao.",
     "signOut": "Toka",
     "goToHomepage": "Nenda kwenye ukurasa wa kwanza"
+  },
+  "legal": {
+    "navLabel": "Sheria",
+    "backToHome": "Rudi mwanzo",
+    "pageTitle": "Sera ya faragha",
+    "pageLead": "Jinsi SGI Africa inavyochakata taarifa binafsi na za uendeshaji zinazohusiana na mfumo wa SGI VICOBA. Ukurasa huu ndio kumbukumbu rasmi ndani ya programu kwa toleo la sasa.",
+    "effectiveAsOf": "Inatumika tangu {{date}}",
+    "documentFooter": "Toleo la hati {{version}} · Ilisasishwa mwisho {{date}}",
+    "introChip": "SGI VICOBA na {{company}}",
+    "introBody": "Waraka huu hueleza mazoea yetu ya faragha katika mfumo wa SGI VICOBA. Kutumia huduma kunamaanisha umekubali ukusanyaji na matumizi ya taarifa kulingana na sera hii, chini ya sheria husika na masharti ya ziada yanayoweza kutumika kwa akaunti yako.",
+    "contact": {
+      "email": "Barua pepe",
+      "web": "Tovuti"
+    }
   },
   "auth": {
     "loginTitle": "Ingia kwenye akaunti yako",
@@ -109,6 +124,7 @@
     "noAccount": "Huna akaunti?",
     "signUp": "Jisajili",
     "signUpHere": "Ingia hapa",
+    "registerPrivacyAcknowledgement": "Kwa kuunda akaunti, unakubali <0>Sera yetu ya faragha</0>.",
     "alreadyAccount": "Tayari una akaunti?",
     "registerWelcome": "Karibu",
     "registerDescription": "Karibu SGI VICOBA - Anza sasa, kaa salama",
@@ -421,7 +437,10 @@
     "couldNotLoadGroup": "Imeshindikana kupakia kikundi",
     "fetchError": "Hatukuweza kupata maelezo ya kikundi hiki. Tafadhali jaribu tena baadaye.",
     "saveChanges": "Hifadhi mabadiliko",
-    "saving": "Inahifadhi…"
+    "saving": "Inahifadhi…",
+    "legalCardTitle": "Sheria na faragha",
+    "legalCardDescription": "Soma jinsi tunavyokusanya, kutumia, na kulinda data yako kwenye SGI VICOBA.",
+    "privacyPolicyLinkLabel": "{{policy}} — SGI VICOBA"
   },
   "groups": {
     "createGroup": "Unda kikundi",
