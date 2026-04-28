@@ -88,7 +88,8 @@
   },
   "footer": {
     "brand": "SGI VICOBA",
-    "copyright": "© {{year}} SGI VICOBA. All rights reserved."
+    "copyright": "© {{year}} SGI VICOBA. All rights reserved.",
+    "privacyPolicy": "Privacy Policy"
   },
   "forbidden": {
     "title": "Access Restricted",
@@ -96,6 +97,20 @@
     "mobileHint": "Members should use the SGI VICOBA mobile app for their activities.",
     "signOut": "Sign out",
     "goToHomepage": "Go to homepage"
+  },
+  "legal": {
+    "navLabel": "Legal",
+    "backToHome": "Back to home",
+    "pageTitle": "Privacy Policy",
+    "pageLead": "How SGI Africa processes personal and operational data in connection with the SGI VICOBA platform. This page is the authoritative in-product reference for the current version.",
+    "effectiveAsOf": "Effective as of {{date}}",
+    "documentFooter": "Document version {{version}} · Last updated {{date}}",
+    "introChip": "SGI VICOBA by {{company}}",
+    "introBody": "This document describes our privacy practices for the SGI VICOBA platform. By using the service, you consent to the collection and use of information in accordance with this policy, subject to applicable law and any additional terms that apply to your account.",
+    "contact": {
+      "email": "Email",
+      "web": "Website"
+    }
   },
   "auth": {
     "loginTitle": "Login to your account",
@@ -109,6 +124,7 @@
     "noAccount": "Don't have an account?",
     "signUp": "Sign up",
     "signUpHere": "Sign In Here",
+    "registerPrivacyAcknowledgement": "By creating an account, you acknowledge our <0>Privacy Policy</0>.",
     "alreadyAccount": "Already have an account?",
     "registerWelcome": "Welcome",
     "registerDescription": "Welcome to SGI VICOBA - Get started, stay secure",
@@ -421,7 +437,10 @@
     "couldNotLoadGroup": "Could not load group",
     "fetchError": "We couldn't fetch this group's details. Please try again later.",
     "saveChanges": "Save changes",
-    "saving": "Saving…"
+    "saving": "Saving…",
+    "legalCardTitle": "Legal & privacy",
+    "legalCardDescription": "Read how we collect, use, and protect your data on SGI VICOBA.",
+    "privacyPolicyLinkLabel": "{{policy}} — SGI VICOBA"
   },
   "groups": {
     "createGroup": "Create group",

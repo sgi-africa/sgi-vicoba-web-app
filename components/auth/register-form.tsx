@@ -17,7 +17,7 @@ import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { registerSchema } from "@/lib/zod"
 import type { output } from "zod"
-import { useTranslation } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 import { Loader2 } from "lucide-react"
 
 type RegisterFormValues = output<typeof registerSchema>
@@ -160,6 +160,18 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                 t("auth.signUpButton")
               )}
             </Button>
+            <p className="text-center text-xs leading-relaxed text-muted-foreground">
+              <Trans
+                i18nKey="auth.registerPrivacyAcknowledgement"
+                components={[
+                  <Link
+                    key="privacy"
+                    href="/legal/privacy-policy"
+                    className="font-medium text-primary underline-offset-2 hover:underline"
+                  />,
+                ]}
+              />
+            </p>
             <p className="text-center text-sm text-muted-foreground">
               {t("auth.alreadyAccount")}{" "}
               <Link

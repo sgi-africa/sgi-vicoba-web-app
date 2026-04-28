@@ -56,6 +56,14 @@ export default function ForbiddenPage() {
               <Link href="/">{t("forbidden.goToHomepage")}</Link>
             </Button>
           </div>
+          <p className="text-xs text-muted-foreground">
+            <Link
+              href="/legal/privacy-policy"
+              className="font-medium text-primary underline-offset-2 hover:underline"
+            >
+              {t("footer.privacyPolicy")}
+            </Link>
+          </p>
         </div>
       </main>
     </div>

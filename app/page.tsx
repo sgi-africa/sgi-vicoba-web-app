@@ -396,7 +396,13 @@ export default function Home() {
               />
               <span className="text-sm font-medium">{t("footer.brand")}</span>
             </Link>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground sm:justify-end">
+              <Link
+                href="/legal/privacy-policy"
+                className="hover:text-foreground transition-colors"
+              >
+                {t("footer.privacyPolicy")}
+              </Link>
               <Link href="/auth/login" className="hover:text-foreground transition-colors">
                 {t("header.signIn")}
               </Link>
