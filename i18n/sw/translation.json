@@ -98,6 +98,12 @@
     "signOut": "Toka",
     "goToHomepage": "Nenda kwenye ukurasa wa kwanza"
   },
+  "notFound": {
+    "code": "404",
+    "title": "Ukurasa Haupo!",
+    "description": "Hatukuweza kupata ukurasa unaoutafuta. Hakiki anwani au rudi kwenye ukurasa wa kwanza.",
+    "goToHomepage": "Nenda kwenye ukurasa wa kwanza"
+  },
   "legal": {
     "navLabel": "Sheria",
     "backToHome": "Rudi mwanzo",

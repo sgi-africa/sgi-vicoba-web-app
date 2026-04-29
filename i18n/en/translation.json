@@ -98,6 +98,12 @@
     "signOut": "Sign out",
     "goToHomepage": "Go to homepage"
   },
+  "notFound": {
+    "code": "404",
+    "title": "Page not found!",
+    "description": "We couldn’t find the page you’re looking for. Check the URL or head back home.",
+    "goToHomepage": "Go to homepage"
+  },
   "legal": {
     "navLabel": "Legal",
     "backToHome": "Back to home",
