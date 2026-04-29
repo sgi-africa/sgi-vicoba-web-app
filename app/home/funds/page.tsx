@@ -16,6 +16,7 @@ import { ContentContainer } from "@/components/shared/content-container"
 import { formatAmount } from "@/utils/global/formatAmount"
 import { formatDate } from "@/utils/global/formatDate"
 import { ProfitSnapshot } from "@/interfaces/interface"
+import { memberDisplayName } from "@/utils/funds/memberDisplayName"
 import { getLoans } from "@/app/home/loans/_action"
 import { getPenalties } from "@/app/home/penalties/_action"
 import { sumPaidPenaltiesAmount } from "@/utils/home/penalties"
@@ -29,12 +30,13 @@ function isDisbursementCompletedStatus(group: { disbursementStatus?: string | nu
   return s === "COMPLETED" || s === "COMPLETE"
 }
 
+
+
 export default function FundsPage() {
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const activeGroup = useAppSelector((state) => state.group.activeGroup)
   const [availableCash, setAvailableCash] = useState(0)
-  const [loadingCash, setLoadingCash] = useState(true)
   const [disbursements, setDisbursements] = useState<ProfitSnapshot[]>([])
   const [loadingSnapshots, setLoadingSnapshots] = useState(true)
   const [disbursePending, setDisbursePending] = useState(false)
@@ -61,10 +63,8 @@ export default function FundsPage() {
   const refreshAvailableCash = useCallback(async () => {
     if (!groupId) {
       setAvailableCash(0)
-      setLoadingCash(false)
       return
     }
-    setLoadingCash(true)
     try {
       const [loans, penalties] = await Promise.all([
         getLoans(groupId),
@@ -75,8 +75,6 @@ export default function FundsPage() {
       )
     } catch {
       setAvailableCash(0)
-    } finally {
-      setLoadingCash(false)
     }
   }, [groupId])
 
@@ -107,7 +105,7 @@ export default function FundsPage() {
   const hasFunds = availableCash > 0
   const hasDisbursements = disbursements.length > 0
 
-  const loadingSummary = loadingCash || loadingSnapshots
+  const loadingSummary = loadingSnapshots
   const disbursementCompleted = activeGroup ? isDisbursementCompletedStatus(activeGroup) : false
 
   async function handleDisburse() {
@@ -194,8 +192,14 @@ export default function FundsPage() {
             </>
           ) : (
             <>
-              <SummaryCard label={t("funds.availableBalance")} value={formatAmount(availableCash)} />
-              <SummaryCard label={t("funds.totalDisbursed")} value={formatAmount(totalDisbursed)} />
+              <SummaryCard
+                label={t("funds.totalProfitDisbursedSummary")}
+                value={formatAmount(totalDisbursed)}
+              />
+              <SummaryCard
+                label={t("funds.disbursementSnapshotCount")}
+                value={String(disbursements.length)}
+              />
             </>
           )}
         </div>
@@ -243,37 +247,81 @@ export default function FundsPage() {
           )
         ) : (
           <div className="space-y-2">
-            {disbursements.map((d) => (
-              <Card
-                key={d.id}
-                className="shadow-sm border-border/60 transition-all hover:shadow-md hover:border-border"
-              >
-                <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <Banknote className="size-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-medium text-foreground">{t("funds.profitWindow")}</p>
-                      <div className="text-sm text-muted-foreground space-y-0.5 mt-1">
-                        <p>{t("funds.startDateLine", { date: formatDate(d.profitWindowStart) })}</p>
-                        <p>{t("funds.endDateLine", { date: formatDate(d.profitWindowEnd) })}</p>
+            {disbursements.map((d) => {
+              const membersList = activeGroup.members ?? []
+              const payoutRows = [...(d.payouts ?? [])].sort(
+                (a, b) => Number(b.payoutAmount) - Number(a.payoutAmount)
+              )
+              return (
+                <Card
+                  key={d.id}
+                  className="shadow-sm border-border/60 transition-all hover:shadow-md hover:border-border"
+                >
+                  <CardContent className="flex flex-col gap-4 py-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="flex items-start gap-3 min-w-0">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                          <Banknote className="size-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground">{t("funds.profitWindow")}</p>
+                          <div className="text-sm text-muted-foreground space-y-0.5 mt-1">
+                            <p>{t("funds.startDateLine", { date: formatDate(d.profitWindowStart) })}</p>
+                            <p>{t("funds.endDateLine", { date: formatDate(d.profitWindowEnd) })}</p>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1.5">
+                            {t("funds.disbursementDateLine", { date: formatDate(d.executedAt) })} ·{" "}
+                            {t("funds.payoutSummary", {
+                              count: d.payouts.length,
+                              members: d.activeMemberCount,
+                            })}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1.5">
-                        {t("funds.disbursementDateLine", { date: formatDate(d.executedAt) })} ·{" "}
-                        {t("funds.payoutSummary", {
-                          count: d.payouts.length,
-                          members: d.activeMemberCount,
-                        })}
-                      </p>
+                      <div className="flex flex-col items-start sm:items-end shrink-0 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5 shadow-sm dark:border-emerald-400/25 dark:bg-emerald-500/15">
+                        <span className="text-xs font-medium text-emerald-900/75 dark:text-emerald-100/80 uppercase tracking-wide">
+                          {t("funds.snapshotTotalProfit")}
+                        </span>
+                        <span className="font-semibold text-emerald-950 dark:text-emerald-50 text-lg tabular-nums">
+                          {formatAmount(d.totalProfit)}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end shrink-0">
-                    <span className="font-semibold text-foreground">{formatAmount(d.totalProfit)}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+
+                    <div className="border-t border-border/60 pt-3">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                        {t("funds.payoutsByMember")}
+                      </p>
+                      <ul className="space-y-2">
+                        {payoutRows.map((p) => (
+                          <li
+                            key={p.id}
+                            className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-sm"
+                          >
+                            <span className="min-w-0 text-foreground">
+                              <span className="font-medium">
+                                {memberDisplayName(
+                                  membersList,
+                                  p.userId,
+                                  t("funds.memberUserIdFallback", { userId: p.userId })
+                                )}
+                              </span>
+                              <span className="text-muted-foreground">
+                                {" "}
+                                · {t("funds.shareCountLabel", { count: p.shares })}
+                              </span>
+                            </span>
+                            <span className="font-semibold text-foreground tabular-nums shrink-0">
+                              {formatAmount(p.payoutAmount)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         )}
       </ContentContainer>
